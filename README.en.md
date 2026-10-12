@@ -131,6 +131,35 @@ Close any SolidWorks start-up dialogs first, or the build will wait on them.
 
 ### 4. Install the skill
 
+**Easiest**: paste the text below to your agent (Claude Code, Codex, ...). It installs step by step and asks you first. The [website](https://jasonxiao422.github.io/drawing2sw/?lang=en#install) has a copy button.
+
+<details>
+<summary>Install prompt (click to copy)</summary>
+
+```text
+Please install the Drawing2SW skill for me. It reads engineering drawings (DWG, DXF, PDF, images) and models the part in SolidWorks.
+
+Source: the official GitHub repository https://github.com/jasonXiao422/drawing2sw (MIT). Download only from this address, not from mirrors or third-party pages.
+
+Before running each command, tell me what it does and wait for my OK.
+
+1. Check the environment: run `git --version` and `py -3.12 --version` (or `py -3.11 --version`). If git or Python 3.11/3.12 is missing, tell me how to install it; don't install it for me.
+2. Download into your skills folder. For Claude Code that is `%USERPROFILE%\.claude\skills\drawing2sw`; other agents should use their own personal skills folder, ask me if unsure:
+   git clone --depth 1 https://github.com/jasonXiao422/drawing2sw.git <that folder>
+   If the folder already exists, run `git pull` inside it instead.
+3. Show me the first 20 lines of SKILL.md and explain what install.ps1 does (creates a .venv inside the skill folder, installs requirements.txt from PyPI, falls back to a mirror if that fails, then runs an environment check). Wait for my OK.
+4. In the skill folder run: powershell -ExecutionPolicy Bypass -File install.ps1 (CadQuery is large, this takes a few minutes).
+5. Run `.venv\Scripts\python.exe scripts\check_env.py` and tell me the result. If I have SolidWorks, run it again with `--sw`.
+6. Tell me it's ready and how to use it, for example: "Use drawing2sw to model D:\drawings\bracket.pdf in SolidWorks".
+
+If your safety settings don't allow downloading or running these commands, just say so and I'll run them myself in a terminal.
+```
+
+</details>
+
+If the agent says its safety settings block downloading third-party code, that is a normal safeguard; use the commands below instead.
+
+
 The entry point is [`SKILL.md`](SKILL.md). Put the repository where your agent looks for skills and run `install.ps1` there.
 
 **Claude Code**

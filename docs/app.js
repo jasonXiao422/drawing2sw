@@ -6,7 +6,7 @@ const EN = {
   'hero.kicker': 'Open-source agent skill · MIT',
   'hero.title': 'Reads your engineering drawings,<br>then models the part in <em>SolidWorks</em>.',
   'hero.lede': 'Works with DWG, DXF, PDF and images. The AI reads the drawing, scripts build the model. Every feature records which dimension it came from, and the result is checked against the answer.',
-  'hero.start': 'Get started', 'hero.source': 'View source', 'hero.img': 'Images',
+  'hero.source': 'View source', 'hero.img': 'Images',
   'agents.label': 'For agents that can run local commands', 'agents.other': 'Cursor · other agents',
   'how.title': 'Only one step is left to the model',
   'how.sub': 'Ask a model to go straight from drawing to CAD code and you can’t tell where it went wrong. Drawing2SW splits the job up, with a file you can inspect at every handoff.',
@@ -44,12 +44,53 @@ const EN = {
   's2.t': 'Hand it to the agent', 's2.d': 'Just ask in plain language:',
   's2.c': 'Use drawing2sw to model D:\\drawings\\bracket.pdf as a SolidWorks part',
   's3.t': 'Answer its questions', 's3.d': 'Units, projection method, hole and keyway orientation, dimensions missing from the drawing. The agent stops and asks. These need a human.',
+  'ai.t': 'Easiest: let your AI install it',
+  'ai.d': 'Copy these install instructions and paste them to Claude Code, Codex or any agent that can run commands. It shows you what it will install and asks before every step.',
+  'ai.btn': 'Copy install prompt', 'ai.show': 'See what the prompt says',
+  'ai.hint': 'If the agent says its safety settings block downloading third-party code, that is a normal safeguard. Run the commands below yourself; it takes the same time.',
+  'manual.t': 'Or install it yourself in a terminal',
+  'hero.start': 'Install',
   'faq.title': 'FAQ',
   q1: 'Can I use it without SolidWorks?', a1: 'Yes. CadQuery writes STEP files that any CAD tool opens. Only .SLDPRT output needs Windows and SolidWorks; the student edition works.',
   q2: 'Which model works best?', a2: 'There’s no controlled blind comparison yet, so no claim. The model needs to see images and run local commands. The repo includes blind-run packaging; comparisons are welcome.',
   q3: 'Are my drawings uploaded?', a3: 'Preprocessing, modeling and checks all run locally. Only the reading step sends images to whichever AI model you use.',
   q4: 'What if it misreads the drawing?', a4: 'Tell it what’s wrong; it edits the feature table and rebuilds. If it’s a general reading mistake, please open an issue with a drawing you can share.',
   'foot.notices': 'Third-party notices', 'foot.issues': 'Report an issue'
+};
+
+const PROMPT = {
+  zh: `请帮我安装 Drawing2SW 这个 skill。它用来读取工程图（DWG、DXF、PDF、图片），然后在 SolidWorks 里建模。
+
+来源：官方 GitHub 仓库 https://github.com/jasonXiao422/drawing2sw （MIT 开源）。只从这个地址下载，不要用其他镜像或第三方页面。
+
+每一步运行命令之前先告诉我要做什么，等我同意再执行。
+
+1. 检查环境：运行 \`git --version\` 和 \`py -3.12 --version\`（没有 3.12 就试 \`py -3.11 --version\`）。缺 git 或 Python 3.11/3.12 时，告诉我怎么装，不要替我安装。
+2. 下载到你读取 skill 的目录。Claude Code 是 \`%USERPROFILE%\\.claude\\skills\\drawing2sw\`；其他 AI 请用你自己的个人 skill 目录，不确定就问我。命令：
+   git clone --depth 1 https://github.com/jasonXiao422/drawing2sw.git <上面的目录>
+   如果目录已经存在，进去运行 \`git pull\` 更新。
+3. 下载完先给我看 SKILL.md 开头 20 行，并说明 install.ps1 会做什么（在 skill 目录里建一个 .venv，从 PyPI 装 requirements.txt 里的依赖，默认源失败时换清华镜像，最后跑环境自检）。等我确认。
+4. 在 skill 目录里运行：powershell -ExecutionPolicy Bypass -File install.ps1 （CadQuery 比较大，要几分钟）。
+5. 运行 \`.venv\\Scripts\\python.exe scripts\\check_env.py\` 并把结果告诉我。我装了 SolidWorks 的话，再加 \`--sw\` 检查一次。
+6. 告诉我装好了，以后怎么用。比如我说"用 drawing2sw 把 D:\\图纸\\支架.pdf 建成 SolidWorks 零件"。
+
+如果你的安全设置不允许下载或运行这些命令，直接告诉我，我自己在终端里运行。`,
+  en: `Please install the Drawing2SW skill for me. It reads engineering drawings (DWG, DXF, PDF, images) and models the part in SolidWorks.
+
+Source: the official GitHub repository https://github.com/jasonXiao422/drawing2sw (MIT). Download only from this address, not from mirrors or third-party pages.
+
+Before running each command, tell me what it does and wait for my OK.
+
+1. Check the environment: run \`git --version\` and \`py -3.12 --version\` (or \`py -3.11 --version\`). If git or Python 3.11/3.12 is missing, tell me how to install it; don't install it for me.
+2. Download into your skills folder. For Claude Code that is \`%USERPROFILE%\\.claude\\skills\\drawing2sw\`; other agents should use their own personal skills folder, ask me if unsure:
+   git clone --depth 1 https://github.com/jasonXiao422/drawing2sw.git <that folder>
+   If the folder already exists, run \`git pull\` inside it instead.
+3. Show me the first 20 lines of SKILL.md and explain what install.ps1 does (creates a .venv inside the skill folder, installs requirements.txt from PyPI, falls back to a mirror if that fails, then runs an environment check). Wait for my OK.
+4. In the skill folder run: powershell -ExecutionPolicy Bypass -File install.ps1 (CadQuery is large, this takes a few minutes).
+5. Run \`.venv\\Scripts\\python.exe scripts\\check_env.py\` and tell me the result. If I have SolidWorks, run it again with \`--sw\`.
+6. Tell me it's ready and how to use it, for example: "Use drawing2sw to model D:\\drawings\\bracket.pdf in SolidWorks".
+
+If your safety settings don't allow downloading or running these commands, just say so and I'll run them myself in a terminal.`
 };
 
 const AGENTS = {
@@ -93,6 +134,11 @@ function render() {
   document.getElementById('lang').textContent = lang === 'en' ? '中文' : 'EN';
   document.title = lang === 'en' ? 'Drawing2SW · Engineering drawings to SolidWorks' : 'Drawing2SW · 读工程图，在 SolidWorks 里建模';
   renderAgent();
+  renderPrompt();
+}
+
+function renderPrompt() {
+  document.getElementById('prompt-text').textContent = PROMPT[lang];
 }
 
 function renderAgent() {
@@ -122,6 +168,19 @@ document.getElementById('copy').addEventListener('click', async e => {
     btn.textContent = lang === 'en' ? 'Select to copy' : '请手动选中';
   }
   setTimeout(() => { btn.textContent = lang === 'en' ? EN.copy : zh.copy; }, 1600);
+});
+
+document.getElementById('copy-prompt').addEventListener('click', async e => {
+  const btn = e.currentTarget;
+  const idle = lang === 'en' ? EN['ai.btn'] : zh['ai.btn'];
+  try {
+    await navigator.clipboard.writeText(PROMPT[lang]);
+    btn.textContent = lang === 'en' ? 'Copied. Paste it to your AI' : '已复制，粘贴给你的 AI';
+  } catch (err) {
+    document.querySelector('.ai-prompt').open = true;
+    btn.textContent = lang === 'en' ? 'Select the text below to copy' : '请选中下面的文字复制';
+  }
+  setTimeout(() => { btn.innerHTML = idle; }, 2400);
 });
 
 render();

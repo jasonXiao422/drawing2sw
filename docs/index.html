@@ -50,7 +50,7 @@
     <h1 data-i18n-html="hero.title">自动读取你的工程图，<br>然后在 <em>SolidWorks</em> 里建模。</h1>
     <p class="lede" data-i18n="hero.lede">支持 DWG、DXF、PDF 和图片。AI 读图，脚本建模；每个特征都记着依据的是哪个尺寸，建完会和答案核对。</p>
     <div class="cta">
-      <a class="btn primary" href="#install" data-i18n="hero.start">开始使用</a>
+      <a class="btn primary" href="#install" data-i18n="hero.start">安装</a>
       <a class="btn" href="https://github.com/jasonXiao422/drawing2sw" data-i18n="hero.source">查看源码</a>
     </div>
     <ul class="io">
@@ -186,6 +186,20 @@
     <p data-i18n="install.sub">需要 Python 3.11 或 3.12。只预览 STEP 不需要 SolidWorks，macOS 和 Linux 也能用。</p>
   </header>
 
+  <div class="ai-install">
+    <div class="ai-install-text">
+      <h3 data-i18n="ai.t">最简单：让你的 AI 帮你装</h3>
+      <p data-i18n="ai.d">复制下面这段安装说明，粘贴给 Claude Code、Codex 或其他能运行命令的 AI。它会先给你看要装什么，每一步都问过你再执行。</p>
+    </div>
+    <button id="copy-prompt" class="btn primary" type="button" data-i18n="ai.btn">复制安装提示</button>
+    <details class="ai-prompt">
+      <summary data-i18n="ai.show">看看提示里写了什么</summary>
+      <pre id="prompt-text"></pre>
+    </details>
+    <p class="ai-hint" data-i18n="ai.hint">如果 AI 说安全设置不允许下载第三方代码，这是它的正常保护。用下面的命令自己装，一样快。</p>
+  </div>
+
+  <h3 class="manual-title" data-i18n="manual.t">或者自己在终端里装</h3>
   <div class="install">
     <div class="tabs" role="tablist" aria-label="Agent">
       <button role="tab" aria-selected="true" data-agent="claude">Claude Code</button>

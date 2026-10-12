@@ -147,6 +147,35 @@ Windows 手动安装把 `.venv/bin/python` 换成 `.venv\Scripts\python.exe`。�
 
 ### 4. 装进 AI
 
+**最简单的办法**：把下面这段话复制给你的 AI（Claude Code、Codex 等），它会一步步帮你装，每一步先问你。网页上也有[一键复制按钮](https://jasonxiao422.github.io/drawing2sw/#install)。
+
+<details>
+<summary>安装提示（点开复制）</summary>
+
+```text
+请帮我安装 Drawing2SW 这个 skill。它用来读取工程图（DWG、DXF、PDF、图片），然后在 SolidWorks 里建模。
+
+来源：官方 GitHub 仓库 https://github.com/jasonXiao422/drawing2sw （MIT 开源）。只从这个地址下载，不要用其他镜像或第三方页面。
+
+每一步运行命令之前先告诉我要做什么，等我同意再执行。
+
+1. 检查环境：运行 `git --version` 和 `py -3.12 --version`（没有 3.12 就试 `py -3.11 --version`）。缺 git 或 Python 3.11/3.12 时，告诉我怎么装，不要替我安装。
+2. 下载到你读取 skill 的目录。Claude Code 是 `%USERPROFILE%\.claude\skills\drawing2sw`；其他 AI 请用你自己的个人 skill 目录，不确定就问我。命令：
+   git clone --depth 1 https://github.com/jasonXiao422/drawing2sw.git <上面的目录>
+   如果目录已经存在，进去运行 `git pull` 更新。
+3. 下载完先给我看 SKILL.md 开头 20 行，并说明 install.ps1 会做什么（在 skill 目录里建一个 .venv，从 PyPI 装 requirements.txt 里的依赖，默认源失败时换清华镜像，最后跑环境自检）。等我确认。
+4. 在 skill 目录里运行：powershell -ExecutionPolicy Bypass -File install.ps1 （CadQuery 比较大，要几分钟）。
+5. 运行 `.venv\Scripts\python.exe scripts\check_env.py` 并把结果告诉我。我装了 SolidWorks 的话，再加 `--sw` 检查一次。
+6. 告诉我装好了，以后怎么用。比如我说"用 drawing2sw 把 D:\图纸\支架.pdf 建成 SolidWorks 零件"。
+
+如果你的安全设置不允许下载或运行这些命令，直接告诉我，我自己在终端里运行。
+```
+
+</details>
+
+如果 AI 说安全设置不允许下载第三方代码，这是它的正常保护，按下面的命令自己装就行。
+
+
 skill 的入口是 [`SKILL.md`](SKILL.md)。把整个仓库放到 AI 能找到 skill 的目录里，并在那个目录里运行过 `install.ps1`。
 
 **Claude Code**

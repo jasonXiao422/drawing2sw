@@ -156,6 +156,16 @@ h3 { font-size: 17px; margin: 0 0 6px; letter-spacing: -.01em; }
 .trust-foot { margin-top: 24px; color: var(--ink-2); max-width: 760px; }
 .trust-foot code { background: var(--paper-2); padding: 1px 5px; border-radius: 3px; }
 
+.ai-install { max-width: 820px; border: 1.5px solid var(--ink); background: var(--card); padding: 22px 24px; display: grid; grid-template-columns: 1fr auto; gap: 14px 24px; align-items: center; margin-bottom: 40px; box-shadow: 6px 6px 0 var(--paper-2); }
+.ai-install h3 { margin: 0 0 4px; }
+.ai-install p { margin: 0; color: var(--ink-2); font-size: 14px; }
+.ai-install .btn { border: 0; cursor: pointer; font-family: var(--sans); white-space: nowrap; }
+.ai-prompt { grid-column: 1 / -1; }
+.ai-prompt summary { cursor: pointer; font-size: 14px; color: var(--ink-2); }
+.ai-prompt pre { white-space: pre-wrap; background: var(--code-bg); color: var(--code-ink); font: 12.5px/1.7 var(--mono); padding: 14px 16px; border-radius: 6px; margin: 10px 0 0; max-height: 360px; overflow: auto; }
+.ai-hint { grid-column: 1 / -1; font-size: 13px !important; color: var(--ink-3) !important; }
+.manual-title { margin: 0 0 12px; font-size: 16px; color: var(--ink-2); }
+@media (max-width: 600px) { .ai-install { grid-template-columns: 1fr; } }
 .install { max-width: 820px; }
 .tabs { display: flex; gap: 4px; }
 .tabs button { font: 500 14px var(--sans); background: none; border: 1px solid transparent; border-bottom: 0; padding: 9px 16px; cursor: pointer; color: var(--ink-3); border-radius: 5px 5px 0 0; }
