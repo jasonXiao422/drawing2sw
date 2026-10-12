@@ -18,7 +18,7 @@
         "id": {"type": "string", "minLength": 1}, "page": {"type": "integer", "minimum": 1},
         "text": {"type": "string", "minLength": 1}, "kind": {"type": "string"},
         "coordinate_space": {"enum": ["image_px", "pdf_pt", "dxf_wcs"]},
-        "provider": {"enum": ["pdf_text", "dxf_dimension", "paddleocr", "visual", "human"]},
+        "provider": {"enum": ["pdf_text", "dxf_dimension", "dxf_text", "paddleocr", "visual", "human"]},
         "bbox": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4},
         "point": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
         "score": {"type": "number", "minimum": 0, "maximum": 1},

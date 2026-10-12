@@ -1,0 +1,265 @@
+{
+  "source_table": {
+    "schema_version": "0.4",
+    "part": {
+      "name": "flange-asme-012",
+      "part_type": "revolved",
+      "units": "inch",
+      "projection": "third_angle",
+      "drawing_setup": {
+        "length_unit": "inch",
+        "unit_evidence": "title block",
+        "standard": "ASME",
+        "language": "en",
+        "scale": "1:1",
+        "confidence": 1.0
+      },
+      "material": "45"
+    },
+    "features": [
+      {
+        "id": "body",
+        "type": "base_revolve",
+        "half_profile": [
+          [
+            0.75,
+            0
+          ],
+          [
+            3.125,
+            0
+          ],
+          [
+            3.125,
+            0.375
+          ],
+          [
+            1.625,
+            0.375
+          ],
+          [
+            1.625,
+            1.125
+          ],
+          [
+            0.75,
+            1.125
+          ]
+        ],
+        "meta": {
+          "confidence": 1.0,
+          "evidence": "generated"
+        }
+      },
+      {
+        "id": "bolt_holes",
+        "type": "hole",
+        "plane": "top",
+        "offset": 0,
+        "diameter": 0.5,
+        "bolt_circle": {
+          "pcd": 4.75,
+          "count": 4,
+          "start_angle": 90
+        },
+        "depth": "through_all",
+        "direction": "both",
+        "meta": {
+          "confidence": 1.0,
+          "evidence": "generated"
+        }
+      }
+    ],
+    "open_questions": []
+  },
+  "standard": "ASME",
+  "family": "flange",
+  "volume_mm3": 253083.759,
+  "surface_area_mm2": 50924.102,
+  "bbox_mm": [
+    158.75,
+    28.575,
+    158.75
+  ],
+  "hole_count": 4,
+  "dimension_labels": [
+    {
+      "handle": "64",
+      "kind": "linear",
+      "value": 1.5,
+      "value_mm": 38.1,
+      "feature": "body",
+      "param": "half_profile.diameter",
+      "pdf_text": "Ø1.500",
+      "pdf_pt": [
+        91.08,
+        140.09
+      ],
+      "observations": {
+        "dxf": "dxf-dim-1",
+        "pdf": "p1-text-1"
+      },
+      "png_px": [
+        189.6,
+        291.9
+      ]
+    },
+    {
+      "handle": "77",
+      "kind": "linear",
+      "value": 3.25,
+      "value_mm": 82.55,
+      "feature": "body",
+      "param": "half_profile.diameter",
+      "pdf_text": "Ø3.250",
+      "pdf_pt": [
+        76.54,
+        140.09
+      ],
+      "observations": {
+        "dxf": "dxf-dim-2",
+        "pdf": "p1-text-2"
+      },
+      "png_px": [
+        159.3,
+        291.9
+      ]
+    },
+    {
+      "handle": "86",
+      "kind": "linear",
+      "value": 6.25,
+      "value_mm": 158.75,
+      "feature": "body",
+      "param": "half_profile.diameter",
+      "pdf_text": "Ø6.250",
+      "pdf_pt": [
+        62.0,
+        140.09
+      ],
+      "observations": {
+        "dxf": "dxf-dim-3",
+        "pdf": "p1-text-3"
+      },
+      "png_px": [
+        129.1,
+        291.9
+      ]
+    },
+    {
+      "handle": "95",
+      "kind": "linear",
+      "value": 0.375,
+      "value_mm": 9.525,
+      "feature": "body",
+      "param": "half_profile.length",
+      "pdf_text": ".375",
+      "pdf_pt": [
+        113.69,
+        230.14
+      ],
+      "observations": {
+        "dxf": "dxf-dim-4",
+        "pdf": "p1-text-4"
+      },
+      "png_px": [
+        236.7,
+        479.5
+      ]
+    },
+    {
+      "handle": "A4",
+      "kind": "linear",
+      "value": 0.75,
+      "value_mm": 19.05,
+      "feature": "body",
+      "param": "half_profile.length",
+      "pdf_text": ".750",
+      "pdf_pt": [
+        128.23,
+        232.16
+      ],
+      "observations": {
+        "dxf": "dxf-dim-5",
+        "pdf": "p1-text-5"
+      },
+      "png_px": [
+        266.9,
+        483.7
+      ]
+    },
+    {
+      "handle": "B3",
+      "kind": "linear",
+      "value": 1.125,
+      "value_mm": 28.575,
+      "feature": "body",
+      "param": "half_profile.total_length",
+      "pdf_text": "1.125",
+      "pdf_pt": [
+        123.38,
+        246.7
+      ],
+      "observations": {
+        "dxf": "dxf-dim-6",
+        "pdf": "p1-text-6"
+      },
+      "png_px": [
+        256.8,
+        514.0
+      ]
+    },
+    {
+      "handle": "C5",
+      "kind": "diameter",
+      "value": 0.5,
+      "value_mm": 12.7,
+      "feature": "bolt_holes",
+      "param": "diameter",
+      "pdf_text": "4X Ø.500 THRU EQ SP",
+      "pdf_pt": [
+        416.06,
+        124.11
+      ],
+      "observations": {
+        "dxf": "dxf-dim-7",
+        "pdf": "p1-text-7"
+      },
+      "png_px": [
+        866.1,
+        258.6
+      ]
+    },
+    {
+      "handle": "D2",
+      "kind": "diameter",
+      "value": 4.75,
+      "value_mm": 120.65,
+      "feature": "bolt_holes",
+      "param": "bolt_circle.pcd",
+      "pdf_text": "Ø4.750 B.C.",
+      "pdf_pt": [
+        367.78,
+        75.27
+      ],
+      "observations": {
+        "dxf": "dxf-dim-8",
+        "pdf": "p1-text-8"
+      },
+      "png_px": [
+        765.6,
+        156.8
+      ]
+    }
+  ],
+  "observation_match": {
+    "dxf": {
+      "labels": 8,
+      "matched": 8
+    },
+    "pdf": {
+      "labels": 8,
+      "matched": 8
+    }
+  }
+}

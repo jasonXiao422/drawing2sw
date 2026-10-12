@@ -44,9 +44,10 @@ Drawing2SW 是一个给 AI Agent 用的 **skill**（技能包）。你把一张�
 | 🧾 **可追溯的中间表示** | 特征表 JSON 是 CAD 中立的。每个特征带 `evidence_refs`，绑定原图 SHA-256 |
 | 🧮 **几何交给脚本** | 只写图上标的尺寸。相切圆弧、交点、圆角切点由 `geom2d` 计算 |
 | 🛠 **两个建模后端** | CadQuery 生成 STEP（跨平台，不需要 SolidWorks）；Windows 上通过 COM 驱动 SolidWorks 逐步建模 |
+| 🔗 **尺寸归属检查** | 特征引用的尺寸在参数里找不到会警告（多半分错了特征）；图上没被用到的尺寸会列出来 |
 | ✅ **逐步自检** | SolidWorks 每建一步都和 CadQuery 对比体积和位置，出错能定位到具体特征 |
 | 🔍 **投影复核** | 把模型投影成四向线框，和原图叠在一起看孔位、方向、隐藏线 |
-| 🧪 **可复现的评测** | 12 张带解析答案的合成图、盲测打包、离线评分 |
+| 🧪 **可复现的评测** | 合成图生成器：每个尺寸都标了属于哪个特征；评分包括几何（不依赖摆放姿态，镜像判错）和尺寸归属 |
 
 ## 工作原理
 
@@ -225,9 +226,15 @@ drawing2sw/
 .venv\Scripts\python.exe tests\test_geom2d.py
 ```
 
+生成新的合成图（孔板、分布圆盘、阶梯轴、法兰，GB / ISO / ASME，DXF / PDF / PNG / 模拟扫描件）：
+
+```powershell
+.venv\Scripts\python.exe dev\tools\generate_dataset.py -o work\dataset --count 40 --seed 1
+```
+
 比较不同模型的读图能力，请按 [评测说明](references/benchmark.md) 用 `scripts/benchmark.py prepare` 生成不含答案的输入包。**不要把整个仓库交给被测模型**，`data/` 里有答案。
 
-合成集只有尺寸完整的双孔板，不能用来宣称真实图纸的成功率。
+合成集都是简单零件族，不能用来宣称真实图纸的成功率。
 
 ## 常见问题
 

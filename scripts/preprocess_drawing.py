@@ -338,7 +338,8 @@ def _walk(entities, sink, layout: str, depth: int = 0):
             raw = e.plain_text() if t == "MTEXT" else e.dxf.get("text", "")
             txt = decode_cad_text(raw)
             if txt:
-                sink["texts"].append({"text": txt, "layout": layout, "at": _r(e.dxf.insert, 2)})
+                sink["texts"].append({"text": txt, "layout": layout, "at": _r(e.dxf.insert, 2),
+                                      "entity_handle": e.dxf.get("handle", "")})
         elif t == "CIRCLE":
             sink["circles"].append({"center": _r(e.dxf.center), "diameter": round(2 * e.dxf.radius, 4),
                                     "layer": e.dxf.layer, "layout": layout})

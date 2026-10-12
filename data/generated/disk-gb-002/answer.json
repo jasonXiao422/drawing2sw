@@ -1,0 +1,204 @@
+{
+  "source_table": {
+    "schema_version": "0.4",
+    "part": {
+      "name": "disk-gb-002",
+      "part_type": "prismatic",
+      "units": "mm",
+      "projection": "first_angle",
+      "drawing_setup": {
+        "length_unit": "mm",
+        "unit_evidence": "title block",
+        "standard": "GB",
+        "language": "zh",
+        "scale": "1:1",
+        "confidence": 1.0
+      },
+      "material": "6061-T6"
+    },
+    "features": [
+      {
+        "id": "disk",
+        "type": "base_extrude",
+        "plane": "top",
+        "profile": {
+          "shape": "circle",
+          "diameter": 136.0,
+          "center": [
+            0,
+            0
+          ]
+        },
+        "depth": 17.0,
+        "meta": {
+          "confidence": 1.0,
+          "evidence": "generated"
+        }
+      },
+      {
+        "id": "center_bore",
+        "type": "cut_extrude",
+        "plane": "top",
+        "profile": {
+          "shape": "circle",
+          "diameter": 48.0,
+          "center": [
+            0,
+            0
+          ]
+        },
+        "depth": "through_all",
+        "direction": "both",
+        "meta": {
+          "confidence": 1.0,
+          "evidence": "generated"
+        }
+      },
+      {
+        "id": "bolt_holes",
+        "type": "hole",
+        "plane": "top",
+        "diameter": 9.5,
+        "bolt_circle": {
+          "pcd": 97.0,
+          "count": 8,
+          "start_angle": 90
+        },
+        "depth": "through_all",
+        "direction": "both",
+        "meta": {
+          "confidence": 1.0,
+          "evidence": "generated"
+        }
+      }
+    ],
+    "open_questions": []
+  },
+  "standard": "GB",
+  "family": "disk",
+  "volume_mm3": 206551.863,
+  "surface_area_mm2": 38186.059,
+  "bbox_mm": [
+    136.0,
+    17.0,
+    136.0
+  ],
+  "hole_count": 8,
+  "dimension_labels": [
+    {
+      "handle": "A4",
+      "kind": "diameter",
+      "value": 136.0,
+      "value_mm": 136.0,
+      "feature": "disk",
+      "param": "profile.diameter",
+      "pdf_text": "Ø136",
+      "pdf_pt": [
+        80.06,
+        213.93
+      ],
+      "observations": {
+        "dxf": "dxf-dim-1",
+        "pdf": "p1-text-1"
+      },
+      "png_px": [
+        166.7,
+        445.7
+      ]
+    },
+    {
+      "handle": "B5",
+      "kind": "linear",
+      "value": 17.0,
+      "value_mm": 17.0,
+      "feature": "disk",
+      "param": "depth",
+      "pdf_text": "17",
+      "pdf_pt": [
+        216.94,
+        56.28
+      ],
+      "observations": {
+        "dxf": "dxf-dim-2",
+        "pdf": "p1-text-2"
+      },
+      "png_px": [
+        451.7,
+        117.2
+      ]
+    },
+    {
+      "handle": "C4",
+      "kind": "diameter",
+      "value": 48.0,
+      "value_mm": 48.0,
+      "feature": "center_bore",
+      "param": "profile.diameter",
+      "pdf_text": "Ø48",
+      "pdf_pt": [
+        176.2,
+        199.9
+      ],
+      "observations": {
+        "dxf": "dxf-dim-3",
+        "pdf": "p1-text-3"
+      },
+      "png_px": [
+        366.9,
+        416.5
+      ]
+    },
+    {
+      "handle": "D3",
+      "kind": "diameter",
+      "value": 9.5,
+      "value_mm": 9.5,
+      "feature": "bolt_holes",
+      "param": "diameter",
+      "pdf_text": "8×Ø9.5",
+      "pdf_pt": [
+        103.06,
+        150.6
+      ],
+      "observations": {
+        "dxf": "dxf-dim-4",
+        "pdf": "p1-text-4"
+      },
+      "png_px": [
+        214.6,
+        313.7
+      ]
+    },
+    {
+      "handle": "F1",
+      "kind": "diameter",
+      "value": 97.0,
+      "value_mm": 97.0,
+      "feature": "bolt_holes",
+      "param": "bolt_circle.pcd",
+      "pdf_text": "Ø97",
+      "pdf_pt": [
+        129.84,
+        143.27
+      ],
+      "observations": {
+        "dxf": "dxf-dim-5",
+        "pdf": "p1-text-5"
+      },
+      "png_px": [
+        270.4,
+        298.5
+      ]
+    }
+  ],
+  "observation_match": {
+    "dxf": {
+      "labels": 5,
+      "matched": 5
+    },
+    "pdf": {
+      "labels": 5,
+      "matched": 5
+    }
+  }
+}

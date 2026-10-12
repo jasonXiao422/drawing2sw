@@ -133,6 +133,9 @@ def validate(table: dict, evidence: dict | None = None) -> tuple[list[str], list
     ev_errors, ev_warnings = observations.check_feature_evidence(table, evidence)
     errors.extend(ev_errors)
     warnings.extend(ev_warnings)
+    if evidence and not ev_errors:
+        import association
+        warnings.extend(association.check(table, evidence)[0])
     check_setup(table, errors, warnings)
     if errors:
         return errors, warnings

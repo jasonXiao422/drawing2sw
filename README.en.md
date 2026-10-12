@@ -44,9 +44,10 @@ The idea: **the model reads the drawing; deterministic code does the geometry.**
 | 🧾 **Traceable intermediate format** | A CAD-neutral JSON feature table. Each feature carries `evidence_refs` and is bound to the source file's SHA-256 |
 | 🧮 **Geometry in code** | Write only the dimensions on the drawing. `geom2d` solves tangent arcs, intersections and fillet points |
 | 🛠 **Two backends** | CadQuery writes STEP on any OS. On Windows, SolidWorks is driven feature by feature over COM |
+| 🔗 **Dimension association check** | Warns when a feature cites a dimension whose value it never uses (likely assigned to the wrong feature), and lists dimensions no feature uses |
 | ✅ **Step-by-step self-check** | Each SolidWorks step is compared with CadQuery for volume and position, so failures point to a specific feature |
 | 🔍 **Projection review** | Project the model into four wireframe views and overlay them on the drawing |
-| 🧪 **Reproducible evaluation** | 12 synthetic drawings with analytic answers, blind-run packaging, offline scoring |
+| 🧪 **Reproducible evaluation** | A synthetic drawing generator that labels which feature every dimension belongs to; scoring covers pose-free geometry (mirrors still fail) and dimension association |
 
 ## How it works
 
@@ -173,6 +174,12 @@ The agent will stop and ask about units, projection method, keyway and hole orie
 ```powershell
 .venv\Scripts\python.exe -m unittest discover -s tests -p "test_v05*.py"
 .venv\Scripts\python.exe tests\test_geom2d.py
+```
+
+Generate new synthetic drawings (hole plates, bolt-circle disks, stepped shafts, flanges; GB / ISO / ASME; DXF / PDF / PNG / simulated scan):
+
+```powershell
+.venv\Scripts\python.exe dev\tools\generate_dataset.py -o work\dataset --count 40 --seed 1
 ```
 
 To compare models, follow [benchmark.md](references/benchmark.md) and build an answer-free input package with `scripts/benchmark.py prepare`. **Never give the model under test the whole repository;** `data/` contains answers.

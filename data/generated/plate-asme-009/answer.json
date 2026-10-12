@@ -1,0 +1,294 @@
+{
+  "source_table": {
+    "schema_version": "0.4",
+    "part": {
+      "name": "plate-asme-009",
+      "part_type": "prismatic",
+      "units": "inch",
+      "projection": "third_angle",
+      "drawing_setup": {
+        "length_unit": "inch",
+        "unit_evidence": "title block",
+        "standard": "ASME",
+        "language": "en",
+        "scale": "1:1",
+        "confidence": 1.0
+      },
+      "material": "6061-T6"
+    },
+    "features": [
+      {
+        "id": "plate",
+        "type": "base_extrude",
+        "plane": "front",
+        "profile": {
+          "shape": "rect",
+          "width": 4.625,
+          "height": 3.125,
+          "center": [
+            2.3125,
+            1.5625
+          ]
+        },
+        "depth": 0.375,
+        "meta": {
+          "confidence": 1.0,
+          "evidence": "generated"
+        }
+      },
+      {
+        "id": "holes",
+        "type": "hole",
+        "plane": "front",
+        "diameter": 0.375,
+        "positions": [
+          [
+            0.5,
+            0.5
+          ],
+          [
+            4.125,
+            0.5
+          ],
+          [
+            0.5,
+            2.625
+          ],
+          [
+            4.125,
+            2.625
+          ]
+        ],
+        "depth": "through_all",
+        "direction": "both",
+        "meta": {
+          "confidence": 1.0,
+          "evidence": "generated"
+        }
+      },
+      {
+        "id": "corner_fillets",
+        "type": "edge_treatment",
+        "kind": "fillet",
+        "size": 0.25,
+        "edges": "vertical",
+        "meta": {
+          "confidence": 1.0,
+          "evidence": "generated"
+        }
+      }
+    ],
+    "open_questions": []
+  },
+  "standard": "ASME",
+  "family": "plate",
+  "volume_mm3": 85772.073,
+  "surface_area_mm2": 22796.129,
+  "bbox_mm": [
+    117.475,
+    79.375,
+    9.525
+  ],
+  "hole_count": 4,
+  "dimension_labels": [
+    {
+      "handle": "74",
+      "kind": "linear",
+      "value": 4.625,
+      "value_mm": 117.475,
+      "feature": "plate",
+      "param": "profile.width",
+      "pdf_text": "4.625",
+      "pdf_pt": [
+        162.14,
+        245.48
+      ],
+      "observations": {
+        "dxf": "dxf-dim-1",
+        "pdf": "p1-text-1"
+      },
+      "png_px": [
+        337.6,
+        511.4
+      ]
+    },
+    {
+      "handle": "87",
+      "kind": "linear",
+      "value": 3.125,
+      "value_mm": 79.375,
+      "feature": "plate",
+      "param": "profile.height",
+      "pdf_text": "3.125",
+      "pdf_pt": [
+        77.03,
+        188.57
+      ],
+      "observations": {
+        "dxf": "dxf-dim-2",
+        "pdf": "p1-text-2"
+      },
+      "png_px": [
+        160.4,
+        392.9
+      ]
+    },
+    {
+      "handle": "96",
+      "kind": "linear",
+      "value": 0.375,
+      "value_mm": 9.525,
+      "feature": "plate",
+      "param": "depth",
+      "pdf_text": ".375",
+      "pdf_pt": [
+        239.92,
+        59.04
+      ],
+      "observations": {
+        "dxf": "dxf-dim-3",
+        "pdf": "p1-text-3"
+      },
+      "png_px": [
+        499.5,
+        123.0
+      ]
+    },
+    {
+      "handle": "A5",
+      "kind": "diameter",
+      "value": 0.375,
+      "value_mm": 9.525,
+      "feature": "holes",
+      "param": "diameter",
+      "pdf_text": "4X Ø.375 THRU",
+      "pdf_pt": [
+        76.85,
+        145.2
+      ],
+      "observations": {
+        "dxf": "dxf-dim-4",
+        "pdf": "p1-text-4"
+      },
+      "png_px": [
+        160.0,
+        302.5
+      ]
+    },
+    {
+      "handle": "BA",
+      "kind": "linear",
+      "value": 0.5,
+      "value_mm": 12.7,
+      "feature": "holes",
+      "param": "positions.u",
+      "pdf_text": ".500",
+      "pdf_pt": [
+        99.92,
+        126.09
+      ],
+      "observations": {
+        "dxf": "dxf-dim-5",
+        "pdf": "p1-text-5"
+      },
+      "png_px": [
+        208.0,
+        262.7
+      ]
+    },
+    {
+      "handle": "C9",
+      "kind": "linear",
+      "value": 3.625,
+      "value_mm": 92.075,
+      "feature": "holes",
+      "param": "positions.u",
+      "pdf_text": "3.625",
+      "pdf_pt": [
+        162.14,
+        126.09
+      ],
+      "observations": {
+        "dxf": "dxf-dim-6",
+        "pdf": "p1-text-6"
+      },
+      "png_px": [
+        337.6,
+        262.7
+      ]
+    },
+    {
+      "handle": "D8",
+      "kind": "linear",
+      "value": 0.5,
+      "value_mm": 12.7,
+      "feature": "holes",
+      "param": "positions.v",
+      "pdf_text": ".500",
+      "pdf_pt": [
+        241.67,
+        228.17
+      ],
+      "observations": {
+        "dxf": "dxf-dim-7",
+        "pdf": "p1-text-7"
+      },
+      "png_px": [
+        503.1,
+        475.4
+      ]
+    },
+    {
+      "handle": "E7",
+      "kind": "linear",
+      "value": 2.125,
+      "value_mm": 53.975,
+      "feature": "holes",
+      "param": "positions.v",
+      "pdf_text": "2.125",
+      "pdf_pt": [
+        241.67,
+        188.57
+      ],
+      "observations": {
+        "dxf": "dxf-dim-8",
+        "pdf": "p1-text-8"
+      },
+      "png_px": [
+        503.1,
+        392.9
+      ]
+    },
+    {
+      "handle": "F6",
+      "kind": "radius",
+      "value": 0.25,
+      "value_mm": 6.35,
+      "feature": "corner_fillets",
+      "param": "size",
+      "pdf_text": "4X R.250",
+      "pdf_pt": [
+        240.55,
+        128.84
+      ],
+      "observations": {
+        "dxf": "dxf-dim-9",
+        "pdf": "p1-text-9"
+      },
+      "png_px": [
+        500.8,
+        268.4
+      ]
+    }
+  ],
+  "observation_match": {
+    "dxf": {
+      "labels": 9,
+      "matched": 9
+    },
+    "pdf": {
+      "labels": 9,
+      "matched": 9
+    }
+  }
+}

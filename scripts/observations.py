@@ -45,6 +45,13 @@ def from_extract(extract, source):
             "provider": "dxf_dimension", "kind": item.get("kind", "dimension"),
             "entity_handle": item.get("entity_handle", ""),
             "requires_review": bool(item.get("override_replaces_value"))})
+    # 标题栏、技术要求、倒角 C1 这类单独的文字。编号排在尺寸后面，不影响已有的 dxf-dim-N
+    for i, item in enumerate(extract.get("dxf", {}).get("texts", [])):
+        if not str(item.get("text", "")).strip():
+            continue
+        doc["observations"].append({"id": f"dxf-text-{i+1}", "page": 1, "text": item["text"],
+            "point": item.get("at", [0, 0]), "coordinate_space": "dxf_wcs",
+            "provider": "dxf_text", "kind": "text", "entity_handle": item.get("entity_handle", "")})
     if not doc["observations"]:
         doc["open_questions"].append("No text extracted. Import OCR or record visual observations with original-image bounding boxes.")
     return doc

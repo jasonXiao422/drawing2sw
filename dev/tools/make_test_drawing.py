@@ -174,6 +174,7 @@ class Sheet:
         self.doc.header["$INSUNITS"] = 1 if inch else 4
         self.doc.header["$MEASUREMENT"] = 0 if inch else 1
         self.msp = self.doc.modelspace()
+        self.labels = []           # 每个尺寸 / 标注文字属于哪个特征的哪个参数（数据集的标准答案）
         self.h = max(size * unit_k * 0.025, 2.5 * unit_k)  # 字高
         for name, lt, color in (("轮廓线", "CONTINUOUS", 7), ("虚线", "DASHED", 7),
                                 ("中心线", "CENTER", 1), ("尺寸线", "CONTINUOUS", 3), ("文字", "CONTINUOUS", 7),
@@ -214,26 +215,37 @@ class Sheet:
         else:
             self.msp.add_lwpolyline([(x + dx, y + dy) for x, y in e[1]], dxfattribs=a)
 
-    def text(self, s, at, h=None, align=TextEntityAlignment.LEFT, rot=0):
+    def label(self, entity, kind, value, tag):
+        """tag = (特征 id, 参数名)。value 是图纸单位下的数值。没有 tag 的尺寸不记（如图框）。"""
+        if tag:
+            self.labels.append({"handle": entity.dxf.handle, "kind": kind, "value": round(value, 6),
+                                "value_mm": round(value / self.k, 6), "feature": tag[0], "param": tag[1]})
+
+    def text(self, s, at, h=None, align=TextEntityAlignment.LEFT, rot=0, tag=None, value=None):
         t = self.msp.add_text(s, height=h or self.h, rotation=rot,
                               dxfattribs={"style": "CN", "layer": "文字"})
         t.set_placement(at, align=align)
+        self.label(t, "note", value or 0.0, tag)
 
-    def hdim(self, p1, p2, y, text=None):
-        self.msp.add_linear_dim(base=(p1[0], y), p1=p1, p2=p2, angle=0, text=text or "<>",
-                                dxfattribs={"layer": "尺寸线"}).render()
+    def _dim(self, d, kind, value, tag):
+        d.render()
+        self.label(d.dimension, kind, value, tag)
 
-    def vdim(self, p1, p2, x, text=None):
-        self.msp.add_linear_dim(base=(x, p1[1]), p1=p1, p2=p2, angle=90, text=text or "<>",
-                                dxfattribs={"layer": "尺寸线"}).render()
+    def hdim(self, p1, p2, y, text=None, tag=None):
+        self._dim(self.msp.add_linear_dim(base=(p1[0], y), p1=p1, p2=p2, angle=0, text=text or "<>",
+                                          dxfattribs={"layer": "尺寸线"}), "linear", abs(p2[0] - p1[0]), tag)
 
-    def ddim(self, center, r, angle, text):
-        self.msp.add_diameter_dim(center=center, radius=r, angle=angle, text=text,
-                                  dxfattribs={"layer": "尺寸线"}).render()
+    def vdim(self, p1, p2, x, text=None, tag=None):
+        self._dim(self.msp.add_linear_dim(base=(x, p1[1]), p1=p1, p2=p2, angle=90, text=text or "<>",
+                                          dxfattribs={"layer": "尺寸线"}), "linear", abs(p2[1] - p1[1]), tag)
 
-    def rdim(self, center, r, angle, text):
-        self.msp.add_radius_dim(center=center, radius=r, angle=angle, text=text,
-                                dxfattribs={"layer": "尺寸线"}).render()
+    def ddim(self, center, r, angle, text, tag=None):
+        self._dim(self.msp.add_diameter_dim(center=center, radius=r, angle=angle, text=text,
+                                            dxfattribs={"layer": "尺寸线"}), "diameter", 2 * r, tag)
+
+    def rdim(self, center, r, angle, text, tag=None):
+        self._dim(self.msp.add_radius_dim(center=center, radius=r, angle=angle, text=text,
+                                          dxfattribs={"layer": "尺寸线"}), "radius", r, tag)
 
     def center_mark(self, c, size, layer="中心线"):
         self.msp.add_line((c[0] - size, c[1]), (c[0] + size, c[1]), dxfattribs={"layer": layer})
@@ -260,7 +272,8 @@ def fmt(v_mm: float, k: float, inch: bool) -> str:
     return f"{v:.2f}".rstrip("0").rstrip(".")
 
 
-def make(table_raw: dict, std: str, out_dir: Path, with_unit: bool = True, scan: bool = True) -> dict:
+def make(table_raw: dict, std: str, out_dir: Path, with_unit: bool = True, scan: bool = True,
+         dwg: bool = True) -> dict:
     table = ftable.to_mm(ftable.resolve(table_raw))
     inch = std == "ASME"
     k = 1 / 25.4 if inch else 1.0
@@ -307,7 +320,7 @@ def make(table_raw: dict, std: str, out_dir: Path, with_unit: bool = True, scan:
         for e in p["hidden"]:
             sh.prim(e, dx, dy, "虚线")
 
-    dimgap = sh.h * 3
+    dimgap = sh.h * 3.6
     if revolved:
         dim_revolved(sh, table, off, boxes, side, k, inch, dimgap)
         if gear:
@@ -330,7 +343,7 @@ def make(table_raw: dict, std: str, out_dir: Path, with_unit: bool = True, scan:
             continue
         title_lines.append(line.format(name=table_raw["part"]["name"],
                                        material=table_raw["part"].get("material", "-"), scale="1:1"))
-    tb_w = max(tb_w, max(len(x) * (1.0 if any(ord(ch) > 0x2E80 for ch in x) else 0.72) for x in title_lines) * sh.h + 2 * sh.h)
+    tb_w = max(tb_w, max(len(x) * (1.0 if any(ord(ch) > 0x2E80 for ch in x) else 0.82) for x in title_lines) * sh.h + 2 * sh.h)
     x1 = max(x1, x0 + tb_w * 1.3)
     tb_h = (len(title_lines) + 1) * sh.h * 1.8
     y0 -= tb_h
@@ -364,18 +377,23 @@ def make(table_raw: dict, std: str, out_dir: Path, with_unit: bool = True, scan:
     dxf_path = out_dir / "drawing.dxf"
     sh.doc.saveas(dxf_path)
     files = {"dxf": str(dxf_path)}
-    files.update(render(sh.doc, out_dir, scan))
+    text_at = {}
+    files.update(render(sh.doc, out_dir, scan, text_at))
+    for lab in sh.labels:  # 渲染图上这个尺寸的文字在哪（PDF 坐标，左上角为原点，单位 pt）
+        if lab["handle"] in text_at:
+            lab["pdf_text"], lab["pdf_pt"] = text_at[lab["handle"]]
     try:  # Windows 上装了 AutoCAD / 中望 / 浩辰 时，顺便出 DWG
         import dwg2dxf  # noqa: PLC0415
-        if dwg2dxf.installed_cads():
+        if dwg and dwg2dxf.installed_cads():
             files["dwg"] = str(dwg2dxf.dxf_to_dwg(dxf_path, out_dir / "drawing.dwg"))
     except Exception as e:  # noqa: BLE001
         files["dwg_error"] = str(e)[:200]
 
     rep = preview_cadquery.report(solid, table)
     answer = {"source_table": table_raw, "standard": std, "unit_shown": with_unit,
-              "volume_mm3": rep["volume_mm3"], "bbox_mm": rep["bbox_mm"],
-              "hole_count": rep["hole_count_from_table"], "files": files}
+              "volume_mm3": rep["volume_mm3"], "surface_area_mm2": rep["surface_area_mm2"],
+              "bbox_mm": rep["bbox_mm"], "hole_count": rep["hole_count_from_table"],
+              "dimension_labels": sh.labels, "files": files}
     (out_dir / "answer.json").write_text(json.dumps(answer, ensure_ascii=False, indent=2), encoding="utf-8")
     return answer
 
@@ -383,8 +401,10 @@ def make(table_raw: dict, std: str, out_dir: Path, with_unit: bool = True, scan:
 # ---------------------------------------------------------------- 尺寸：棱柱体
 
 def dim_prismatic(sh: Sheet, t: dict, off, boxes, side, k, inch, g):
+    """标注要能唯一确定几何：大小 + 相对外轮廓左下角的定位（链式标注）。每个尺寸带 (特征 id, 参数) 标签。"""
     feats = t["features"]
     base = feats[0]
+    bid = base["id"]
     st = sh.st
     plane = base["plane"]
     if plane not in ("top", "front"):
@@ -400,67 +420,106 @@ def dim_prismatic(sh: Sheet, t: dict, off, boxes, side, k, inch, g):
     if base["profile"]["shape"] == "circle":
         cu, cv = base["profile"].get("center", [0, 0])
         r = base["profile"]["diameter"] / 2
-        sh.ddim(P(cu, cv), r * k, 45, "<>")
+        sh.ddim(P(cu, cv), r * k, 20, "<>", tag=(bid, "profile.diameter"))
         umin, umax, vmin, vmax = cu - r, cu + r, cv - r, cv + r
+        datum = (cu, cv)          # 圆盘：定位尺寸从圆心量
     else:
         us, vs = [p[0] for p in pts], [p[1] for p in pts]
         umin, umax, vmin, vmax = min(us), max(us), min(vs), max(vs)
-        sh.hdim(P(umin, vmin), P(umax, vmin), P(0, vmin)[1] - g)
-        sh.vdim(P(umin, vmin), P(umin, vmax), P(umin, 0)[0] - g)
+        sh.hdim(P(umin, vmin), P(umax, vmin), P(0, vmin)[1] - g, tag=(bid, "profile.width"))
+        sh.vdim(P(umin, vmin), P(umin, vmax), P(umin, 0)[0] - g, tag=(bid, "profile.height"))
+        datum = (umin, vmin)      # 矩形：定位尺寸从左下角量
 
     # 厚度：在另一个视图上标竖直尺寸
     tb = boxes[thick_view]
     tx, ty = off[thick_view]
-    sh.vdim((tb[2] + tx, tb[1] + ty), (tb[2] + tx, tb[3] + ty), tb[2] + tx + g)
+    sh.vdim((tb[2] + tx, tb[1] + ty), (tb[2] + tx, tb[3] + ty), tb[2] + tx + g, tag=(bid, "depth"))
 
-    level = 2
+    def chain_u(fid, values, y, param, ref_v):
+        """从基准开始，沿 u 方向链式标注到每个不同的 u 值。界线从 ref_v 引出（靠近被标的特征）。"""
+        stops = [datum[0]] + [u for u in values if abs(u - datum[0]) > 1e-9]
+        for a, b in zip(stops, stops[1:]):
+            sh.hdim(P(a, ref_v), P(b, ref_v), y, tag=(fid, param))
+
+    def chain_v(fid, values, x, param, ref_u):
+        stops = [datum[1]] + [v for v in values if abs(v - datum[1]) > 1e-9]
+        for a, b in zip(stops, stops[1:]):
+            sh.vdim(P(ref_u, a), P(ref_u, b), x, tag=(fid, param))
+
+    def lead_angle(q):
+        """直径引线：文字朝离零件中心远的方向引出去（ezdxf 的文字在 angle + 180° 那一端）。"""
+        cu0, cv0 = (umin + umax) / 2, (vmin + vmax) / 2
+        out = math.degrees(math.atan2(q[1] - cv0, q[0] - cu0)) if (q[0], q[1]) != (cu0, cv0) else 135.0
+        return (out + 180 + 15) % 360
+
+    top, right, bottom, left = 1, 1, 2, 2   # 各边已经用了几层尺寸
     for f in feats[1:]:
-        if f.get("plane", plane) != plane:
+        if f.get("plane", plane) != plane or f["id"].count("__"):
             continue
+        fid = f["id"]
         if f["type"] == "hole":
             hp = ftable.hole_positions(f)
             n = len(hp)
             r = f["diameter"] / 2
             cnt = st["count"].format(n=n) if n > 1 else ""
-            sh.ddim(P(*hp[0]), r * k, 135, f"{cnt}<>{st['thru'] if f['depth'] == 'through_all' else ''}")
-            for p in hp:
-                sh.center_mark(P(*p), r * k * 1.4)
-            hus = sorted({round(p[0], 6) for p in hp})
-            hvs = sorted({round(p[1], 6) for p in hp})
+            lead = min(hp, key=lambda q: (q[0] - umin) - (q[1] - vmin))   # 最靠左上的孔
+            sh.ddim(P(*lead), r * k, lead_angle(lead), f"{cnt}<>{st['thru'] if f['depth'] == 'through_all' else ''}",
+                    tag=(fid, "diameter"))
+            for q in hp:
+                sh.center_mark(P(*q), r * k * 1.4)
             if f.get("bolt_circle"):
                 bc = f["bolt_circle"]
-                c = P(*bc.get("center", [0, 0]))
-                sh.msp.add_circle(c, bc["pcd"] / 2 * k, dxfattribs={"layer": "中心线"})
-                sh.ddim(c, bc["pcd"] / 2 * k, 60, "<>" + st["pcd_note"])
+                c = bc.get("center", [0, 0])
+                sh.msp.add_circle(P(*c), bc["pcd"] / 2 * k, dxfattribs={"layer": "中心线"})
+                gap_angle = bc.get("start_angle", 0) + 180 / bc["count"] + 180   # 两孔之间，不穿孔
+                sh.ddim(P(*c), bc["pcd"] / 2 * k, gap_angle, "<>" + st["pcd_note"], tag=(fid, "bolt_circle.pcd"))
+                if abs(c[0] - datum[0]) > 1e-9 or abs(c[1] - datum[1]) > 1e-9:
+                    chain_u(fid, [c[0]], P(0, vmax)[1] + g * top, "bolt_circle.center.u", c[1]); top += 1
+                    chain_v(fid, [c[1]], P(umax, 0)[0] + g * right, "bolt_circle.center.v", c[0]); right += 1
             else:
-                if len(hus) >= 2:
-                    sh.hdim(P(hus[0], hvs[-1]), P(hus[-1], hvs[-1]), P(0, vmax)[1] + g * (level - 1))
+                # 定位尺寸放在离孔近的那一侧，界线短，不穿过整个零件
+                us_, vs_ = sorted({round(q[0], 6) for q in hp}), sorted({round(q[1], 6) for q in hp})
+                if sum(vs_) / len(vs_) >= (vmin + vmax) / 2:
+                    chain_u(fid, us_, P(0, vmax)[1] + g * top, "positions.u", max(vs_)); top += 1
                 else:
-                    sh.hdim(P(umin, hvs[-1]), P(hus[0], hvs[-1]), P(0, vmax)[1] + g * (level - 1))
-                if len(hvs) >= 2:
-                    sh.vdim(P(hus[-1], hvs[0]), P(hus[-1], hvs[-1]), P(umax, 0)[0] + g * (level - 1))
+                    chain_u(fid, us_, P(0, vmin)[1] - g * bottom, "positions.u", min(vs_)); bottom += 1
+                if sum(us_) / len(us_) >= (umin + umax) / 2:
+                    chain_v(fid, vs_, P(umax, 0)[0] + g * right, "positions.v", max(us_)); right += 1
                 else:
-                    sh.vdim(P(hus[-1], vmin), P(hus[-1], hvs[0]), P(umax, 0)[0] + g * (level - 1))
-                level += 1
+                    chain_v(fid, vs_, P(umin, 0)[0] - g * left, "positions.v", min(us_)); left += 1
         elif f["type"] == "cut_extrude" and f["profile"]["shape"] == "rect":
             pr = f["profile"]
             cu, cv = pr.get("center", [0, 0])
             w, h = pr["width"], pr["height"]
-            sh.hdim(P(cu - w / 2, cv + h / 2), P(cu + w / 2, cv + h / 2), P(0, cv + h / 2)[1] + g * 0.6)
-            sh.vdim(P(cu - w / 2, cv - h / 2), P(cu - w / 2, cv + h / 2), P(cu - w / 2, 0)[0] - g * 0.6)
+            u0, v0 = cu - w / 2, cv - h / 2
+            yb = P(0, vmin)[1] - g * bottom; bottom += 1
+            xl = P(umin, 0)[0] - g * left; left += 1
+            if abs(u0 - datum[0]) > 1e-9:
+                sh.hdim(P(datum[0], v0), P(u0, v0), yb, tag=(fid, "profile.center.u"))
+            sh.hdim(P(u0, v0), P(u0 + w, v0), yb, tag=(fid, "profile.width"))
+            if abs(v0 - datum[1]) > 1e-9:
+                sh.vdim(P(u0, datum[1]), P(u0, v0), xl, tag=(fid, "profile.center.v"))
+            sh.vdim(P(u0, v0), P(u0, v0 + h), xl, tag=(fid, "profile.height"))
         elif f["type"] == "cut_extrude" and f["profile"]["shape"] == "circle":
             pr = f["profile"]
-            sh.ddim(P(*pr.get("center", [0, 0])), pr["diameter"] / 2 * k, 45, "<>")
+            c = pr.get("center", [0, 0])
+            sh.ddim(P(*c), pr["diameter"] / 2 * k, 160, "<>", tag=(fid, "profile.diameter"))
+            sh.center_mark(P(*c), pr["diameter"] / 2 * k * 1.3)
+            if abs(c[0] - datum[0]) > 1e-9:
+                chain_u(fid, [c[0]], P(0, vmin)[1] - g * bottom, "profile.center.u", c[1]); bottom += 1
+            if abs(c[1] - datum[1]) > 1e-9:
+                chain_v(fid, [c[1]], P(umin, 0)[0] - g * left, "profile.center.v", c[0]); left += 1
         elif f["type"] == "edge_treatment" and f["edges"] == "vertical" and f["kind"] == "fillet":
             n = len(pts) if pts else 1
             cnt = st["count"].format(n=n) if n > 1 else ""
             r = f["size"]
             cu, cv = umax - r, vmax - r   # 右上角
-            sh.rdim(P(cu, cv), r * k, 45, f"{cnt}<>")
+            sh.rdim(P(cu, cv), r * k, 45, f"{cnt}<>", tag=(fid, "size"))
         elif f["type"] == "edge_treatment" and f["kind"] == "chamfer":
             s = fmt(f["size"], k, inch)
             note = f"C{s}" if st["lang"] == "zh" else f"{s} X 45°"
-            sh.text(note, P(umax, vmax + 0.3 * f["size"]), align=TextEntityAlignment.BOTTOM_LEFT)
+            sh.text(note, P(umax, vmax + 0.3 * f["size"]), align=TextEntityAlignment.BOTTOM_LEFT,
+                    tag=(fid, "size"), value=f["size"] * k)
 
 
 # ---------------------------------------------------------------- 尺寸：回转体
@@ -470,6 +529,7 @@ def dim_revolved(sh: Sheet, t: dict, off, boxes, side, k, inch, g):
     base = feats[0]
     st = sh.st
     hp = base["half_profile"]
+    bid = base["id"]
     dx, dy = off["front"]
 
     def F(h, r):  # 半剖轮廓 (r, h) -> 主视图图纸坐标。轴线横放：h 向右，r 向下（旋转 -90°）
@@ -490,14 +550,14 @@ def dim_revolved(sh: Sheet, t: dict, off, boxes, side, k, inch, g):
     hmin = min(p[1] for p in hp)
     for i, (r, h_at) in enumerate(sorted(axial.items())):
         x = F(hmin, 0)[0] - g * (i + 1)
-        sh.vdim(F(h_at, r), F(h_at, -r), x, text=DIA + "<>")
+        sh.vdim(F(h_at, r), F(h_at, -r), x, text=DIA + "<>", tag=(bid, "half_profile.diameter"))
     # 轴向长度：所有台阶位置，链式标在下方
     hb = sorted({round(h, 6) for h in hs})
     rmax = max(p[0] for p in hp)
     for a, b in zip(hb, hb[1:]):
-        sh.hdim(F(a, rmax), F(b, rmax), F(0, rmax)[1] - g)
-    if len(hb) > 2:
-        sh.hdim(F(hb[0], rmax), F(hb[-1], rmax), F(0, rmax)[1] - 2 * g)
+        sh.hdim(F(a, rmax), F(b, rmax), F(0, rmax)[1] - g, tag=(bid, "half_profile.length"))
+    if len(hb) > 2:  # 总长：参考尺寸
+        sh.hdim(F(hb[0], rmax), F(hb[-1], rmax), F(0, rmax)[1] - 2 * g, tag=(bid, "half_profile.total_length"))
 
     # 端面视图：均布孔、键槽
     sx, sy = off[side]
@@ -513,9 +573,13 @@ def dim_revolved(sh: Sheet, t: dict, off, boxes, side, k, inch, g):
             pts = ftable.hole_positions(f)
             sh.msp.add_circle(S(0, 0), bc["pcd"] / 2 * k, dxfattribs={"layer": "中心线"})
             cnt = st["count"].format(n=len(pts))
-            sh.ddim(S(*pts[0]), f["diameter"] / 2 * k, 30,
-                    f"{cnt}<>{st['thru'] if f['depth'] == 'through_all' else ''}{st['eqs']}")
-            sh.ddim(S(0, 0), bc["pcd"] / 2 * k, 120, "<>" + st["pcd_note"])
+            q = S(*pts[0]); c0 = S(0, 0)
+            sh.ddim(q, f["diameter"] / 2 * k, (math.degrees(math.atan2(q[1] - c0[1], q[0] - c0[0])) + 195) % 360,
+                    f"{cnt}<>{st['thru'] if f['depth'] == 'through_all' else ''}{st['eqs']}", tag=(f["id"], "diameter"))
+            qa = [S(*q) for q in pts[:2]]
+            a0 = math.degrees(math.atan2(qa[0][1] - S(0, 0)[1], qa[0][0] - S(0, 0)[0]))
+            sh.ddim(S(0, 0), bc["pcd"] / 2 * k, a0 + 180 / len(pts) + 180, "<>" + st["pcd_note"],
+                    tag=(f["id"], "bolt_circle.pcd"))
         elif f["type"] == "cut_extrude" and f["profile"]["shape"] == "rect":
             pr = f["profile"]
             cu, cv = pr.get("center", [0, 0])
@@ -527,20 +591,20 @@ def dim_revolved(sh: Sheet, t: dict, off, boxes, side, k, inch, g):
             xs, ys = [c[0] for c in corners], [c[1] for c in corners]
             if (u1 - u0) < (v1 - v0):   # 槽沿 v 方向伸出：宽度沿 u
                 far = max(abs(v0), abs(v1))
-                sh.vdim((min(xs), min(ys)), (min(xs), max(ys)), min(xs) - g * 0.5)
+                sh.vdim((min(xs), min(ys)), (min(xs), max(ys)), min(xs) - g * 0.5, tag=(f["id"], "profile.width"))
                 tip = S(cu, far if abs(v1) >= abs(v0) else -far)
                 opp = S(cu, -bore if abs(v1) >= abs(v0) else bore)
-                sh.hdim(opp, tip, max(ys) + g * 0.8)
+                sh.hdim(opp, tip, max(ys) + g * 0.8, tag=(f["id"], "keyway.bore_plus_depth"))
             else:
                 far = max(abs(u0), abs(u1))
-                sh.hdim((min(xs), max(ys)), (max(xs), max(ys)), max(ys) + g * 0.5)
+                sh.hdim((min(xs), max(ys)), (max(xs), max(ys)), max(ys) + g * 0.5, tag=(f["id"], "profile.height"))
                 tip = S(far if abs(u1) >= abs(u0) else -far, cv)
                 opp = S(-bore if abs(u1) >= abs(u0) else bore, cv)
-                sh.vdim(opp, tip, max(xs) + g * 0.8)
+                sh.vdim(opp, tip, max(xs) + g * 0.8, tag=(f["id"], "keyway.bore_plus_depth"))
         elif f["type"] == "edge_treatment" and f["kind"] == "chamfer":
             s = fmt(f["size"], k, inch)
             note = f"C{s}" if st["lang"] == "zh" else f"{s} X 45°"
-            sh.text(note, F(max(hs), rmax + 0.6 * f["size"]))
+            sh.text(note, F(max(hs), rmax + 0.6 * f["size"]), tag=(f["id"], "size"), value=f["size"] * k)
 
 
 def gear_convention(sh: Sheet, t: dict, gear: dict, off, side, k, g):
@@ -578,13 +642,19 @@ def _font_file() -> str | None:
 
 
 def _all_texts(doc):
-    """图上所有文字（含尺寸块里的显示文字）：(文字, 插入点, 字高, 旋转角, 水平对齐, 垂直对齐)。"""
+    """图上所有文字（含尺寸块里的显示文字）：(文字, 插入点, 字高, 旋转角, 水平对齐, 垂直对齐, 所属实体句柄)。"""
     from preprocess_drawing import decode_cad_text  # noqa: PLC0415
     ha_map = {0: "left", 1: "center", 2: "right", 4: "center"}
     va_map = {0: "baseline", 1: "bottom", 2: "center", 3: "top"}
     out = []
 
-    def add(e, dx=0.0, dy=0.0):
+    def add(e, owner=None):
+        n0 = len(out)
+        _add(e)
+        for i in range(n0, len(out)):
+            out[i] = out[i] + (owner or e.dxf.handle,)
+
+    def _add(e, dx=0.0, dy=0.0):
         t = e.dxftype()
         if t == "TEXT":
             pl = e.get_placement()   # (对齐方式, 第一点, 第二点)
@@ -608,11 +678,11 @@ def _all_texts(doc):
             blk = e.get_geometry_block()
             for x in blk or []:
                 if x.dxftype() in ("TEXT", "MTEXT"):
-                    add(x)
+                    add(x, e.dxf.handle)
     return out
 
 
-def render(doc, out_dir: Path, scan: bool) -> dict:
+def render(doc, out_dir: Path, scan: bool, text_at: dict | None = None) -> dict:
     """出两种 PDF：drawing.pdf 带文字层（像 SolidWorks 导出的），
     drawing_notext.pdf 文字是轮廓线（像 AutoCAD 用 SHX 字体打印的，提取不到文字）。"""
     files = {}
@@ -650,10 +720,20 @@ def render(doc, out_dir: Path, scan: bool) -> dict:
         y0 = ax.transData.transform((0, 0))[1]
         y1 = ax.transData.transform((0, 1))[1]
         pt_per_unit = abs(y1 - y0) * 72 / fig.dpi
-        for txt, (x, y), h, rot, ha, va in _all_texts(doc):
+        artists = []
+        for txt, (x, y), h, rot, ha, va, owner in _all_texts(doc):
             for i, line in enumerate(txt.split("\n")):
-                ax.text(x, y - i * h * 1.6, line, fontsize=h * pt_per_unit * 1.25, rotation=rot,
-                        ha=ha, va=va, rotation_mode="anchor", fontproperties=fp, color="black")
+                artists.append((owner, line, ax.text(x, y - i * h * 1.6, line, fontsize=h * pt_per_unit * 1.25,
+                                                     rotation=rot, ha=ha, va=va, rotation_mode="anchor",
+                                                     fontproperties=fp, color="black")))
+        if text_at is not None:  # 文字中心换算到 PDF 坐标（pt，原点左上角，和 PyMuPDF 一致）
+            fig.canvas.draw()
+            rr = fig.canvas.get_renderer()
+            H = fig.get_figheight() * 72
+            for owner, line, art in artists:
+                bb = art.get_window_extent(rr)
+                cx, cy = (bb.x0 + bb.x1) / 2 * 72 / fig.dpi, (bb.y0 + bb.y1) / 2 * 72 / fig.dpi
+                text_at.setdefault(owner, (line, [round(cx, 2), round(H - cy, 2)]))
         pdf = out_dir / "drawing.pdf"
         png = out_dir / "drawing.png"
         fig.savefig(pdf, facecolor="white")
@@ -722,6 +802,7 @@ def main() -> None:
                     help="默认按特征表 drawing_setup.standard；英寸表默认 ASME")
     ap.add_argument("--no-unit", action="store_true", help="标题栏不写单位")
     ap.add_argument("--no-scan", action="store_true")
+    ap.add_argument("--no-dwg", action="store_true", help="不调用 CAD 软件转 DWG（快很多）")
     args = ap.parse_args()
 
     if args.batch:
@@ -737,7 +818,7 @@ def main() -> None:
     out = Path(args.out)
     if out.exists():
         shutil.rmtree(out)
-    ans = make(raw, std, out, with_unit=not args.no_unit, scan=not args.no_scan)
+    ans = make(raw, std, out, with_unit=not args.no_unit, scan=not args.no_scan, dwg=not args.no_dwg)
     print(json.dumps({k: ans[k] for k in ("standard", "volume_mm3", "bbox_mm", "files")}, ensure_ascii=False, indent=2))
 
 

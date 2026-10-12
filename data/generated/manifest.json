@@ -1,0 +1,490 @@
+{
+  "schema_version": "1.1",
+  "generator": "dev/tools/generate_dataset.py",
+  "seed": 2026,
+  "purpose": "Synthetic drawings with dimension-to-feature labels. Not a real-world accuracy claim.",
+  "license": "MIT",
+  "cases": [
+    {
+      "id": "plate-gb-001",
+      "family": "plate",
+      "standard": "GB",
+      "units": "mm",
+      "drawing": "plate-gb-001/drawing.pdf",
+      "sha256": "7c1d0539395af7bddf3da61dd5bbd95c7dc0a114fbde91632ee094492f0bddeb",
+      "inputs": {
+        "dxf": "plate-gb-001/drawing.dxf",
+        "pdf": "plate-gb-001/drawing.pdf",
+        "png": "plate-gb-001/drawing.png",
+        "scan": "plate-gb-001/drawing_scan.jpg"
+      },
+      "answer_step": "plate-gb-001/answer.step",
+      "answer_table": "plate-gb-001/answer.json",
+      "expected": {
+        "volume_mm3": 41658.85,
+        "surface_area_mm2": 11154.133,
+        "bbox_mm": [
+          72.0,
+          12.5,
+          51.0
+        ],
+        "hole_count": 3
+      },
+      "dimension_count": 8,
+      "observation_match": {
+        "dxf": {
+          "labels": 8,
+          "matched": 8
+        },
+        "pdf": {
+          "labels": 8,
+          "matched": 8
+        }
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry_and_association",
+      "alignment": "pose_free"
+    },
+    {
+      "id": "disk-gb-002",
+      "family": "disk",
+      "standard": "GB",
+      "units": "mm",
+      "drawing": "disk-gb-002/drawing.pdf",
+      "sha256": "d5c8d46e1365ab4e052c54835ec8dca2a009b067a40ceededcf740e422ac9899",
+      "inputs": {
+        "dxf": "disk-gb-002/drawing.dxf",
+        "pdf": "disk-gb-002/drawing.pdf",
+        "png": "disk-gb-002/drawing.png",
+        "scan": "disk-gb-002/drawing_scan.jpg"
+      },
+      "answer_step": "disk-gb-002/answer.step",
+      "answer_table": "disk-gb-002/answer.json",
+      "expected": {
+        "volume_mm3": 206551.863,
+        "surface_area_mm2": 38186.059,
+        "bbox_mm": [
+          136.0,
+          17.0,
+          136.0
+        ],
+        "hole_count": 8
+      },
+      "dimension_count": 5,
+      "observation_match": {
+        "dxf": {
+          "labels": 5,
+          "matched": 5
+        },
+        "pdf": {
+          "labels": 5,
+          "matched": 5
+        }
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry_and_association",
+      "alignment": "pose_free"
+    },
+    {
+      "id": "shaft-gb-003",
+      "family": "shaft",
+      "standard": "GB",
+      "units": "mm",
+      "drawing": "shaft-gb-003/drawing.pdf",
+      "sha256": "0ae96d9e88f1526006c6ecb111b62c448171d61b9256df3348040ca424fcc6f9",
+      "inputs": {
+        "dxf": "shaft-gb-003/drawing.dxf",
+        "pdf": "shaft-gb-003/drawing.pdf",
+        "png": "shaft-gb-003/drawing.png",
+        "scan": "shaft-gb-003/drawing_scan.jpg"
+      },
+      "answer_step": "shaft-gb-003/answer.step",
+      "answer_table": "shaft-gb-003/answer.json",
+      "expected": {
+        "volume_mm3": 65290.935,
+        "surface_area_mm2": 15583.87,
+        "bbox_mm": [
+          52.0,
+          61.0,
+          52.0
+        ],
+        "hole_count": 0
+      },
+      "dimension_count": 6,
+      "observation_match": {
+        "dxf": {
+          "labels": 6,
+          "matched": 6
+        },
+        "pdf": {
+          "labels": 6,
+          "matched": 6
+        }
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry_and_association",
+      "alignment": "pose_free"
+    },
+    {
+      "id": "flange-gb-004",
+      "family": "flange",
+      "standard": "GB",
+      "units": "mm",
+      "drawing": "flange-gb-004/drawing.pdf",
+      "sha256": "c50af6e505b47f6e46d09ead667b7c386d01caa3b56d9c068b9a9101bb2b5379",
+      "inputs": {
+        "dxf": "flange-gb-004/drawing.dxf",
+        "pdf": "flange-gb-004/drawing.pdf",
+        "png": "flange-gb-004/drawing.png",
+        "scan": "flange-gb-004/drawing_scan.jpg"
+      },
+      "answer_step": "flange-gb-004/answer.step",
+      "answer_table": "flange-gb-004/answer.json",
+      "expected": {
+        "volume_mm3": 340026.354,
+        "surface_area_mm2": 50546.655,
+        "bbox_mm": [
+          144.0,
+          37.0,
+          144.0
+        ],
+        "hole_count": 6
+      },
+      "dimension_count": 8,
+      "observation_match": {
+        "dxf": {
+          "labels": 8,
+          "matched": 8
+        },
+        "pdf": {
+          "labels": 8,
+          "matched": 8
+        }
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry_and_association",
+      "alignment": "pose_free"
+    },
+    {
+      "id": "plate-iso-005",
+      "family": "plate",
+      "standard": "ISO",
+      "units": "mm",
+      "drawing": "plate-iso-005/drawing.pdf",
+      "sha256": "be6710a11ee7085d53ff855397f3aac50a6406c992314972a550003387fb3d52",
+      "inputs": {
+        "dxf": "plate-iso-005/drawing.dxf",
+        "pdf": "plate-iso-005/drawing.pdf",
+        "png": "plate-iso-005/drawing.png",
+        "scan": "plate-iso-005/drawing_scan.jpg"
+      },
+      "answer_step": "plate-iso-005/answer.step",
+      "answer_table": "plate-iso-005/answer.json",
+      "expected": {
+        "volume_mm3": 133716.126,
+        "surface_area_mm2": 24557.828,
+        "bbox_mm": [
+          106.0,
+          84.0,
+          15.5
+        ],
+        "hole_count": 3
+      },
+      "dimension_count": 9,
+      "observation_match": {
+        "dxf": {
+          "labels": 9,
+          "matched": 9
+        },
+        "pdf": {
+          "labels": 9,
+          "matched": 9
+        }
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry_and_association",
+      "alignment": "pose_free"
+    },
+    {
+      "id": "disk-iso-006",
+      "family": "disk",
+      "standard": "ISO",
+      "units": "mm",
+      "drawing": "disk-iso-006/drawing.pdf",
+      "sha256": "2919effbedbfc49519022152f8a788d86a2f1fa4e8a72a1c9ae520b30c714df0",
+      "inputs": {
+        "dxf": "disk-iso-006/drawing.dxf",
+        "pdf": "disk-iso-006/drawing.pdf",
+        "png": "disk-iso-006/drawing.png",
+        "scan": "disk-iso-006/drawing_scan.jpg"
+      },
+      "answer_step": "disk-iso-006/answer.step",
+      "answer_table": "disk-iso-006/answer.json",
+      "expected": {
+        "volume_mm3": 67281.134,
+        "surface_area_mm2": 23078.14,
+        "bbox_mm": [
+          115.0,
+          115.0,
+          7.5
+        ],
+        "hole_count": 8
+      },
+      "dimension_count": 5,
+      "observation_match": {
+        "dxf": {
+          "labels": 5,
+          "matched": 5
+        },
+        "pdf": {
+          "labels": 5,
+          "matched": 5
+        }
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry_and_association",
+      "alignment": "pose_free"
+    },
+    {
+      "id": "shaft-iso-007",
+      "family": "shaft",
+      "standard": "ISO",
+      "units": "mm",
+      "drawing": "shaft-iso-007/drawing.pdf",
+      "sha256": "7c5f0ebcf3e1a15df59f18d58e234eb367615fd584c9909cc70638f34b343c43",
+      "inputs": {
+        "dxf": "shaft-iso-007/drawing.dxf",
+        "pdf": "shaft-iso-007/drawing.pdf",
+        "png": "shaft-iso-007/drawing.png",
+        "scan": "shaft-iso-007/drawing_scan.jpg"
+      },
+      "answer_step": "shaft-iso-007/answer.step",
+      "answer_table": "shaft-iso-007/answer.json",
+      "expected": {
+        "volume_mm3": 87611.427,
+        "surface_area_mm2": 14269.514,
+        "bbox_mm": [
+          39.0,
+          141.5,
+          39.0
+        ],
+        "hole_count": 0
+      },
+      "dimension_count": 10,
+      "observation_match": {
+        "dxf": {
+          "labels": 10,
+          "matched": 10
+        },
+        "pdf": {
+          "labels": 10,
+          "matched": 10
+        }
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry_and_association",
+      "alignment": "pose_free"
+    },
+    {
+      "id": "flange-iso-008",
+      "family": "flange",
+      "standard": "ISO",
+      "units": "mm",
+      "drawing": "flange-iso-008/drawing.pdf",
+      "sha256": "7ca04ef2725e159c2c6c38331d77ec16b1d0c7e4c463a35da20d67bf39379dbb",
+      "inputs": {
+        "dxf": "flange-iso-008/drawing.dxf",
+        "pdf": "flange-iso-008/drawing.pdf",
+        "png": "flange-iso-008/drawing.png",
+        "scan": "flange-iso-008/drawing_scan.jpg"
+      },
+      "answer_step": "flange-iso-008/answer.step",
+      "answer_table": "flange-iso-008/answer.json",
+      "expected": {
+        "volume_mm3": 151603.837,
+        "surface_area_mm2": 30492.298,
+        "bbox_mm": [
+          98.0,
+          45.0,
+          98.0
+        ],
+        "hole_count": 8
+      },
+      "dimension_count": 8,
+      "observation_match": {
+        "dxf": {
+          "labels": 8,
+          "matched": 8
+        },
+        "pdf": {
+          "labels": 8,
+          "matched": 8
+        }
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry_and_association",
+      "alignment": "pose_free"
+    },
+    {
+      "id": "plate-asme-009",
+      "family": "plate",
+      "standard": "ASME",
+      "units": "inch",
+      "drawing": "plate-asme-009/drawing.pdf",
+      "sha256": "de57d79d8e560e9613a95f30dab61c726351f5058a3be486e8d9f805acd3ad36",
+      "inputs": {
+        "dxf": "plate-asme-009/drawing.dxf",
+        "pdf": "plate-asme-009/drawing.pdf",
+        "png": "plate-asme-009/drawing.png",
+        "scan": "plate-asme-009/drawing_scan.jpg"
+      },
+      "answer_step": "plate-asme-009/answer.step",
+      "answer_table": "plate-asme-009/answer.json",
+      "expected": {
+        "volume_mm3": 85772.073,
+        "surface_area_mm2": 22796.129,
+        "bbox_mm": [
+          117.475,
+          79.375,
+          9.525
+        ],
+        "hole_count": 4
+      },
+      "dimension_count": 9,
+      "observation_match": {
+        "dxf": {
+          "labels": 9,
+          "matched": 9
+        },
+        "pdf": {
+          "labels": 9,
+          "matched": 9
+        }
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry_and_association",
+      "alignment": "pose_free"
+    },
+    {
+      "id": "disk-asme-010",
+      "family": "disk",
+      "standard": "ASME",
+      "units": "inch",
+      "drawing": "disk-asme-010/drawing.pdf",
+      "sha256": "67c65c293016dcf2d1106d566eb637dd28f9724784fab033d9400a76a06fe121",
+      "inputs": {
+        "dxf": "disk-asme-010/drawing.dxf",
+        "pdf": "disk-asme-010/drawing.pdf",
+        "png": "disk-asme-010/drawing.png",
+        "scan": "disk-asme-010/drawing_scan.jpg"
+      },
+      "answer_step": "disk-asme-010/answer.step",
+      "answer_table": "disk-asme-010/answer.json",
+      "expected": {
+        "volume_mm3": 131217.444,
+        "surface_area_mm2": 30164.93,
+        "bbox_mm": [
+          123.825,
+          123.825,
+          12.7
+        ],
+        "hole_count": 8
+      },
+      "dimension_count": 5,
+      "observation_match": {
+        "dxf": {
+          "labels": 5,
+          "matched": 5
+        },
+        "pdf": {
+          "labels": 5,
+          "matched": 5
+        }
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry_and_association",
+      "alignment": "pose_free"
+    },
+    {
+      "id": "shaft-asme-011",
+      "family": "shaft",
+      "standard": "ASME",
+      "units": "inch",
+      "drawing": "shaft-asme-011/drawing.pdf",
+      "sha256": "06b4fd76a4b416c3ddb37a696839aa10f653ed256f960c2f29a79ad30a35212c",
+      "inputs": {
+        "dxf": "shaft-asme-011/drawing.dxf",
+        "pdf": "shaft-asme-011/drawing.pdf",
+        "png": "shaft-asme-011/drawing.png",
+        "scan": "shaft-asme-011/drawing_scan.jpg"
+      },
+      "answer_step": "shaft-asme-011/answer.step",
+      "answer_table": "shaft-asme-011/answer.json",
+      "expected": {
+        "volume_mm3": 151427.947,
+        "surface_area_mm2": 17861.439,
+        "bbox_mm": [
+          50.8,
+          101.6,
+          50.8
+        ],
+        "hole_count": 0
+      },
+      "dimension_count": 7,
+      "observation_match": {
+        "dxf": {
+          "labels": 7,
+          "matched": 7
+        },
+        "pdf": {
+          "labels": 7,
+          "matched": 7
+        }
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry_and_association",
+      "alignment": "pose_free"
+    },
+    {
+      "id": "flange-asme-012",
+      "family": "flange",
+      "standard": "ASME",
+      "units": "inch",
+      "drawing": "flange-asme-012/drawing.pdf",
+      "sha256": "bc422cf1163251473ed792c9223e7ca8ed10d3a55524243d7ecce211bfee9390",
+      "inputs": {
+        "dxf": "flange-asme-012/drawing.dxf",
+        "pdf": "flange-asme-012/drawing.pdf",
+        "png": "flange-asme-012/drawing.png",
+        "scan": "flange-asme-012/drawing_scan.jpg"
+      },
+      "answer_step": "flange-asme-012/answer.step",
+      "answer_table": "flange-asme-012/answer.json",
+      "expected": {
+        "volume_mm3": 253083.759,
+        "surface_area_mm2": 50924.102,
+        "bbox_mm": [
+          158.75,
+          28.575,
+          158.75
+        ],
+        "hole_count": 4
+      },
+      "dimension_count": 8,
+      "observation_match": {
+        "dxf": {
+          "labels": 8,
+          "matched": 8
+        },
+        "pdf": {
+          "labels": 8,
+          "matched": 8
+        }
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry_and_association",
+      "alignment": "pose_free"
+    }
+  ],
+  "skipped": []
+}

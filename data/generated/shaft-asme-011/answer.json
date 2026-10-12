@@ -1,0 +1,234 @@
+{
+  "source_table": {
+    "schema_version": "0.4",
+    "part": {
+      "name": "shaft-asme-011",
+      "part_type": "revolved",
+      "units": "inch",
+      "projection": "third_angle",
+      "drawing_setup": {
+        "length_unit": "inch",
+        "unit_evidence": "title block",
+        "standard": "ASME",
+        "language": "en",
+        "scale": "1:1",
+        "confidence": 1.0
+      },
+      "material": "6061-T6"
+    },
+    "features": [
+      {
+        "id": "shaft",
+        "type": "base_revolve",
+        "half_profile": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.0
+          ],
+          [
+            0.875,
+            1.0
+          ],
+          [
+            0.875,
+            2.25
+          ],
+          [
+            0.75,
+            2.25
+          ],
+          [
+            0.75,
+            4.0
+          ],
+          [
+            0.0,
+            4.0
+          ]
+        ],
+        "meta": {
+          "confidence": 1.0,
+          "evidence": "generated"
+        }
+      }
+    ],
+    "open_questions": []
+  },
+  "standard": "ASME",
+  "family": "shaft",
+  "volume_mm3": 151427.947,
+  "surface_area_mm2": 17861.439,
+  "bbox_mm": [
+    50.8,
+    101.6,
+    50.8
+  ],
+  "hole_count": 0,
+  "dimension_labels": [
+    {
+      "handle": "4E",
+      "kind": "linear",
+      "value": 1.5,
+      "value_mm": 38.1,
+      "feature": "shaft",
+      "param": "half_profile.diameter",
+      "pdf_text": "Ø1.500",
+      "pdf_pt": [
+        124.59,
+        128.77
+      ],
+      "observations": {
+        "dxf": "dxf-dim-1",
+        "pdf": "p1-text-1"
+      },
+      "png_px": [
+        259.6,
+        268.3
+      ]
+    },
+    {
+      "handle": "61",
+      "kind": "linear",
+      "value": 1.75,
+      "value_mm": 44.45,
+      "feature": "shaft",
+      "param": "half_profile.diameter",
+      "pdf_text": "Ø1.750",
+      "pdf_pt": [
+        105.02,
+        128.77
+      ],
+      "observations": {
+        "dxf": "dxf-dim-2",
+        "pdf": "p1-text-2"
+      },
+      "png_px": [
+        218.8,
+        268.3
+      ]
+    },
+    {
+      "handle": "70",
+      "kind": "linear",
+      "value": 2.0,
+      "value_mm": 50.8,
+      "feature": "shaft",
+      "param": "half_profile.diameter",
+      "pdf_text": "Ø2.000",
+      "pdf_pt": [
+        85.45,
+        128.77
+      ],
+      "observations": {
+        "dxf": "dxf-dim-3",
+        "pdf": "p1-text-3"
+      },
+      "png_px": [
+        178.0,
+        268.3
+      ]
+    },
+    {
+      "handle": "7F",
+      "kind": "linear",
+      "value": 1.0,
+      "value_mm": 25.4,
+      "feature": "shaft",
+      "param": "half_profile.length",
+      "pdf_text": "1.000",
+      "pdf_pt": [
+        175.68,
+        198.35
+      ],
+      "observations": {
+        "dxf": "dxf-dim-4",
+        "pdf": "p1-text-4"
+      },
+      "png_px": [
+        366.0,
+        413.2
+      ]
+    },
+    {
+      "handle": "8E",
+      "kind": "linear",
+      "value": 1.25,
+      "value_mm": 31.75,
+      "feature": "shaft",
+      "param": "half_profile.length",
+      "pdf_text": "1.250",
+      "pdf_pt": [
+        236.83,
+        198.35
+      ],
+      "observations": {
+        "dxf": "dxf-dim-5",
+        "pdf": "p1-text-5"
+      },
+      "png_px": [
+        493.4,
+        413.2
+      ]
+    },
+    {
+      "handle": "9D",
+      "kind": "linear",
+      "value": 1.75,
+      "value_mm": 44.45,
+      "feature": "shaft",
+      "param": "half_profile.length",
+      "pdf_text": "1.750",
+      "pdf_pt": [
+        318.37,
+        198.35
+      ],
+      "observations": {
+        "dxf": "dxf-dim-6",
+        "pdf": "p1-text-6"
+      },
+      "png_px": [
+        663.2,
+        413.2
+      ]
+    },
+    {
+      "handle": "AC",
+      "kind": "linear",
+      "value": 4.0,
+      "value_mm": 101.6,
+      "feature": "shaft",
+      "param": "half_profile.total_length",
+      "pdf_text": "4.000",
+      "pdf_pt": [
+        257.22,
+        217.92
+      ],
+      "observations": {
+        "dxf": "dxf-dim-7",
+        "pdf": "p1-text-7"
+      },
+      "png_px": [
+        535.9,
+        454.0
+      ]
+    }
+  ],
+  "observation_match": {
+    "dxf": {
+      "labels": 7,
+      "matched": 7
+    },
+    "pdf": {
+      "labels": 7,
+      "matched": 7
+    }
+  }
+}
