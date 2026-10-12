@@ -2,7 +2,7 @@
 
 # Drawing2SW
 
-**Hand an AI agent a mechanical part drawing. Get back a SolidWorks part you can actually check.**
+**Reads your engineering drawings and models the part in SolidWorks.**
 
 DWG · DXF · PDF · images → feature table → STEP / SLDPRT
 

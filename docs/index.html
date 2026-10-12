@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Drawing2SW · 从零件图到 SolidWorks</title>
-<meta name="description" content="一个给 AI Agent 用的开源 skill：读机械零件图，填写可追溯的特征表，用确定性脚本生成 STEP 和 SolidWorks 零件。">
+<title>Drawing2SW · 读工程图，在 SolidWorks 里建模</title>
+<meta name="description" content="开源 skill：让 AI 读取你的工程图（DWG、DXF、PDF、图片），然后在 SolidWorks 里建模，也可以导出 STEP。">
 <meta property="og:title" content="Drawing2SW">
-<meta property="og:description" content="AI 负责看图，脚本负责算几何。从 DWG / DXF / PDF / 图片到可检查的 SolidWorks 零件。">
+<meta property="og:description" content="自动读取你的工程图，然后在 SolidWorks 里建模。">
 <meta property="og:image" content="https://jasonxiao422.github.io/drawing2sw/assets/flange.png">
 <meta name="theme-color" content="#f4f1ea">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -47,8 +47,8 @@
 <section class="hero wrap">
   <div class="hero-text">
     <p class="kicker"><span class="dot"></span><span data-i18n="hero.kicker">开源 Agent Skill · MIT</span></p>
-    <h1 data-i18n-html="hero.title">把零件图交给 AI，<br>拿回<em>能检查</em>的三维零件。</h1>
-    <p class="lede" data-i18n="hero.lede">AI 负责看图，脚本负责算几何。每个特征都能追到图上的哪个尺寸，每次校验都写明查了什么、没查什么。</p>
+    <h1 data-i18n-html="hero.title">自动读取你的工程图，<br>然后在 <em>SolidWorks</em> 里建模。</h1>
+    <p class="lede" data-i18n="hero.lede">支持 DWG、DXF、PDF 和图片。AI 读图，脚本建模；每个特征都记着依据的是哪个尺寸，建完会和答案核对。</p>
     <div class="cta">
       <a class="btn primary" href="#install" data-i18n="hero.start">开始使用</a>
       <a class="btn" href="https://github.com/jasonXiao422/drawing2sw" data-i18n="hero.source">查看源码</a>

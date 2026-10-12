@@ -4,8 +4,8 @@ const EN = {
   skip: 'Skip to content',
   'nav.how': 'How it works', 'nav.parts': 'What it builds', 'nav.trust': 'Limits', 'nav.install': 'Install',
   'hero.kicker': 'Open-source agent skill · MIT',
-  'hero.title': 'Give an AI your part drawing.<br>Get back a model you can <em>check</em>.',
-  'hero.lede': 'The model reads the drawing. Deterministic code does the geometry. Every feature traces back to a dimension on the sheet, and every check says what it covered and what it didn’t.',
+  'hero.title': 'Reads your engineering drawings,<br>then models the part in <em>SolidWorks</em>.',
+  'hero.lede': 'Works with DWG, DXF, PDF and images. The AI reads the drawing, scripts build the model. Every feature records which dimension it came from, and the result is checked against the answer.',
   'hero.start': 'Get started', 'hero.source': 'View source', 'hero.img': 'Images',
   'agents.label': 'For agents that can run local commands', 'agents.other': 'Cursor · other agents',
   'how.title': 'Only one step is left to the model',
@@ -91,7 +91,7 @@ function render() {
     const v = dict[el.dataset.i18nHtml]; if (v !== undefined) el.innerHTML = v;
   });
   document.getElementById('lang').textContent = lang === 'en' ? '中文' : 'EN';
-  document.title = lang === 'en' ? 'Drawing2SW · Part drawings to SolidWorks' : 'Drawing2SW · 从零件图到 SolidWorks';
+  document.title = lang === 'en' ? 'Drawing2SW · Engineering drawings to SolidWorks' : 'Drawing2SW · 读工程图，在 SolidWorks 里建模';
   renderAgent();
 }
 
