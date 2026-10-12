@@ -225,7 +225,7 @@ def validate(table: dict, evidence: dict | None = None) -> tuple[list[str], list
                 if key in TAP_DRILL and abs(TAP_DRILL[key] - f["diameter"]) > 0.05:
                     warnings.append(f"{label} 螺纹 {th} 的粗牙底孔应为 {TAP_DRILL[key]}，表里是 {f['diameter']}（细牙可忽略）")
 
-        if f["type"] in ("linear_pattern", "mirror"):
+        if f["type"] in ftable.COPY_TYPES:
             before = {g["id"]: g["type"] for g in feats[:feats.index(f)]}
             for ref in f["features"]:
                 if ref not in before:
@@ -233,6 +233,10 @@ def validate(table: dict, evidence: dict | None = None) -> tuple[list[str], list
                 elif before[ref] not in ("extrude", "cut_extrude", "hole", "revolve"):
                     errors.append(f"{label} 不能复制 {ref}（{before[ref]}）：只支持 extrude、cut_extrude、hole、revolve。"
                                   "倒角圆角在阵列后单独写；整件对称的基体直接画全")
+            if f["type"] == "circular_pattern":
+                step = f.get("angle") or 360.0 / f["count"]
+                if step * (f["count"] - 1) >= 360 - 1e-6 and f.get("angle"):
+                    errors.append(f"{label} {f['count']} 个 × {step:g}° 超过一整圈，复制件会重叠。整圈均布不用写 angle")
             if f["type"] == "linear_pattern":
                 if ("direction2" in f) != ("count2" in f) or ("direction2" in f) != ("spacing2" in f):
                     errors.append(f"{label} 第二方向要同时写 direction2、count2、spacing2")

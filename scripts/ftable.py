@@ -57,7 +57,7 @@ def resolve(table: dict) -> dict:
     # 阵列 / 镜像引用的孔如果展开成了多个特征（沉孔、钻尖），展开出的部分一起复制
     ids = [g.get("id") for g in feats]
     for f in feats:
-        if f.get("type") in ("linear_pattern", "mirror"):
+        if f.get("type") in COPY_TYPES:
             f["features"] = [i for r in f["features"]
                              for i in ([j for j in ids if j == r or str(j).startswith(r + "__")] or [r])]
     out["features"] = feats
@@ -289,6 +289,7 @@ def hole_positions(feat: dict) -> list[tuple[float, float]]:
     return pts
 
 
+COPY_TYPES = ("linear_pattern", "circular_pattern", "mirror")
 AXIS_VEC = {"+X": (1, 0, 0), "-X": (-1, 0, 0), "+Y": (0, 1, 0), "-Y": (0, -1, 0), "+Z": (0, 0, 1), "-Z": (0, 0, -1)}
 
 
@@ -302,6 +303,12 @@ def pattern_offsets(f: dict) -> list[tuple[float, float, float]]:
             if i or j:
                 out.append(tuple(i * s1 * a + j * s2 * b for a, b in zip(d1, d2)))
     return out
+
+
+def pattern_angles(f: dict) -> list[float]:
+    """圆周阵列每个复制件相对原特征的转角（度），不含原特征自己。"""
+    step = f.get("angle") or 360.0 / f["count"]
+    return [k * step for k in range(1, f["count"])]
 
 
 def mirror_plane(f: dict) -> tuple[tuple, tuple]:

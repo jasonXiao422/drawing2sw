@@ -159,7 +159,7 @@ def build(table: dict, stop_before: str | None = None, trace: list | None = None
                                     f["depth"], f.get("direction", "both"), big)
                 result = result.cut(tool)
                 tools[f["id"]] = (tool, True)
-            elif t in ("linear_pattern", "mirror"):
+            elif t in ftable.COPY_TYPES:
                 # 和 SolidWorks 一样：复制件按原特征的顺序逐个加料或切除
                 for ref in f["features"]:
                     if ref not in tools:
@@ -168,6 +168,9 @@ def build(table: dict, stop_before: str | None = None, trace: list | None = None
                     if t == "mirror":
                         pt, n = ftable.mirror_plane(f)
                         copies = [solid.val().mirror(cq.Vector(*n), cq.Vector(*pt))]
+                    elif t == "circular_pattern":
+                        ax = cq.Vector(*ftable.AXIS_VEC[f["axis"]])
+                        copies = [solid.val().rotate(cq.Vector(0, 0, 0), ax, a) for a in ftable.pattern_angles(f)]
                     else:
                         copies = [solid.val().translate(cq.Vector(*d)) for d in ftable.pattern_offsets(f)]
                     for c in copies:

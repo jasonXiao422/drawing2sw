@@ -32,6 +32,7 @@
 | hole | 光孔、螺纹底孔 | plane, offset, diameter, positions 或 bolt_circle, depth, thread |
 | edge_treatment | 倒角、圆角 | kind, size, edges |
 | linear_pattern | 一排或一格相同的结构（脚、槽、筋、孔） | features, direction, count, spacing（可选 direction2, count2, spacing2） |
+| circular_pattern | 绕轴一圈的相同结构（齿、缺口、轮辐） | features, axis, count（可选 angle） |
 | mirror | 关于基准面对称的结构 | features, plane, offset |
 
 只能有一个基体特征。没有的特征类型不要自创，按 SKILL.md 开头的说明报告能力缺口。
@@ -170,7 +171,7 @@ path 的 `start`、`to`、`center` 都可以写成两个对象的交点，有两
 - 必须写 `direction`（从哪个面钻进去），不能是 both。
 - 展开后会多出 `ear_hole__cbore`、`ear_hole__tip1` 这类特征，逐步自检和报告里看到的是展开后的名字。
 
-### 线性阵列 linear_pattern、镜像 mirror
+### 线性阵列 linear_pattern、圆周阵列 circular_pattern、镜像 mirror
 
 先建一个，再复制。和 SolidWorks 里工程师的做法一样，模型的特征树也是"一个凸台 + 阵列"。
 
@@ -186,6 +187,7 @@ path 的 `start`、`to`、`center` 都可以写成两个对象的交点，有两
 - `direction`：模型坐标轴 `+X -X +Y -Y +Z -Z`。原特征是第一个，其余往这个方向排。`count` 含原特征，`spacing` 是相邻中心距。
 - 网格：再写 `direction2`、`count2`、`spacing2`，第二方向必须和第一方向垂直。
 - `mirror` 的 `plane`：front（法向 +Z）、top（+Y）、right（+X），`offset` 沿法向偏移，目前只支持 ≥ 0。
+- `circular_pattern`：`{"features": ["tooth_cut"], "axis": "+Z", "count": 6}`，绕过原点的模型坐标轴转，正角度按右手定则。`angle` 是相邻两个的夹角，不写就是整圈均布（360 / count）。轴要过原点，所以回转结构的中心放在原点。只有孔的分布圆继续用 hole 的 `bolt_circle`。
 - 倒角圆角写在阵列 / 镜像后面，选边点覆盖所有复制件。
 - 整件对称的外形直接把基体画全，不要镜像基体。
 - 一排孔也可以直接在 hole 的 `positions` 里列全，结果一样。图上写"5× 等距"、或者是凸台、槽这类非孔结构时用阵列更省事。

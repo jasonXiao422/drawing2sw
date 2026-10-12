@@ -739,6 +739,45 @@ class Builder:
             self._delete(feat)
         raise RuntimeError(f"[{f['id']}] 线性阵列各种方向组合都和预览对不上，检查 direction 和 spacing")
 
+    def circular_pattern_of(self, seeds: list, f: dict, exp: dict | None) -> dict:
+        """圆周阵列，轴用基准面交线。整圈均布时方向不影响结果；只转一部分时和线性阵列一样，
+        先按不翻转建，和预览对不上就删掉换方向。EqualSpacing=False，Spacing 是相邻两个的角度。"""
+        cache = self.__dict__.setdefault("_axes", {})
+        ax = f["axis"][1]
+        if ax not in cache:
+            cache[ax] = self.make_axis(ax)
+        step = math.radians(f.get("angle") or 360.0 / f["count"])
+        errs = []
+        for flip in (False, True):
+            feat, name = None, None
+            for name, fn in (
+                ("FeatureCircularPattern5", lambda: self.fm.FeatureCircularPattern5(
+                    f["count"], step, flip, "NULL", False, False, False, False, False, False, 1, 0.0, "NULL", False)),
+                ("FeatureCircularPattern4", lambda: self.fm.FeatureCircularPattern4(
+                    f["count"], step, flip, "NULL", False, False, False)),
+            ):
+                # 每次重新选：要阵列的特征 mark 4，阵列轴 mark 1
+                self.doc.ClearSelection2(True)
+                for sd in seeds:
+                    sd.Select2(True, 4)
+                cache[ax].Select2(True, 1)
+                try:
+                    feat = fn()
+                except Exception as e:  # noqa: BLE001
+                    errs.append(f"{name}: {e}")
+                    continue
+                if feat is not None:
+                    break
+                errs.append(f"{name}: 返回空")
+            if feat is None:
+                raise RuntimeError(f"[{f['id']}] 圆周阵列失败: " + " | ".join(errs[-2:]))
+            if exp is None:
+                return {"api": name, "flip": flip, "direction_checked": False}
+            if self.step_ok(exp):
+                return {"api": name, "flip": flip, "direction_checked": True}
+            self._delete(feat)
+        raise RuntimeError(f"[{f['id']}] 圆周阵列两个方向都和预览对不上，检查 axis 和 angle")
+
     def mirror(self, seeds: list, f: dict) -> str:
         plane = self.plane_obj(f["plane"], float(f.get("offset", 0)))
         errs = []
@@ -894,13 +933,15 @@ def build(table: dict, b: Builder, steps: list | None = None) -> list[dict]:
                 b.circle(u, v, r)
             b.end_sketch()
             made[f["id"]] = b.cut(f["depth"], f.get("direction", "both"))
-        elif t in ("linear_pattern", "mirror"):
+        elif t in ftable.COPY_TYPES:
             missing = [r for r in f["features"] if r not in made]
             if missing:
                 raise CapabilityBlocked(f"[{f['id']}] 不能复制 {missing}：只支持前面的 extrude、cut_extrude、hole、revolve")
             seeds = [made[r] for r in f["features"]]
             if t == "mirror":
                 log.append({"id": f["id"], "status": "ok", "api": b.mirror(seeds, f)})
+            elif t == "circular_pattern":
+                log.append(dict({"id": f["id"], "status": "ok"}, **b.circular_pattern_of(seeds, f, exp)))
             else:
                 log.append(dict({"id": f["id"], "status": "ok"}, **b.linear_pattern(seeds, f, exp)))
             return

@@ -1113,6 +1113,60 @@
               "$ref": "#/$defs/meta"
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "type",
+            "features",
+            "axis",
+            "count",
+            "meta"
+          ],
+          "description": "圆周阵列：把前面的特征绕过原点的模型坐标轴转着复制。count 含原特征本身。图上'6X 均布''CUT ONE TOOTH THEN PATTERN 6X'这类写法用它。只有孔的分布圆直接用 hole.bolt_circle",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "circular_pattern"
+            },
+            "features": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "要复制的特征 id（写在本特征前面）。可以是 extrude、cut_extrude、hole、revolve；hole 带 cbore / csink / tip_angle 时展开出的部分自动一起复制。不能是基体、倒角圆角、齿轮"
+            },
+            "axis": {
+              "enum": [
+                "+X",
+                "-X",
+                "+Y",
+                "-Y",
+                "+Z",
+                "-Z"
+              ],
+              "description": "旋转轴，过原点。正角度按右手定则绕这个方向转"
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "angle": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 360,
+              "description": "相邻两个之间的角度，度。不写 = 360 / count（整圈均布）"
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          }
         }
       ]
     },

@@ -169,10 +169,12 @@ def feature_numbers(feature: dict, table: dict | None = None) -> list[float]:
                 nums.append(holder[key] / 2)
     if feature.get("type") == "edge_treatment" and isinstance(feature.get("size"), (int, float)):
         nums.append(45.0)  # 1 X 45° 倒角
-    if feature.get("type") in ("linear_pattern", "mirror") and table:
+    if feature.get("type") in ("linear_pattern", "circular_pattern", "mirror") and table:
         if feature["type"] == "linear_pattern":
             n1, n2 = feature.get("count", 1), feature.get("count2", 1)
             nums += [n1 * n2, (n1 - 1) * feature.get("spacing", 0), (n2 - 1) * feature.get("spacing2", 0)]
+        if feature["type"] == "circular_pattern":
+            nums += [feature["count"], feature.get("angle") or 360.0 / feature["count"]]
         seeds = {f.get("id"): f for f in table.get("features", [])}
         for ref in feature.get("features", []):  # 原特征的尺寸（槽宽、孔径）标在复制件上也算
             if ref in seeds:
@@ -196,6 +198,8 @@ def _copies(feature: dict, table: dict) -> list[dict]:
         if feature["type"] == "mirror":
             pt, n = ftable.mirror_plane(feature)
             moves = [("mirror", pt, n)]
+        elif feature["type"] == "circular_pattern":
+            moves = [("rotate", a, ftable.AXIS_VEC[feature["axis"]]) for a in ftable.pattern_angles(feature)]
         else:
             moves = [("move", d, None) for d in ftable.pattern_offsets(feature)]
 
@@ -203,6 +207,11 @@ def _copies(feature: dict, table: dict) -> list[dict]:
             P = [p[0] * fr["x_dir"][i] + p[1] * fr["y_dir"][i] for i in range(3)]
             if kind == "move":
                 Q = [P[i] + a[i] for i in range(3)]
+            elif kind == "rotate":  # 绕过原点的轴 n 转 a 度（Rodrigues）
+                c, s_ = math.cos(math.radians(a)), math.sin(math.radians(a))
+                dot = sum(P[i] * n[i] for i in range(3))
+                cr = [n[1] * P[2] - n[2] * P[1], n[2] * P[0] - n[0] * P[2], n[0] * P[1] - n[1] * P[0]]
+                Q = [P[i] * c + cr[i] * s_ + n[i] * dot * (1 - c) for i in range(3)]
             else:
                 dist = sum((P[i] - a[i]) * n[i] for i in range(3))
                 Q = [P[i] - 2 * dist * n[i] for i in range(3)]

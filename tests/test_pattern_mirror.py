@@ -102,6 +102,42 @@ class PatternPreview(unittest.TestCase):
         self.assertAlmostEqual(vol, 60000 + 5 * 800 - 2 * hole, places=2)
 
 
+class CircularPattern(unittest.TestCase):
+    def notch(self):
+        return {'id': 'notch', 'type': 'cut_extrude', 'plane': 'front', 'depth': 'through_all',
+                'profile': {'shape': 'rect', 'width': 4, 'height': 6, 'center': [0, 20]}, 'meta': META}
+
+    def disc(self):
+        return {'id': 'disc', 'type': 'base_extrude', 'plane': 'front',
+                'profile': {'shape': 'circle', 'diameter': 40}, 'depth': 5, 'meta': META}
+
+    def test_angles_default_full_circle(self):
+        self.assertEqual(ftable.pattern_angles({'count': 6}), [60, 120, 180, 240, 300])
+        self.assertEqual(ftable.pattern_angles({'count': 3, 'angle': 30}), [30, 60])
+
+    def test_volume_six_notches(self):
+        import preview_cadquery
+        pat = {'id': 'p', 'type': 'circular_pattern', 'features': ['notch'], 'axis': '+Z', 'count': 6, 'meta': META}
+        t = ftable.to_mm(ftable.resolve(table([self.disc(), self.notch(), pat])))
+        vol = preview_cadquery.build(t).val().Volume()
+        one = preview_cadquery.build(ftable.to_mm(ftable.resolve(table([self.disc(), self.notch()])))).val().Volume()
+        full = math.pi * 400 * 5
+        self.assertAlmostEqual(full - vol, 6 * (full - one), places=3)
+
+    def test_overlapping_partial_pattern_rejected(self):
+        pat = {'id': 'p', 'type': 'circular_pattern', 'features': ['notch'], 'axis': '+Z', 'count': 5,
+               'angle': 100, 'meta': META}
+        errors, _ = validate(table([self.disc(), self.notch(), pat]))
+        self.assertTrue(any('超过一整圈' in e for e in errors))
+
+    def test_association_sees_rotated_copy_and_angle(self):
+        pat = {'id': 'p', 'type': 'circular_pattern', 'features': ['notch'], 'axis': '+Z', 'count': 6, 'meta': META}
+        t = table([self.disc(), self.notch(), pat])
+        nums = association.feature_numbers(pat, t)
+        self.assertTrue(association.contains(nums, 60))
+        self.assertTrue(association.contains(nums, 6))
+
+
 class PatternAssociation(unittest.TestCase):
     def test_mirrored_copy_position_counts(self):
         # 左孔离左边 15，右孔（镜像件）离左边 55：55 应该能对上镜像特征
