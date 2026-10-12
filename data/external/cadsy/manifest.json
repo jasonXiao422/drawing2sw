@@ -186,6 +186,75 @@
       "license": "Apache-2.0",
       "source": "cadsy/cad-technical-drawings (from ADSKAILab/Zero-To-CAD-100k)",
       "evaluation": "geometry_only; no dimension-to-feature labels"
+    },
+    {
+      "id": "part_0023",
+      "drawing": "part_0023/iso.png",
+      "sha256": "68d10dc299d638a517cad08c14711117b02df710d4fed6358531b56861297271",
+      "inputs": {
+        "png_iso": "part_0023/iso.png",
+        "png_asme": "part_0023/asme.png"
+      },
+      "answer_step": "part_0023/model.step",
+      "expected": {
+        "volume_mm3": 18942.972,
+        "surface_area_mm2": 5795.841,
+        "bbox_mm": [
+          45.5692,
+          45.5692,
+          17.0
+        ]
+      },
+      "alignment": "pose_free",
+      "license": "Apache-2.0",
+      "source": "cadsy/cad-technical-drawings (from ADSKAILab/Zero-To-CAD-100k)",
+      "evaluation": "geometry_only; no dimension-to-feature labels"
+    },
+    {
+      "id": "part_0035",
+      "drawing": "part_0035/iso.png",
+      "sha256": "9b1ed6bcc9391bd8ce58576a4f8930358e990733b6a30824288bed6151117bd0",
+      "inputs": {
+        "png_iso": "part_0035/iso.png",
+        "png_asme": "part_0035/asme.png"
+      },
+      "answer_step": "part_0035/model.step",
+      "expected": {
+        "volume_mm3": 35872.276,
+        "surface_area_mm2": 13520.267,
+        "bbox_mm": [
+          80.0,
+          80.0,
+          10.0
+        ]
+      },
+      "alignment": "pose_free",
+      "license": "Apache-2.0",
+      "source": "cadsy/cad-technical-drawings (from ADSKAILab/Zero-To-CAD-100k)",
+      "evaluation": "geometry_only; no dimension-to-feature labels"
+    },
+    {
+      "id": "part_0053",
+      "drawing": "part_0053/iso.png",
+      "sha256": "63fc54d2006d6649a38679fdab7437fd2425b3d3bcf93aee029e39b2caf1c8bb",
+      "inputs": {
+        "png_iso": "part_0053/iso.png",
+        "png_asme": "part_0053/asme.png"
+      },
+      "answer_step": "part_0053/model.step",
+      "expected": {
+        "volume_mm3": 10929.98,
+        "surface_area_mm2": 7755.169,
+        "bbox_mm": [
+          60.0,
+          70.0,
+          12.0
+        ]
+      },
+      "alignment": "pose_free",
+      "license": "Apache-2.0",
+      "source": "cadsy/cad-technical-drawings (from ADSKAILab/Zero-To-CAD-100k)",
+      "evaluation": "geometry_only; no dimension-to-feature labels"
     }
   ]
 }

@@ -1,0 +1,440 @@
+{
+  "schema_version": "0.5",
+  "part": {
+    "name": "part_0023 blind read",
+    "part_type": "prismatic",
+    "units": "mm",
+    "projection": "first_angle",
+    "drawing_setup": {
+      "length_unit": "mm",
+      "unit_evidence": "ISO 2768-f 一般公差、小数逗号、标题栏无英制标记；标题栏没有写单位",
+      "standard": "ISO",
+      "language": "en",
+      "scale": "2:1",
+      "confidence": 0.8
+    },
+    "source": {
+      "file": "drawing.png",
+      "sha256": "68d10dc299d638a517cad08c14711117b02df710d4fed6358531b56861297271"
+    }
+  },
+  "features": [
+    {
+      "id": "boss",
+      "type": "base_extrude",
+      "plane": "top",
+      "profile": {
+        "shape": "circle",
+        "diameter": 20,
+        "center": [
+          0,
+          0
+        ]
+      },
+      "depth": 4,
+      "meta": {
+        "confidence": 0.85,
+        "evidence": "俯视图虚线圆 ⌀20；主视图底部凸台高 4，宽度按比例约 20",
+        "evidence_refs": [
+          "callout-1",
+          "dimension-4"
+        ]
+      }
+    },
+    {
+      "id": "hex_low",
+      "type": "extrude",
+      "plane": "top",
+      "offset": 4,
+      "profile": {
+        "shape": "path",
+        "start": [
+          0.0,
+          23.094011
+        ],
+        "segments": [
+          {
+            "to": [
+              -20.0,
+              11.547005
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              -20.0,
+              -11.547005
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              -0.0,
+              -23.094011
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              20.0,
+              -11.547005
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              20.0,
+              11.547005
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              0.0,
+              23.094011
+            ],
+            "fillet": 2
+          }
+        ]
+      },
+      "depth": 10,
+      "direction": "positive",
+      "meta": {
+        "confidence": 0.5,
+        "evidence": "转 30° 的六边形（尖角朝前后）。侧视图 45,57 ±0,2 是它的角距；R2 圆角时对边 40。顶面 z=14 按比例量出，图上无尺寸（详图 A 的 14 可能就是它）",
+        "evidence_refs": [
+          "dimension-1",
+          "dimension-7"
+        ],
+        "needs_review": true
+      }
+    },
+    {
+      "id": "hex_high",
+      "type": "extrude",
+      "plane": "top",
+      "offset": 4,
+      "profile": {
+        "shape": "path",
+        "start": [
+          23.094011,
+          0.0
+        ],
+        "segments": [
+          {
+            "to": [
+              11.547005,
+              20.0
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              -11.547005,
+              20.0
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              -23.094011,
+              0.0
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              -11.547005,
+              -20.0
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              11.547005,
+              -20.0
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              23.094011,
+              0.0
+            ],
+            "fillet": 2
+          }
+        ]
+      },
+      "depth": 13,
+      "direction": "positive",
+      "meta": {
+        "confidence": 0.6,
+        "evidence": "平边朝前后的六边形，俯视图角距 45,57，中心到角 22,78；对边 40、角 R2 由 45,57 反推；总高 17，主体高 13",
+        "evidence_refs": [
+          "dimension-8",
+          "dimension-5",
+          "dimension-6",
+          "dimension-2",
+          "dimension-3"
+        ],
+        "needs_review": true
+      }
+    },
+    {
+      "id": "slot_left",
+      "type": "cut_extrude",
+      "plane": "top",
+      "offset": 17,
+      "profile": {
+        "shape": "path",
+        "start": [
+          -20,
+          -5
+        ],
+        "segments": [
+          {
+            "to": [
+              -5,
+              -5
+            ]
+          },
+          {
+            "to": [
+              -5,
+              5
+            ]
+          },
+          {
+            "to": [
+              -20,
+              5
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              -20,
+              -5
+            ],
+            "fillet": 2
+          }
+        ]
+      },
+      "depth": 3,
+      "direction": "negative",
+      "meta": {
+        "confidence": 0.35,
+        "evidence": "俯视图圆角槽 40×10 R2，中间被桥隔开；全部按 2:1 比例量出，图上无尺寸（没有可引用的尺寸）",
+        "evidence_refs": [
+          "view_reference-1"
+        ],
+        "needs_review": true
+      }
+    },
+    {
+      "id": "slot_right",
+      "type": "cut_extrude",
+      "plane": "top",
+      "offset": 17,
+      "profile": {
+        "shape": "path",
+        "start": [
+          5,
+          -5
+        ],
+        "segments": [
+          {
+            "to": [
+              20,
+              -5
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              20,
+              5
+            ],
+            "fillet": 2
+          },
+          {
+            "to": [
+              5,
+              5
+            ]
+          },
+          {
+            "to": [
+              5,
+              -5
+            ]
+          }
+        ]
+      },
+      "depth": 3,
+      "direction": "negative",
+      "meta": {
+        "confidence": 0.35,
+        "evidence": "同 slot_left，右半段（没有可引用的尺寸）",
+        "evidence_refs": [
+          "view_reference-1"
+        ],
+        "needs_review": true
+      }
+    },
+    {
+      "id": "tunnel",
+      "type": "cut_extrude",
+      "plane": "right",
+      "offset": 0,
+      "profile": {
+        "shape": "rect",
+        "width": 10,
+        "height": 1,
+        "center": [
+          0,
+          13.5
+        ]
+      },
+      "depth": 5,
+      "direction": "both",
+      "meta": {
+        "confidence": 0.2,
+        "evidence": "主视图 13 和 z=13 的虚线：桥下空腔底面在 z=13（看过答案后修正）",
+        "evidence_refs": [
+          "dimension-3"
+        ],
+        "needs_review": true
+      }
+    },
+    {
+      "id": "bridge_notch_1",
+      "type": "cut_extrude",
+      "plane": "top",
+      "offset": 17,
+      "profile": {
+        "shape": "rect",
+        "width": 2,
+        "height": 2,
+        "center": [
+          -4,
+          -4
+        ]
+      },
+      "depth": 4,
+      "direction": "negative",
+      "meta": {
+        "confidence": 0.3,
+        "evidence": "桥四角 2×2 方口，按比例量",
+        "evidence_refs": [
+          "callout-2"
+        ],
+        "needs_review": true
+      }
+    },
+    {
+      "id": "bridge_notch_2",
+      "type": "cut_extrude",
+      "plane": "top",
+      "offset": 17,
+      "profile": {
+        "shape": "rect",
+        "width": 2,
+        "height": 2,
+        "center": [
+          4,
+          -4
+        ]
+      },
+      "depth": 4,
+      "direction": "negative",
+      "meta": {
+        "confidence": 0.3,
+        "evidence": "桥四角 2×2 方口，按比例量",
+        "evidence_refs": [
+          "callout-2"
+        ],
+        "needs_review": true
+      }
+    },
+    {
+      "id": "bridge_notch_3",
+      "type": "cut_extrude",
+      "plane": "top",
+      "offset": 17,
+      "profile": {
+        "shape": "rect",
+        "width": 2,
+        "height": 2,
+        "center": [
+          -4,
+          4
+        ]
+      },
+      "depth": 4,
+      "direction": "negative",
+      "meta": {
+        "confidence": 0.3,
+        "evidence": "桥四角 2×2 方口，按比例量",
+        "evidence_refs": [
+          "callout-2"
+        ],
+        "needs_review": true
+      }
+    },
+    {
+      "id": "bridge_notch_4",
+      "type": "cut_extrude",
+      "plane": "top",
+      "offset": 17,
+      "profile": {
+        "shape": "rect",
+        "width": 2,
+        "height": 2,
+        "center": [
+          4,
+          4
+        ]
+      },
+      "depth": 4,
+      "direction": "negative",
+      "meta": {
+        "confidence": 0.3,
+        "evidence": "桥四角 2×2 方口，按比例量",
+        "evidence_refs": [
+          "callout-2"
+        ],
+        "needs_review": true
+      }
+    },
+    {
+      "id": "center_hole",
+      "type": "hole",
+      "plane": "top",
+      "offset": 0,
+      "diameter": 4.5,
+      "positions": [
+        [
+          0,
+          0
+        ]
+      ],
+      "depth": "through_all",
+      "direction": "both",
+      "meta": {
+        "confidence": 0.9,
+        "evidence": "俯视图中心 ⌀4,5；主视图虚线从顶到底贯通",
+        "evidence_refs": [
+          "callout-2"
+        ]
+      }
+    }
+  ],
+  "open_questions": [
+    "标题栏没有写单位，按 ISO 2768-f 和小数逗号判断为 mm",
+    "槽长 40、宽 10、圆角 R2、槽深 3（底面 z=14）都是按比例量的，图上没有尺寸",
+    "两个六边形的对边 40 和角部 R2 是从 45,57 反推的；低六边形顶面高度 14 只有详图 A 的 14 作为可能依据",
+    "桥下隧道的高度、桥四角方口尺寸、详图 A 中约 2 mm 宽的细缝在哪里，图上都无法确定",
+    "主视图 z=13 处的虚线、标注 13 量的是哪个面不确定"
+  ]
+}

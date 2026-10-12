@@ -113,6 +113,7 @@ def main() -> None:
     ap.add_argument("source", help="下载好的 cadsy 文件夹（含 metadata.jsonl）")
     ap.add_argument("-o", "--out", required=True)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--parts", default="", help="只导入这些零件，逗号分隔，如 part_0001,part_0023")
     ap.add_argument("--copy", action="store_true", help="把图片、标签、STEP 复制进输出文件夹（用于发布样本）")
     args = ap.parse_args()
     from observations import dump, sha256
@@ -122,6 +123,9 @@ def main() -> None:
         ap.error("输出文件夹已存在，换一个新的")
     out.mkdir(parents=True)
     rows = [json.loads(x) for x in (src / "metadata.jsonl").read_text(encoding="utf-8").splitlines() if x.strip()]
+    if args.parts:
+        keep = set(args.parts.split(","))
+        rows = [r for r in rows if r["part_id"] in keep]
     if args.limit:
         rows = rows[:args.limit]
     cases, stats, symbols = [], [], collections.Counter()

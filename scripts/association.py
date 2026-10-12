@@ -125,6 +125,27 @@ def feature_numbers(feature: dict, table: dict | None = None) -> list[float]:
         rs = [p[0] for p in hp if isinstance(p, (list, tuple)) and len(p) >= 2]
         hs = [p[1] for p in hp if isinstance(p, (list, tuple)) and len(p) >= 2]
         nums += [2 * r for r in rs] + _chain(hs)
+    # 高度：草图所在高度、拉伸到的高度（offset + depth），主视图常这样标
+    off, dep = feature.get("offset"), feature.get("depth")
+    if isinstance(off, (int, float)):
+        nums.append(abs(off))
+        if isinstance(dep, (int, float)):
+            nums += [abs(off + dep), abs(off - dep)]
+    if isinstance(dep, (int, float)) and table:
+        base_dep = (table.get("features") or [{}])[0].get("depth")
+        if isinstance(base_dep, (int, float)) and feature is not table["features"][0]:
+            nums.append(abs(base_dep - dep))   # 从顶面往下切 dep，剩下的高度
+    # path / tangent_loop 轮廓：展开后的真实外形（含圆角、切线）
+    prof = feature.get("profile")
+    if isinstance(prof, dict) and prof.get("shape") in ("path", "tangent_loop", "polygon"):
+        try:
+            import ftable
+            import geom2d
+            pts = ftable.profile_points(ftable._resolve_profile(prof, geom2d), n_circle=72)
+            us, vs = [q[0] for q in pts], [q[1] for q in pts]
+            nums += [max(us) - min(us), max(vs) - min(vs), max(abs(u) for u in us), max(abs(v) for v in vs)]
+        except Exception:  # noqa: BLE001  展开失败由 validate 报，这里不重复
+            pass
     if feature.get("type") == "edge_treatment" and isinstance(feature.get("size"), (int, float)):
         nums.append(45.0)  # 1 X 45° 倒角
     return nums
@@ -153,8 +174,11 @@ def check(table: dict, doc: dict) -> tuple[list[str], dict]:
                 mismatched += 1
                 warnings.append(f"[{f.get('id')}] 引用了 {ref}「{o['text']}」，但这个特征的参数里找不到这个数，"
                                 "检查尺寸是不是分错了特征")
+    not_geometry = ("text", "label", "title_block_label", "title_block_value", "datum_definition",
+                    "view_heading", "view_reference", "feature_control_frame")
     uncited = [o for o in doc.get("observations", [])
-               if o["id"] not in cited and o.get("kind") != "text" and looks_like_dimension(o.get("text", ""))]
+               if o["id"] not in cited and o.get("kind") not in not_geometry
+               and not str(o.get("kind", "")).startswith("projection") and looks_like_dimension(o.get("text", ""))]
     uncited += [o for o in doc.get("observations", [])
                 if o["id"] not in cited and o.get("kind") == "text" and looks_like_dimension(o.get("text", ""))
                 and o.get("provider") in ("pdf_text", "paddleocr", "ocr")]

@@ -70,6 +70,17 @@ def _rotations():
     return out
 
 
+BOOL_TOL = 1e-6   # 模糊布尔：两个独立建出来的模型面几乎重合时，不带容差的布尔会静默失败（结果为空）
+
+
+def symmetric_difference(a, b):
+    """对称差体积。布尔失败（合并体积比任一实体还小）时抛出 RuntimeError，不能当成几何不一致。"""
+    fused = a.fuse(b, tol=BOOL_TOL).Volume()
+    if fused < max(abs(a.Volume()), abs(b.Volume())) * (1 - 1e-6):
+        raise RuntimeError("Boolean operation failed; symmetric difference is not reliable")
+    return abs(a.cut(b, tol=BOOL_TOL).Volume()) + abs(b.cut(a, tol=BOOL_TOL).Volume())
+
+
 def pose_free_difference(actual, answer):
     """不管模型把零件摆在哪个基准面上：试 24 种轴向旋转，对齐包围盒中心，取对称差最小的。"""
     import cadquery as cq
@@ -87,7 +98,7 @@ def pose_free_difference(actual, answer):
             continue
         shape = shape.translate(cq.Vector(ab.center.x - bb.center.x, ab.center.y - bb.center.y,
                                           ab.center.z - bb.center.z))
-        delta = abs(shape.cut(answer).Volume()) + abs(answer.cut(shape).Volume())
+        delta = symmetric_difference(shape, answer)
         if best is None or delta < best:
             best = delta
         if best <= 1e-9 * max(abs(answer.Volume()), 1.0):
@@ -190,7 +201,7 @@ def score(manifest, case_id, table_path, evidence_path, model, interventions=0):
                 delta, _ = pose_free_difference(actual, answer)
                 mode = "pose_free_24_rotations_no_mirror"
             else:  # Coordinate-sensitive comparison; the case must specify the same datum.
-                delta = abs(actual.cut(answer).Volume()) + abs(answer.cut(actual).Volume())
+                delta = symmetric_difference(actual, answer)
                 mode = "same_datum"
             relative = delta / max(abs(answer.Volume()), 1e-9)
             result["symmetric_difference"] = {"volume_mm3": delta, "relative": relative,

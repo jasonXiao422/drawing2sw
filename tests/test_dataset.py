@@ -162,6 +162,15 @@ class Dataset(unittest.TestCase):
         self.assertLess(benchmark.pose_free_difference(rotated, part)[0], 1e-6)
         self.assertGreater(benchmark.pose_free_difference(mirrored, part)[0], 100)
 
+    def test_independently_built_model_matches_answer(self):
+        """cadsy part_0023：独立建的模型和答案 STEP 面几乎重合，不带容差的布尔会静默返回空，
+        把读对的零件判成完全不重合。"""
+        import benchmark
+        fx = ROOT / "tests" / "fixtures"
+        r = benchmark.score(ROOT / "data/external/cadsy/manifest.json", "part_0023",
+                            fx / "cadsy_part_0023_part.json", fx / "cadsy_part_0023_observations.json", "regression")
+        self.assertEqual(r["status"], "geometry_passed", r.get("symmetric_difference"))
+
     def test_swapped_evidence_is_detected(self):
         def swap(t):
             a, b = t["features"][0], t["features"][1]
