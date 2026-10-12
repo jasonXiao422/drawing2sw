@@ -289,6 +289,27 @@ def hole_positions(feat: dict) -> list[tuple[float, float]]:
     return pts
 
 
+def open_questions(table: dict) -> list[dict]:
+    """open_questions 统一成 {question, level, resolution?, ...}。纯字符串：v0.5 表按 confirm（要人拍板），旧表按 note。"""
+    legacy = "confirm" if str(table.get("schema_version")) == "0.5" else "note"
+    out = []
+    for q in table.get("open_questions", []) or []:
+        out.append({"question": q, "level": legacy} if isinstance(q, str) else dict(q))
+    return out
+
+
+def unresolved_questions(table: dict) -> list[dict]:
+    """建 SolidWorks 前必须解决、还没解决的问题（blocking / confirm 且没有 resolution，或 by=ai 没写理由）。"""
+    bad = []
+    for q in open_questions(table):
+        if q["level"] == "note":
+            continue
+        r = q.get("resolution")
+        if not r or (r.get("by") == "ai" and not str(r.get("reason", "")).strip()):
+            bad.append(q)
+    return bad
+
+
 COPY_TYPES = ("linear_pattern", "circular_pattern", "mirror")
 AXIS_VEC = {"+X": (1, 0, 0), "-X": (-1, 0, 0), "+Y": (0, 1, 0), "-Y": (0, -1, 0), "+Z": (0, 0, 1), "-Z": (0, 0, -1)}
 

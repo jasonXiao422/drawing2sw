@@ -62,6 +62,31 @@ class GatesBeforeSolidWorks(unittest.TestCase):
         self.assertEqual(code, 3)
         self.assertEqual(rep['status'], 'blocked_validation')
 
+    def test_open_questions_gate(self):
+        """blocking / confirm 没人拍板就不建；by=ai 必须写理由；note 不拦。
+        问题都解决后会走到下一关（这里故意让预览失败，证明已经过了问题这一关，又不用启动 SolidWorks）。"""
+        huge = {'id': 'r', 'type': 'edge_treatment', 'kind': 'fillet', 'size': 20, 'edges': 'top_outer',
+                'meta': {'confidence': 1, 'evidence': 't'}}
+        q = {'question': '孔深没标', 'level': 'confirm', 'assumed': '深 13'}
+        t = self.table([self.plate, huge])
+        t['open_questions'] = [q, {'question': '材料没写', 'level': 'note'}]
+        code, rep = self.run_build(t)
+        self.assertEqual((code, rep['status']), (3, 'needs_confirmation'))
+        self.assertEqual([x['question'] for x in rep['open_questions']], ['孔深没标'])
+        t['open_questions'][0] = dict(q, resolution={'by': 'ai', 'answer': '取 13'})          # AI 没写理由
+        self.assertEqual(self.run_build(t)[1]['status'], 'needs_confirmation')
+        t['open_questions'][0] = dict(q, resolution={'by': 'ai', 'answer': '取 13', 'reason': '轴测图里孔通进腔，留 2 后壁'})
+        self.assertEqual(self.run_build(t)[1]['status'], 'blocked_preview_failed')
+
+    def test_legacy_string_questions(self):
+        """纯字符串：v0.5 按 confirm（要拍板），旧版本按 note（兼容）。"""
+        import ftable
+        t = self.table([self.plate])
+        t['open_questions'] = ['孔深没标']
+        self.assertEqual(ftable.unresolved_questions(t), [])
+        t['schema_version'] = '0.5'
+        self.assertEqual(len(ftable.unresolved_questions(t)), 1)
+
     def test_preview_failure_blocks(self):
         huge = {'id': 'r', 'type': 'edge_treatment', 'kind': 'fillet', 'size': 20, 'edges': 'top_outer',
                 'meta': {'confidence': 1, 'evidence': 't'}}

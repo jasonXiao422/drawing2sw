@@ -46,6 +46,12 @@ class CapabilityBlocked(Exception):
     pass
 
 
+class ApproxNeeded(Exception):
+    """精确做法都失败、只剩近似做法。默认不近似：停下，让用户决定（或交给用户的 AI 判断），
+    同意后用 --allow-approx --reason 重建。"""
+    pass
+
+
 def call(obj, name: str, *args):
     """兼容 pywin32 后期绑定：无参方法有时被暴露成属性，直接返回值而不是函数。"""
     attr = getattr(obj, name)
@@ -201,6 +207,8 @@ class Builder:
         self.frame = None     # 当前草图的 ftable.plane_frame
         self.flip = False     # 草图法向与特征表 normal 相反时为 True，拉伸方向要反过来
         self.custom_planes = {}
+        self.allow_approx = False   # --allow-approx：允许近似兜底（曲率连续圆角、折线齿槽）
+        self.approximations = []    # 实际用了的近似，写进报告
         self._prev_input_dim = app.GetUserPreferenceToggle(SW_INPUT_DIM_ON_CREATE)
         app.SetUserPreferenceToggle(SW_INPUT_DIM_ON_CREATE, False)
 
@@ -548,9 +556,11 @@ class Builder:
             ("不保留特征", 67, 0),
             ("不保留特征+保持曲面", 67, 2),
             ("不保留特征+保持边线", 67, 1),
-            # 256 曲率连续：半径 ≥ 凹角半径时唯一能成功的设置（003 实测），但截面不是圆弧，体积偏小
-            ("曲率连续-近似", 195 | 256, 0),
         ]
+        # 256 曲率连续：半径 ≥ 凹角半径时唯一能成功的设置（003 实测），但截面不是圆弧，体积偏小。
+        # 默认不用：精确设置全失败时停下让用户决定（DEVELOPING.md #49）
+        if self.allow_approx:
+            combos.append(("曲率连续-近似", 195 | 256, 0))
         attempts = []
         for i, (name, opt, ovf) in enumerate(combos):
             def fn(opt=opt, ovf=ovf, first=(i == 0)):
@@ -562,7 +572,17 @@ class Builder:
                     res = self.fm.FeatureFillet3(opt, r * MM, 0, ovf, empty, empty, empty)
                 return res
             attempts.append((f"FeatureFillet3({name}, opt={opt}, overflow={ovf})", fn))
-        return self._try(attempts, "圆角")
+        try:
+            api = self._try(attempts, "圆角")
+        except RuntimeError as e:
+            if self.allow_approx:
+                raise
+            raise ApproxNeeded(f"R{r:g} 圆角 7 种精确设置都失败，只剩'曲率连续'近似（截面不是圆弧，体积偏小）。"
+                               f"先查相邻轮廓是不是手算切点（reading-rules R18），改成精确写法；"
+                               f"确实要近似就加 --allow-approx --reason。详情：{e}") from e
+        if "近似" in api:
+            self.approximations.append({"what": f"R{r:g} 圆角用曲率连续近似", "api": api})
+        return api
 
     def chamfer(self, d: float) -> str:
         # swChamferAngleDistance = 1，等边 45°
@@ -601,8 +621,12 @@ class Builder:
                     return name
             except Exception as e:  # noqa: BLE001
                 self.last_errors.append(f"{name}: {e}")
+        if not self.allow_approx:
+            raise ApproxNeeded("样条创建失败，只能用折线近似曲线（例如渐开线齿廓）。确实要近似就加 --allow-approx --reason。"
+                               f"详情：{' | '.join(self.last_errors[-2:])}")
         for (u1, v1), (u2, v2) in zip(pts, pts[1:]):
             self.sm.CreateLine(u1 * MM, v1 * MM, 0, u2 * MM, v2 * MM, 0)
+        self.approximations.append({"what": "曲线用折线近似（样条创建失败）"})
         return "polyline"
 
     def line(self, a, b2):
@@ -876,6 +900,10 @@ def build_gear_teeth(b: "Builder", f: dict) -> dict:
     if pattern_api:
         info["method"] = f"一个齿槽 + 圆周阵列 ({pattern_api})"
         return info
+    if not b.allow_approx:
+        raise ApproxNeeded("齿槽圆周阵列失败，只能把其余齿槽用折线画在一张草图里（齿面是小平面拼的）。"
+                           f"确实要近似就加 --allow-approx --reason。阵列错误：{' | '.join(b.last_errors)}")
+    b.approximations.append({"what": "其余齿槽用折线一次切除（圆周阵列失败）"})
     # 兜底：剩下 z-1 个齿槽用折线画在一张草图里
     polys = ftable.gear_space_polygons(f)[1:]
     b.begin_sketch("top")
@@ -1053,6 +1081,8 @@ def main() -> int:
     ap.add_argument("--allow-covered-holes", action="store_true",
                     help="预览报孔口被盖住时仍然建模。只在确认孔本来就不该开口时用，原因写进 --reason")
     ap.add_argument("--reason", default="", help="使用上面两个开关的原因，写进报告")
+    ap.add_argument("--allow-approx", action="store_true",
+                    help="允许近似兜底（曲率连续圆角、折线齿槽）。默认不允许，需要时会停下报 needs_approval_approx")
     ap.add_argument("--observations", help="图纸证据 JSON；v0.5 特征表必须提供，和 validate_feature_table.py 一样")
     args = ap.parse_args()
 
@@ -1088,6 +1118,17 @@ def main() -> int:
         return stop("blocked_validation", "特征表校验没通过，先按错误改表（validate_feature_table.py 会列出同样的错误）",
                     validation_errors=v_errors)
     rep["validation_warnings"] = len(v_warnings)
+    # 2) 不确定的问题：blocking / confirm 必须有人拍板（用户，或用户交给 AI 判断）才建
+    pending = ftable.unresolved_questions(raw)
+    if pending:
+        return stop("needs_confirmation",
+                    "有不确定的问题还没人拍板：先问用户；用户说不清就由 AI 判断。答案写进 open_questions 的 resolution"
+                    "（by=user 或 by=ai，by=ai 要写理由），再重新建模",
+                    open_questions=pending)
+    decided = [q for q in ftable.open_questions(raw) if (q.get("resolution") or {}).get("by") == "ai"]
+    if decided:
+        rep["decided_by_ai"] = [{"question": q["question"], "answer": q["resolution"]["answer"],
+                                 "reason": q["resolution"].get("reason")} for q in decided]
     table = ftable.load(args.path)
     rep["hole_count_from_table"] = ftable.count_holes(table)
 
@@ -1138,6 +1179,9 @@ def main() -> int:
                             f"{args.out} 正在 SolidWorks 里打开，而且有没保存的改动。先在 SolidWorks 里保存或关闭它，"
                             "或者换一个输出文件名；不会覆盖你的改动")
     b = Builder(app)
+    b.allow_approx = args.allow_approx
+    if args.allow_approx:
+        rep["approx_allowed"] = args.reason or "（没写原因）"
     rep["doc_units"] = b.set_doc_units(table["part"].get("source_units", "mm"))
     try:
         rep["features"] = build(table, b, steps)
@@ -1149,6 +1193,10 @@ def main() -> int:
     except CapabilityBlocked as e:
         rep.update(status="capability_blocked", reason=str(e))
         rep["features"] = getattr(b, "log", None)
+    except ApproxNeeded as e:
+        rep.update(status="needs_approval_approx",
+                   reason=f"{e}。请用户决定是否接受近似；用户说不清就由 AI 判断，同意时用 --allow-approx --reason 重建")
+        rep["features"] = getattr(b, "log", None)
     except Exception as e:  # noqa: BLE001
         import traceback  # noqa: PLC0415
         rep.update(status="error", reason=str(e))
@@ -1158,6 +1206,8 @@ def main() -> int:
                         if ln.strip() and "^^^" not in ln][-7:-1]
     finally:
         b.close_prefs()
+    if b.approximations:
+        rep["approximations"] = b.approximations
     try:  # 隐藏建模时创建的偏移基准面，打开零件时不挡视线（DEVELOPING.md）
         feat = call(b.doc, "FirstFeature")
         hidden = 0

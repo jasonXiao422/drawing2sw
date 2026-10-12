@@ -269,8 +269,19 @@ def validate(table: dict, evidence: dict | None = None) -> tuple[list[str], list
 
     if part.get("projection", "unknown") == "unknown":
         warnings.append("投影法未知：非对称零件可能建成镜像，请用户确认")
-    for q in table.get("open_questions", []):
-        warnings.append(f"待确认问题: {q}")
+    for q in ftable.open_questions(table):
+        r = q.get("resolution")
+        tag = {"blocking": "阻塞", "confirm": "待确认", "note": "提示"}[q["level"]]
+        if r:
+            who = "用户" if r.get("by") == "user" else "AI 判断"
+            warnings.append(f"[{tag}·已解决（{who}）] {q['question']} → {r.get('answer')}"
+                            + (f"；理由：{r['reason']}" if r.get("reason") else ""))
+        elif q["level"] == "note":
+            warnings.append(f"[提示] {q['question']}")
+        else:
+            warnings.append(f"[{tag}·未解决] {q['question']}"
+                            + (f"（表里先用了 {q['assumed']}）" if q.get("assumed") else "")
+                            + "。建 SolidWorks 前要用户回答；用户说不清就由 AI 判断，写进 resolution（by=ai 要写理由）")
 
     return errors, warnings
 

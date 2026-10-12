@@ -116,6 +116,7 @@ CadQuery 预览体积要和以前一样：
 | 46 | 保存：直接 `SaveAs3` 覆盖同名文件，成功后才删 `name_1` 这类旧编号；保存失败状态 `save_failed`、退出码 2，旧文件和模型窗口都保留 | 以前先删旧文件再保存，保存失败时状态仍是 ok、退出码 0，旧零件已经没了（Codex 审查发现）。用只读的目标文件实测过 |
 | 47 | 关旧窗口：存过盘、又有未保存改动的文档一律不关（`kept_open_unsaved`）；目标文件就是它时直接停（`blocked_target_open`），不建模 | 以前带 drawing2sw 标记的文档不管有没有改动都关掉，用户在模型上手动改了没存就会丢（Codex 审查发现）。用 SetSaveFlag 模拟实测过 |
 | 48 | 建模前强制关卡：完整校验（含 v0.5 证据、手写框里有字）→ 预览。校验错误 `blocked_validation`、预览算不出 `blocked_preview_failed`、孔口被盖住 `blocked_covered_holes`，都不启动 SolidWorks，退出码 3。只有没装 CadQuery 时可以不自检地继续，报告写明 | 以前 sw_build 只做展开和换单位，AI 跳过 validate 也能直接建；预览失败也照样建（Codex 审查发现）。tests/test_sw_safety.py |
+| 49 | 近似默认禁止：圆角只剩曲率连续、样条只剩折线、齿槽阵列只剩折线时抛 `ApproxNeeded`，状态 `needs_approval_approx`、不保存；`--allow-approx --reason` 才用，报告 `approximations` 列出 | J 定的原则：用户默认拿到的要么是精确模型，要么是明确的失败；不确定的交还用户，用户说不清交给用户的 AI 判断。open_questions 同理（blocking / confirm 要 resolution） |
 | 42 | 镜像：`InsertMirrorFeature2(False, False, False, False, 0)`，要镜像的特征 mark 1，镜像面 mark 2 | 和阵列的 mark 约定不一样 |
 | 43 | 零厚度的点：盲孔底正好落在实体底面所在平面、孔壁又和下面凸起的侧面相切（孔边 = 凸起边），切除后只剩一个点相连，`FeatureCut4` 返回 None。OCC 能建，答案 STEP 也是这样 | 和 #34 同类，SolidWorks 不允许非流形。不改尺寸迎合程序，报告给用户（cadsy part_0001：浅 0.01 就能建）|
 | — | `sw_build` 建完隐藏自己创建的偏移基准面 | 否则打开零件时一层层基准面挡住模型 |

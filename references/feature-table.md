@@ -14,7 +14,7 @@
             "source": { "file": "...", "format": "vector_pdf", "standard": "GB" },
             "expected": { "volume_mm3": 12345.6 } },
   "features": [ ... ],
-  "open_questions": [ "..." ]
+  "open_questions": [ {"question": "...", "level": "confirm", "assumed": "...", "affects": ["..."]} ]
 }
 ```
 
@@ -232,6 +232,39 @@ confidence 参考：
 | 扫描图读出的数值 | 最多 0.85 |
 | 按比例量出来的（用两个已标尺寸校准过，reading-rules R32） | 最多 0.75，并加 open_questions |
 | 没校准的估量，或靠"看起来像" | 0.5 以下，并加 open_questions |
+
+## open_questions
+
+不确定的问题写成对象，分三级：
+
+```json
+"open_questions": [
+  {"question": "曲轴孔 Ø12.5 深度没标", "level": "confirm", "affects": ["crank_bore"],
+   "assumed": "深 13（轴测图里缸孔通进曲轴腔，留 2 后壁）"},
+  {"question": "Ø4 缺口在主视图和俯视图位置对不上", "level": "blocking", "affects": ["notch"]},
+  {"question": "材料没写", "level": "note"}
+]
+```
+
+| level | 含义 | 建 SolidWorks 前 |
+|---|---|---|
+| blocking | 没有答案就建不出来：关键尺寸缺失、尺寸互相矛盾、单位不明、能力缺口 | 必须解决 |
+| confirm | 表里先用了假设值：孔深 / 倒角没标、按比例量、按标准查表 | 必须有人拍板 |
+| note | 不影响几何：公差、材料、粗糙度、技术要求 | 只提示 |
+
+拍板后加 `resolution`：
+
+```json
+{"question": "曲轴孔深度没标", "level": "confirm", "assumed": "深 13",
+ "resolution": {"by": "user", "answer": "深 13"}}
+{"question": "M2 螺纹孔深度没标", "level": "confirm", "assumed": "深 4",
+ "resolution": {"by": "ai", "answer": "深 4", "reason": "用户不确定；M2 常用螺纹深 2–3 倍直径，壁厚允许 4"}}
+```
+
+- 用户回答：`by: "user"`。用户说不知道、让 AI 判断：`by: "ai"`，**必须写 reason**。
+- 没有 resolution 的 blocking / confirm，sw_build 停下报 `needs_confirmation`，列出未解决的问题。
+- 报告的 `decided_by_ai` 列出所有由 AI 判断的项，交付时要告诉用户。
+- 旧写法（纯字符串）在 v0.5 表里当 confirm 处理，v0.4 及以前当 note 处理。
 
 ## 公差和螺纹
 

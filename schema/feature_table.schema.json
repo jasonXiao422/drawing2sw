@@ -228,9 +228,69 @@
     },
     "open_questions": {
       "type": "array",
-      "description": "读图时无法确定、需要人确认的问题。",
+      "description": "读图时无法确定的问题。分三级：blocking 没有答案就建不出来（关键尺寸缺失、尺寸矛盾、单位不明）；confirm 表里用了假设值（孔深没标取了某个值、按比例量）；note 不影响几何（公差、材料、粗糙度）。blocking 和 confirm 建 SolidWorks 前必须有 resolution：用户回答写 by=user；用户说不清、交给 AI 判断的写 by=ai 并写理由。旧写法（纯字符串）在 v0.5 表里按 confirm 处理，v0.4 及以前按 note 处理",
       "items": {
-        "type": "string"
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "question",
+              "level"
+            ],
+            "properties": {
+              "question": {
+                "type": "string",
+                "minLength": 1
+              },
+              "level": {
+                "enum": [
+                  "blocking",
+                  "confirm",
+                  "note"
+                ]
+              },
+              "affects": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "受影响的特征 id"
+              },
+              "assumed": {
+                "type": "string",
+                "description": "表里先用了什么值，例如 '深 13（留 2 后壁）'"
+              },
+              "resolution": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "by",
+                  "answer"
+                ],
+                "properties": {
+                  "by": {
+                    "enum": [
+                      "user",
+                      "ai"
+                    ]
+                  },
+                  "answer": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "reason": {
+                    "type": "string",
+                    "description": "by=ai 时必须写判断依据"
+                  }
+                }
+              }
+            }
+          }
+        ]
       }
     }
   },
