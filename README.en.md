@@ -135,7 +135,8 @@ Close any SolidWorks start-up dialogs first, or the build will wait on them.
 <p align="center">
 <img src="docs/assets/bracket.png" alt="Mounting plate example" width="42%">
 &nbsp;&nbsp;&nbsp;
-<img src="docs/assets/flange.png" alt="Revolved flange example" width="38%">
+<img src="docs/assets/frame.png" alt="Bearing frame modelled from a GB textbook drawing" width="34%">
+<br><sub>Left: repository example <code>bracket_prismatic.json</code>. Right: a bearing frame modelled from a GB textbook drawing, 21 SolidWorks step checks passed</sub>
 </p>
 
 ### 4. Install the skill

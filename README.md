@@ -148,8 +148,8 @@ Windows 手动安装把 `.venv/bin/python` 换成 `.venv\Scripts\python.exe`。�
 <p align="center">
 <img src="docs/assets/bracket.png" alt="安装板示例" width="42%">
 &nbsp;&nbsp;&nbsp;
-<img src="docs/assets/flange.png" alt="回转法兰示例" width="38%">
-<br><sub>仓库示例：棱柱件 <code>bracket_prismatic.json</code> 和回转件 <code>flange_revolved.json</code></sub>
+<img src="docs/assets/frame.png" alt="架体" width="34%">
+<br><sub>左：仓库示例 <code>bracket_prismatic.json</code>；右：国标教材图"架体"按图建模，SolidWorks 21 步逐步自检通过</sub>
 </p>
 
 ### 4. 装进 AI
