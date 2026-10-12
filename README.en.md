@@ -11,6 +11,7 @@ DWG · DXF · PDF · images → feature table → STEP / SLDPRT
 [![Python 3.11 | 3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-3776ab.svg)](references/setup.md)
 [![Platform](https://img.shields.io/badge/SolidWorks-Windows-c8102e.svg)](references/setup.md)
 [![Skill](https://img.shields.io/badge/Agent%20Skill-Claude%20Code%20%7C%20Codex-555.svg)](#4-install-the-skill)
+[![Download](https://img.shields.io/badge/download-drawing2sw.zip-c2410c.svg)](https://github.com/jasonXiao422/drawing2sw/releases/latest/download/drawing2sw.zip)
 
 [Website](https://jasonxiao422.github.io/drawing2sw/?lang=en) · [中文](README.md) · [Quick start](#quick-start) · [How it works](#how-it-works) · [FAQ](#faq)
 
@@ -158,6 +159,8 @@ If your safety settings don't allow downloading or running these commands, just 
 </details>
 
 If the agent says its safety settings block downloading third-party code, that is a normal safeguard; use the commands below instead.
+
+**Download the package**: [drawing2sw.zip](https://github.com/jasonXiao422/drawing2sw/releases/latest/download/drawing2sw.zip) (the skill only, about 250 KB). Unzip into `%USERPROFILE%\.claude\skills\` so you get `skills\drawing2sw\SKILL.md`, then run `powershell -ExecutionPolicy Bypass -File install.ps1` inside the `drawing2sw` folder.
 
 
 The entry point is [`SKILL.md`](SKILL.md). Put the repository where your agent looks for skills and run `install.ps1` there.

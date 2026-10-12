@@ -1,0 +1,39 @@
+name: Release skill package
+# 推送 v* 标签时（例如 git tag v0.5.0 && git push origin v0.5.0），打包 skill 并发布到 Releases。
+# 固定下载地址：https://github.com/jasonXiao422/drawing2sw/releases/latest/download/drawing2sw.zip
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Package the skill
+        run: |
+          python scripts/package_skill.py -o dist/drawing2sw.zip
+          cp dist/drawing2sw.zip "dist/drawing2sw-${GITHUB_REF_NAME}.zip"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/drawing2sw.zip
+            dist/drawing2sw-${{ github.ref_name }}.zip
+          generate_release_notes: true
+          body: |
+            ## 下载 / Download
+
+            **drawing2sw.zip**：skill 本体（脚本、读图规则、schema、示例、安装脚本），不含评测答案和开发资料。
+
+            1. 解压到 AI 读取 skill 的目录，例如 Claude Code：`%USERPROFILE%\.claude\skills\`（解压后是 `...\skills\drawing2sw\SKILL.md`）
+            2. 在 `drawing2sw` 文件夹里运行：`powershell -ExecutionPolicy Bypass -File install.ps1`
+            3. 运行 `.venv\Scripts\python.exe scripts\check_env.py` 检查环境
+
+            Unzip into your agent's skills folder (for Claude Code: `%USERPROFILE%\.claude\skills\`), then run `install.ps1` inside the `drawing2sw` folder. Needs Python 3.11 or 3.12.

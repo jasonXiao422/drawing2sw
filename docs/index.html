@@ -23,7 +23,7 @@
   <div class="wrap top-in">
     <a class="brand" href="#" aria-label="Drawing2SW">
       <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 21h26M19 21v8" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="var(--accent)" stroke-width="2"/><path d="M12 5v14M5 12h14" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 1.5"/></svg>
-      <span>Drawing2SW</span><small>v0.5</small>
+      <span>Drawing2SW</span><small>v0.6</small>
     </a>
     <nav aria-label="Main">
       <a href="#how" data-i18n="nav.how">工作原理</a>
@@ -51,6 +51,7 @@
     <p class="lede" data-i18n="hero.lede">支持 DWG、DXF、PDF 和图片。AI 读图，脚本建模；每个特征都记着依据的是哪个尺寸，建完会和答案核对。</p>
     <div class="cta">
       <a class="btn primary" href="#install" data-i18n="hero.start">安装</a>
+      <a class="btn" href="https://github.com/jasonXiao422/drawing2sw/releases/latest/download/drawing2sw.zip" data-i18n="hero.zip">下载 ZIP</a>
       <a class="btn" href="https://github.com/jasonXiao422/drawing2sw" data-i18n="hero.source">查看源码</a>
     </div>
     <ul class="io">
@@ -197,6 +198,18 @@
       <pre id="prompt-text"></pre>
     </details>
     <p class="ai-hint" data-i18n="ai.hint">如果 AI 说安全设置不允许下载第三方代码，这是它的正常保护。用下面的命令自己装，一样快。</p>
+  </div>
+
+  <div class="zip-install">
+    <div>
+      <h3 data-i18n="zip.t">或者下载压缩包</h3>
+      <ol>
+        <li data-i18n-html="zip.1">解压到 AI 读取 skill 的目录。Claude Code 是 <code>%USERPROFILE%\.claude\skills\</code>，解压后应该是 <code>skills\drawing2sw\SKILL.md</code>。</li>
+        <li data-i18n-html="zip.2">在 <code>drawing2sw</code> 文件夹里打开终端，运行 <code>powershell -ExecutionPolicy Bypass -File install.ps1</code>。</li>
+        <li data-i18n="zip.3">完成后告诉 AI"用 drawing2sw 把这张图建模"。</li>
+      </ol>
+    </div>
+    <a class="btn primary" href="https://github.com/jasonXiao422/drawing2sw/releases/latest/download/drawing2sw.zip" data-i18n="zip.btn">下载 drawing2sw.zip</a>
   </div>
 
   <h3 class="manual-title" data-i18n="manual.t">或者自己在终端里装</h3>

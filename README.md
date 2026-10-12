@@ -11,6 +11,7 @@ DWG · DXF · PDF · 图片 → 特征表 → STEP / SLDPRT
 [![Python 3.11 | 3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-3776ab.svg)](references/setup.md)
 [![Platform](https://img.shields.io/badge/SolidWorks-Windows-c8102e.svg)](references/setup.md)
 [![Skill](https://img.shields.io/badge/Agent%20Skill-Claude%20Code%20%7C%20Codex-555.svg)](#装进-ai)
+[![Download](https://img.shields.io/badge/下载-drawing2sw.zip-c2410c.svg)](https://github.com/jasonXiao422/drawing2sw/releases/latest/download/drawing2sw.zip)
 
 [项目主页](https://jasonxiao422.github.io/drawing2sw/) · [English](README.en.md) · [快速开始](#快速开始) · [工作原理](#工作原理) · [常见问题](#常见问题)
 
@@ -174,6 +175,8 @@ Windows 手动安装把 `.venv/bin/python` 换成 `.venv\Scripts\python.exe`。�
 </details>
 
 如果 AI 说安全设置不允许下载第三方代码，这是它的正常保护，按下面的命令自己装就行。
+
+**下载压缩包**：[drawing2sw.zip](https://github.com/jasonXiao422/drawing2sw/releases/latest/download/drawing2sw.zip)（只含 skill 本身，约 250 KB）。解压到 `%USERPROFILE%\.claude\skills\`，确认路径是 `skills\drawing2sw\SKILL.md`，然后在 `drawing2sw` 文件夹里运行 `powershell -ExecutionPolicy Bypass -File install.ps1`。
 
 
 skill 的入口是 [`SKILL.md`](SKILL.md)。把整个仓库放到 AI 能找到 skill 的目录里，并在那个目录里运行过 `install.ps1`。

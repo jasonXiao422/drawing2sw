@@ -4,7 +4,7 @@ from pathlib import Path
 import zipfile
 
 ROOT=Path(__file__).resolve().parents[1]
-FILES=['SKILL.md','README.md','requirements.txt','install.ps1','LICENSE','THIRD_PARTY_NOTICES.md']
+FILES=['SKILL.md','README.md','README.en.md','requirements.txt','install.ps1','LICENSE','THIRD_PARTY_NOTICES.md']
 DIRECTORIES=['scripts','references','schema','standards','examples']
 
 
