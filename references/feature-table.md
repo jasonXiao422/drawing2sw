@@ -187,7 +187,7 @@ path 的 `start`、`to`、`center` 都可以写成两个对象的交点，有两
 - `direction`：模型坐标轴 `+X -X +Y -Y +Z -Z`。原特征是第一个，其余往这个方向排。`count` 含原特征，`spacing` 是相邻中心距。
 - 网格：再写 `direction2`、`count2`、`spacing2`，第二方向必须和第一方向垂直。
 - `mirror` 的 `plane`：front（法向 +Z）、top（+Y）、right（+X），`offset` 沿法向偏移，目前只支持 ≥ 0。
-- `circular_pattern`：`{"features": ["tooth_cut"], "axis": "+Z", "count": 6}`，绕过原点的模型坐标轴转，正角度按右手定则。`angle` 是相邻两个的夹角，不写就是整圈均布（360 / count）。轴要过原点，所以回转结构的中心放在原点。只有孔的分布圆继续用 hole 的 `bolt_circle`。SolidWorks 端的 circular_pattern 还没实测：建模失败时按工具错误报告给用户，CadQuery 预览 / STEP 不受影响。
+- `circular_pattern`：`{"features": ["tooth_cut"], "axis": "+Z", "count": 6}`，绕过原点的模型坐标轴转，正角度按右手定则。`angle` 是相邻两个的夹角，不写就是整圈均布（360 / count）。轴要过原点，所以回转结构的中心放在原点。只有孔的分布圆继续用 hole 的 `bolt_circle`。
 - 倒角圆角写在阵列 / 镜像后面，选边点覆盖所有复制件。
 - 整件对称的外形直接把基体画全，不要镜像基体。
 - 一排孔也可以直接在 hole 的 `positions` 里列全，结果一样。图上写"5× 等距"、或者是凸台、槽这类非孔结构时用阵列更省事。

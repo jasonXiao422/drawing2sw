@@ -205,7 +205,7 @@ The agent will stop and ask about units, projection method, keyway and hole orie
 | Profiles | Rectangles, circles, polygons, line-and-arc paths, tangent arc loops |
 | Holes | Plain, tap drill, counterbore, countersink, drill point, bolt circles |
 | Details | Chamfers, fillets, arbitrary inclined planes, cut up to a curved face |
-| Copies | Linear patterns (row or grid) `linear_pattern`, mirror `mirror` |
+| Copies | Linear patterns (row or grid) `linear_pattern`, circular patterns `circular_pattern`, mirror `mirror` |
 | Gears | Involute spur teeth |
 | Drawing setup | mm / inch, first / third angle, scale, dual units, DIMLFAC |
 

@@ -58,7 +58,7 @@
 | 带圆弧的草图轮廓（耳板、相切 R） | ✅ v0.3 path；v0.4 fillet / tangent_loop / intersect | ✅ | 002、003 part_v04 |
 | 按直径选边（回转体倒角圆角） | ❌ | ❌ | 001 C3、R3 |
 | 渐开线直齿轮 | ✅ | ✅ | 001_圆柱齿轮 |
-| 圆周阵列 | ✅ circular_pattern（任意特征）；齿轮内部 | 🟡 齿轮 ✅；circular_pattern 代码已写，没实测 | 001；Autodesk 练习 13 棘轮（预览） |
+| 圆周阵列 | ✅ circular_pattern（任意特征，整圈或部分）；齿轮内部 | ✅ 方向按预览的体积、包围盒、质心核对 | 001；Autodesk 练习 13 棘轮；合成部分圆周 ±Y |
 | 线性阵列 | ✅ linear_pattern（一排、网格） | ✅ 方向自动和预览核对 | cadsy part_0001（5 个脚，对答案 0 差）；合成网格 -X/-Z |
 | 镜像 | ✅ mirror（特征，基准面可偏移） | ✅ | cadsy part_0003（两个沉孔，对答案 0 差） |
 | 多个拉伸组合（支架、底座） | ✅ v0.3 extrude | ✅ | 002 |

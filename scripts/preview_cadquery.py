@@ -199,7 +199,9 @@ def build(table: dict, stop_before: str | None = None, trace: list | None = None
             sol = result.val()
             bb = sol.BoundingBox()
             trace.append({"id": f["id"], "volume_mm3": sol.Volume(),
-                          "bbox_min": [bb.xmin, bb.ymin, bb.zmin], "bbox_max": [bb.xmax, bb.ymax, bb.zmax]})
+                          "bbox_min": [bb.xmin, bb.ymin, bb.zmin], "bbox_max": [bb.xmax, bb.ymax, bb.zmax],
+                          # 质心：阵列复制件转反了、切在零件内部时，体积和包围盒都不变，质心会变
+                          "center_mm": list(cq.Shape.centerOfMass(sol).toTuple())})
     if stop_before is not None:
         raise KeyError(f"特征 {stop_before} 不存在")
     return result

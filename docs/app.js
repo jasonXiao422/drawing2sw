@@ -28,7 +28,7 @@ const EN = {
   'cap.rev': 'Revolved parts', 'cap.rev.d': 'Shafts, flanges, sleeves, discs; boss or cut revolved about any axis',
   'cap.pri': 'Prismatic parts', 'cap.pri.d': 'Plates, brackets, bases; extrudes, cuts, line-and-arc profiles, tangent arc loops',
   'cap.hole': 'Holes', 'cap.hole.d': 'Plain, tap drill, counterbore, countersink, drill point, bolt circles',
-  'cap.detail': 'Details', 'cap.detail.d': 'Chamfers, fillets, inclined planes, cut up to a curved face, linear patterns, mirror, involute spur teeth',
+  'cap.detail': 'Details', 'cap.detail.d': 'Chamfers, fillets, inclined planes, cut up to a curved face, linear and circular patterns, mirror, involute spur teeth',
   'cap.setup': 'Drawing setup', 'cap.setup.d': 'mm / inch, first / third angle projection, scale, dual units',
   'cap.no': 'Not yet', 'cap.no.d': 'Sheet metal, assemblies, sweep and loft, shell. The agent says so instead of faking it.',
   'trust.title': 'What “passed” actually means',

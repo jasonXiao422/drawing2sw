@@ -795,34 +795,56 @@ class Builder:
                 errs.append(f"{name}: {e}")
         raise RuntimeError(f"[{f['id']}] 镜像失败: " + " | ".join(errs))
 
+    @staticmethod
+    def _com_tol(exp: dict) -> float:
+        diag = sum((b - a) ** 2 for a, b in zip(exp["bbox_min"], exp["bbox_max"])) ** 0.5
+        return max(0.01, 2e-4 * diag)
+
+    def _com_mm(self, mp) -> list | None:
+        try:
+            return [c / MM for c in mp.CenterOfMass]
+        except Exception:  # noqa: BLE001
+            return None
+
     def step_ok(self, exp: dict, rel_tol: float = 1e-3, box_tol: float = 0.05) -> bool:
-        """和预览这一步比，只返回对不对，不抛错（阵列试方向用）。"""
+        """和预览这一步比，只返回对不对，不抛错（阵列试方向用）。体积、包围盒、质心都要对上：
+        复制件落在零件内部时，转反了体积和包围盒都不变，只有质心能分出来。"""
         self.doc.ForceRebuild3(False)
-        vol = call(self.doc.Extension, "CreateMassProperty").Volume * 1e9
+        mp = call(self.doc.Extension, "CreateMassProperty")
+        vol = mp.Volume * 1e9
         bx = body_box(self.doc)
         if bx is None:
             return False
         got = [c / MM for c in bx]
-        return (abs(vol - exp["volume_mm3"]) <= max(rel_tol * exp["volume_mm3"], 1.0)
-                and all(abs(a - e) <= box_tol for a, e in zip(got, exp["bbox_min"] + exp["bbox_max"])))
+        ok = (abs(vol - exp["volume_mm3"]) <= max(rel_tol * exp["volume_mm3"], 1.0)
+              and all(abs(a - e) <= box_tol for a, e in zip(got, exp["bbox_min"] + exp["bbox_max"])))
+        com = self._com_mm(mp)
+        if ok and com is not None and "center_mm" in exp:
+            ok = all(abs(a - e) <= self._com_tol(exp) for a, e in zip(com, exp["center_mm"]))
+        return ok
 
     def check_step(self, f: dict, exp: dict, log: list, rel_tol: float = 1e-3, box_tol: float = 0.05):
         """和 CadQuery 预览的同一步比体积和绝对包围盒。对不上就停，说明是哪个特征。"""
         self.doc.ForceRebuild3(False)
-        vol = call(self.doc.Extension, "CreateMassProperty").Volume * 1e9
+        mp = call(self.doc.Extension, "CreateMassProperty")
+        vol = mp.Volume * 1e9
         bx = body_box(self.doc)
         bmin = [c / MM for c in bx[:3]] if bx else None
         bmax = [c / MM for c in bx[3:]] if bx else None
         ok_v = abs(vol - exp["volume_mm3"]) <= max(rel_tol * exp["volume_mm3"], 1.0)
         ok_b = bmin is not None and all(abs(a - e) <= box_tol for a, e in zip(bmin + bmax, exp["bbox_min"] + exp["bbox_max"]))
+        com = self._com_mm(mp)
+        ok_c = com is None or "center_mm" not in exp or all(
+            abs(a - e) <= self._com_tol(exp) for a, e in zip(com, exp["center_mm"]))
         if log and log[-1].get("id") == f["id"]:
-            log[-1]["step_check"] = "ok" if ok_v and ok_b else "mismatch"
-        if not (ok_v and ok_b):
+            log[-1]["step_check"] = "ok" if ok_v and ok_b and ok_c else "mismatch"
+        if not (ok_v and ok_b and ok_c):
             raise RuntimeError(
                 f"[{f['id']}] 这一步和预览对不上：SolidWorks 体积 {vol:.3f}，预览 {exp['volume_mm3']:.3f}；"
                 f"SolidWorks 包围盒 {[round(c, 3) for c in (bmin or [])]}→{[round(c, 3) for c in (bmax or [])]}，"
-                f"预览 {[round(c, 3) for c in exp['bbox_min']]}→{[round(c, 3) for c in exp['bbox_max']]}。"
-                "常见原因：拉伸或切除方向反了、基准面偏移方向反了、选错了边")
+                f"预览 {[round(c, 3) for c in exp['bbox_min']]}→{[round(c, 3) for c in exp['bbox_max']]}；"
+                f"SolidWorks 质心 {[round(c, 3) for c in (com or [])]}，预览 {[round(c, 3) for c in exp.get('center_mm', [])]}。"
+                "常见原因：拉伸或切除方向反了、基准面偏移方向反了、阵列转反了、选错了边")
 
     def revolve(self, cut: bool = False, angle_deg: float = 360.0):
         # 第 4 个参数 IsCut；草图里的中心线自动当旋转轴
