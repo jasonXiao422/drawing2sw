@@ -54,6 +54,12 @@ def resolve(table: dict) -> dict:
         except ValueError as e:
             raise ValueError(f"{label} {e}") from e
         feats.append(f)
+    # 阵列 / 镜像引用的孔如果展开成了多个特征（沉孔、钻尖），展开出的部分一起复制
+    ids = [g.get("id") for g in feats]
+    for f in feats:
+        if f.get("type") in ("linear_pattern", "mirror"):
+            f["features"] = [i for r in f["features"]
+                             for i in ([j for j in ids if j == r or str(j).startswith(r + "__")] or [r])]
     out["features"] = feats
     return out
 
@@ -250,7 +256,7 @@ def to_mm(table: dict) -> dict:
             f["half_profile"] = _scale_pts(f["half_profile"], k)
         if isinstance(f.get("depth"), (int, float)):
             f["depth"] = f["depth"] * k
-        for key in ("offset", "diameter", "size", "module"):
+        for key in ("offset", "diameter", "size", "module", "spacing", "spacing2"):
             if key in f:
                 f[key] = f[key] * k
         if "positions" in f:
@@ -281,6 +287,28 @@ def hole_positions(feat: dict) -> list[tuple[float, float]]:
             a = math.radians(a0 + 360 * i / bc["count"])
             pts.append((cu + r * math.cos(a), cv + r * math.sin(a)))
     return pts
+
+
+AXIS_VEC = {"+X": (1, 0, 0), "-X": (-1, 0, 0), "+Y": (0, 1, 0), "-Y": (0, -1, 0), "+Z": (0, 0, 1), "-Z": (0, 0, -1)}
+
+
+def pattern_offsets(f: dict) -> list[tuple[float, float, float]]:
+    """线性阵列每个复制件相对原特征的平移量 (mm)，不含原特征自己。"""
+    d1, n1, s1 = AXIS_VEC[f["direction"]], f["count"], f["spacing"]
+    d2, n2, s2 = AXIS_VEC.get(f.get("direction2"), (0, 0, 0)), f.get("count2", 1), f.get("spacing2", 0)
+    out = []
+    for j in range(n2 if "direction2" in f else 1):
+        for i in range(n1):
+            if i or j:
+                out.append(tuple(i * s1 * a + j * s2 * b for a, b in zip(d1, d2)))
+    return out
+
+
+def mirror_plane(f: dict) -> tuple[tuple, tuple]:
+    """镜像面 -> (面上一点, 法向)，模型坐标 mm。"""
+    n = PLANES[f["plane"]]["normal"]
+    off = float(f.get("offset", 0))
+    return tuple(off * c for c in n), tuple(n)
 
 
 def _unit(a):

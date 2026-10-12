@@ -45,6 +45,13 @@
 
 图上只写"4×M8 沉孔"、没标沉孔直径和深度时，用 `python scripts/standards.py counterbore M8` 查 GB/T 152.3（沉头螺钉用 `countersink`），查到的数写进 open_questions 请用户确认。沉孔深度图上没标、只能量图的，同样写进 open_questions。
 
+## 一排、一格、对称的结构
+
+- "5× 等距 12""4X EQ SP"、一排相同的脚 / 槽 / 筋：建一个，再 `linear_pattern`（feature-table.md "线性阵列"）。
+- 图上只标了间距、没标第一个的位置时，第一个按比例量，写进 open_questions（reading-rules R32）。
+- 槽标注 "N× 宽 × 长 ↧深" 有时指相邻凸起之间的空隙：空隙宽 = 间距 - 凸起宽，用这个关系核对。
+- 两个结构关于中面对称、标注相同：建一个，再 `mirror`。标注不同就分开写。
+
 ## 肋、筋板、支撑墙
 
 - 剖视图里被线围住、没有剖面线的区域多半是肋（reading-rules R10）。

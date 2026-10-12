@@ -9,6 +9,7 @@
 """
 from __future__ import annotations
 
+import json
 import math
 import re
 
@@ -168,7 +169,54 @@ def feature_numbers(feature: dict, table: dict | None = None) -> list[float]:
                 nums.append(holder[key] / 2)
     if feature.get("type") == "edge_treatment" and isinstance(feature.get("size"), (int, float)):
         nums.append(45.0)  # 1 X 45° 倒角
+    if feature.get("type") in ("linear_pattern", "mirror") and table:
+        if feature["type"] == "linear_pattern":
+            n1, n2 = feature.get("count", 1), feature.get("count2", 1)
+            nums += [n1 * n2, (n1 - 1) * feature.get("spacing", 0), (n2 - 1) * feature.get("spacing2", 0)]
+        seeds = {f.get("id"): f for f in table.get("features", [])}
+        for ref in feature.get("features", []):  # 原特征的尺寸（槽宽、孔径）标在复制件上也算
+            if ref in seeds:
+                nums += feature_numbers(seeds[ref], table)
+        for c in _copies(feature, table):
+            nums += feature_numbers(c, table)
     return nums
+
+
+def _copies(feature: dict, table: dict) -> list[dict]:
+    """阵列 / 镜像的复制件，写成和原特征一样的草图坐标（只换孔位和轮廓中心），
+    这样"离左边 55"这类标到复制件上的尺寸也能对上。"""
+    import ftable  # noqa: PLC0415
+    seeds = {f.get("id"): f for f in table.get("features", [])}
+    out = []
+    for ref in feature.get("features", []):
+        seed = seeds.get(ref)
+        if not seed or not isinstance(seed.get("plane"), str) or seed["plane"] not in ftable.PLANES:
+            continue
+        fr = ftable.PLANES[seed["plane"]]
+        if feature["type"] == "mirror":
+            pt, n = ftable.mirror_plane(feature)
+            moves = [("mirror", pt, n)]
+        else:
+            moves = [("move", d, None) for d in ftable.pattern_offsets(feature)]
+
+        def uv(p, kind, a, n, fr=fr):
+            P = [p[0] * fr["x_dir"][i] + p[1] * fr["y_dir"][i] for i in range(3)]
+            if kind == "move":
+                Q = [P[i] + a[i] for i in range(3)]
+            else:
+                dist = sum((P[i] - a[i]) * n[i] for i in range(3))
+                Q = [P[i] - 2 * dist * n[i] for i in range(3)]
+            return [sum(Q[i] * fr["x_dir"][i] for i in range(3)), sum(Q[i] * fr["y_dir"][i] for i in range(3))]
+
+        for kind, a, n in moves:
+            c = json.loads(json.dumps(seed))
+            if isinstance(c.get("positions"), list):
+                c["positions"] = [uv(p, kind, a, n) for p in c["positions"]]
+            prof = c.get("profile")
+            if isinstance(prof, dict) and prof.get("shape") in ("rect", "circle"):
+                prof["center"] = uv(prof.get("center") or [0, 0], kind, a, n)
+            out.append(c)
+    return out
 
 
 def contains(nums: list[float], value: float, rel: float = 1e-3, abs_tol: float = 1e-6) -> bool:

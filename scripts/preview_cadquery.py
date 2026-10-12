@@ -109,6 +109,7 @@ def build(table: dict, stop_before: str | None = None, trace: list | None = None
     trace 给定时，每个特征之后记下体积和绝对包围盒，给 SolidWorks 逐步自检用。"""
     feats = table["features"]
     result: cq.Workplane | None = None
+    tools = {}  # 特征 id -> (工具体, 是否切除)，给阵列、镜像复制用
     axis = "Z"
     base_type = None
     for f in feats:
@@ -136,16 +137,20 @@ def build(table: dict, stop_before: str | None = None, trace: list | None = None
                 (a1, a2) = f["axis"]
                 solid = sketch(wp, f["profile"]).revolve(f.get("angle", 360), tuple(a1), tuple(a2))
                 result = result.cut(solid) if f.get("cut") else result.union(solid)
+                tools[f["id"]] = (solid, bool(f.get("cut")))
             elif t == "extrude":
                 d = float(f["depth"])
                 dirn = f.get("direction", "positive")
                 start = {"positive": 0.0, "negative": -d, "midplane": -d / 2}[dirn]
                 wp = cq.Workplane(cq_plane(f["plane"], f.get("offset", 0) + start))
-                result = result.union(sketch(wp, f["profile"]).extrude(d))
+                solid = sketch(wp, f["profile"]).extrude(d)
+                result = result.union(solid)
+                tools[f["id"]] = (solid, False)
             elif t == "cut_extrude":
                 tool = extrude_tool(f["plane"], f.get("offset", 0), lambda wp: sketch(wp, f["profile"]),
                                     f["depth"], f.get("direction", "both"), big)
                 result = result.cut(tool)
+                tools[f["id"]] = (tool, True)
             elif t == "hole":
                 pts = ftable.hole_positions(f)
                 r = f["diameter"] / 2
@@ -153,6 +158,20 @@ def build(table: dict, stop_before: str | None = None, trace: list | None = None
                                     lambda wp: wp.pushPoints(pts).circle(r),
                                     f["depth"], f.get("direction", "both"), big)
                 result = result.cut(tool)
+                tools[f["id"]] = (tool, True)
+            elif t in ("linear_pattern", "mirror"):
+                # 和 SolidWorks 一样：复制件按原特征的顺序逐个加料或切除
+                for ref in f["features"]:
+                    if ref not in tools:
+                        raise CapabilityBlocked(f"[{f['id']}] 不能复制 {ref}：只支持前面的 extrude、cut_extrude、hole、revolve")
+                    solid, is_cut = tools[ref]
+                    if t == "mirror":
+                        pt, n = ftable.mirror_plane(f)
+                        copies = [solid.val().mirror(cq.Vector(*n), cq.Vector(*pt))]
+                    else:
+                        copies = [solid.val().translate(cq.Vector(*d)) for d in ftable.pattern_offsets(f)]
+                    for c in copies:
+                        result = result.cut(c) if is_cut else result.union(c)
             elif t == "spur_gear_teeth":
                 # 和 SolidWorks 一样：渐开线用样条，齿根用圆弧，一个齿槽一个闭合轮廓
                 wp = cq.Workplane(cq_plane("top", -big))

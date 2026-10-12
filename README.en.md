@@ -204,10 +204,11 @@ The agent will stop and ask about units, projection method, keyway and hole orie
 | Profiles | Rectangles, circles, polygons, line-and-arc paths, tangent arc loops |
 | Holes | Plain, tap drill, counterbore, countersink, drill point, bolt circles |
 | Details | Chamfers, fillets, arbitrary inclined planes, cut up to a curved face |
+| Copies | Linear patterns (row or grid) `linear_pattern`, mirror `mirror` |
 | Gears | Involute spur teeth |
 | Drawing setup | mm / inch, first / third angle, scale, dual units, DIMLFAC |
 
-**Not yet:** sheet metal, assemblies, sweep / loft, shell, general mirror and linear patterns. The agent reports the gap instead of faking it.
+**Not yet:** sheet metal, assemblies, sweep / loft, shell, mirroring the whole body. The agent reports the gap instead of faking it.
 
 ## How far to trust the result
 

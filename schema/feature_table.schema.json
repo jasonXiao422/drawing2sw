@@ -994,6 +994,125 @@
               "$ref": "#/$defs/meta"
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "type",
+            "features",
+            "direction",
+            "count",
+            "spacing",
+            "meta"
+          ],
+          "description": "线性阵列：把前面的特征沿模型坐标轴复制成一排（可选第二方向成网格）。count 含原特征本身；spacing 是相邻两个的中心距。图上'5× 等距 12''4X EQ SP'这类写法用它。一排孔也可以直接在 hole.positions 里列全，两种都行",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "linear_pattern"
+            },
+            "features": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "要复制的特征 id（写在本特征前面）。可以是 extrude、cut_extrude、hole、revolve；hole 带 cbore / csink / tip_angle 时展开出的部分自动一起复制。不能是基体、倒角圆角、齿轮"
+            },
+            "direction": {
+              "enum": [
+                "+X",
+                "-X",
+                "+Y",
+                "-Y",
+                "+Z",
+                "-Z"
+              ],
+              "description": "第一方向，模型坐标轴。原特征在第一个位置，其余沿这个方向排开"
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "spacing": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "相邻中心距，按 part.units"
+            },
+            "direction2": {
+              "enum": [
+                "+X",
+                "-X",
+                "+Y",
+                "-Y",
+                "+Z",
+                "-Z"
+              ],
+              "description": "可选第二方向，必须和第一方向垂直"
+            },
+            "count2": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "spacing2": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "type",
+            "features",
+            "plane",
+            "meta"
+          ],
+          "description": "镜像：把前面的特征按基准面（可带偏移）对称复制一份。图上标了对称符号、或左右两处结构相同且关于中心面对称时用它。整件对称的，基体本身直接画全，不用镜像",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "mirror"
+            },
+            "features": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "要复制的特征 id（写在本特征前面）。可以是 extrude、cut_extrude、hole、revolve；hole 带 cbore / csink / tip_angle 时展开出的部分自动一起复制。不能是基体、倒角圆角、齿轮"
+            },
+            "plane": {
+              "enum": [
+                "front",
+                "top",
+                "right"
+              ],
+              "description": "镜像面。front 法向 +Z，top 法向 +Y，right 法向 +X"
+            },
+            "offset": {
+              "type": "number",
+              "minimum": 0,
+              "default": 0,
+              "description": "镜像面沿法向的偏移，按 part.units。目前只支持 >= 0"
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          }
         }
       ]
     },

@@ -225,6 +225,20 @@ def validate(table: dict, evidence: dict | None = None) -> tuple[list[str], list
                 if key in TAP_DRILL and abs(TAP_DRILL[key] - f["diameter"]) > 0.05:
                     warnings.append(f"{label} 螺纹 {th} 的粗牙底孔应为 {TAP_DRILL[key]}，表里是 {f['diameter']}（细牙可忽略）")
 
+        if f["type"] in ("linear_pattern", "mirror"):
+            before = {g["id"]: g["type"] for g in feats[:feats.index(f)]}
+            for ref in f["features"]:
+                if ref not in before:
+                    errors.append(f"{label} 引用的特征 {ref} 不存在，或者写在了本特征后面")
+                elif before[ref] not in ("extrude", "cut_extrude", "hole", "revolve"):
+                    errors.append(f"{label} 不能复制 {ref}（{before[ref]}）：只支持 extrude、cut_extrude、hole、revolve。"
+                                  "倒角圆角在阵列后单独写；整件对称的基体直接画全")
+            if f["type"] == "linear_pattern":
+                if ("direction2" in f) != ("count2" in f) or ("direction2" in f) != ("spacing2" in f):
+                    errors.append(f"{label} 第二方向要同时写 direction2、count2、spacing2")
+                elif "direction2" in f and f["direction2"][1] == f["direction"][1]:
+                    errors.append(f"{label} 第二方向 {f['direction2']} 和第一方向 {f['direction']} 在同一条轴上，必须垂直")
+
         if f["type"] == "spur_gear_teeth":
             if not bases or bases[0]["type"] != "base_revolve":
                 errors.append(f"{label} 轮齿只能切在回转体轮坯（base_revolve）上")

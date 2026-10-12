@@ -31,6 +31,8 @@
 | cut_extrude | 切槽、开口、台阶切除 | plane, offset, profile, depth, direction |
 | hole | 光孔、螺纹底孔 | plane, offset, diameter, positions 或 bolt_circle, depth, thread |
 | edge_treatment | 倒角、圆角 | kind, size, edges |
+| linear_pattern | 一排或一格相同的结构（脚、槽、筋、孔） | features, direction, count, spacing（可选 direction2, count2, spacing2） |
+| mirror | 关于基准面对称的结构 | features, plane, offset |
 
 只能有一个基体特征。没有的特征类型不要自创，按 SKILL.md 开头的说明报告能力缺口。
 
@@ -167,6 +169,27 @@ path 的 `start`、`to`、`center` 都可以写成两个对象的交点，有两
 - `cbore`：沉孔台阶；`csink`：埋头孔 `{"diameter": 20, "angle": 90}`；`tip_angle`：盲孔钻尖顶角（118 或 120），depth 只算圆柱部分。
 - 必须写 `direction`（从哪个面钻进去），不能是 both。
 - 展开后会多出 `ear_hole__cbore`、`ear_hole__tip1` 这类特征，逐步自检和报告里看到的是展开后的名字。
+
+### 线性阵列 linear_pattern、镜像 mirror
+
+先建一个，再复制。和 SolidWorks 里工程师的做法一样，模型的特征树也是"一个凸台 + 阵列"。
+
+```json
+{"id": "foot", "type": "extrude", "plane": "top", "direction": "negative", "depth": 3,
+ "profile": {"shape": "rect", "width": 5, "height": 29, "center": [-27, 0]}, "meta": {...}},
+{"id": "feet", "type": "linear_pattern", "features": ["foot"],
+ "direction": "+X", "count": 5, "spacing": 12, "meta": {...}},
+{"id": "hole_r", "type": "mirror", "features": ["hole_l"], "plane": "right", "meta": {...}}
+```
+
+- `features`：要复制的特征 id，必须写在阵列 / 镜像前面。只能是 extrude、cut_extrude、hole、revolve。带 cbore / csink / tip_angle 的孔，展开出的部分自动一起复制。
+- `direction`：模型坐标轴 `+X -X +Y -Y +Z -Z`。原特征是第一个，其余往这个方向排。`count` 含原特征，`spacing` 是相邻中心距。
+- 网格：再写 `direction2`、`count2`、`spacing2`，第二方向必须和第一方向垂直。
+- `mirror` 的 `plane`：front（法向 +Z）、top（+Y）、right（+X），`offset` 沿法向偏移，目前只支持 ≥ 0。
+- 倒角圆角写在阵列 / 镜像后面，选边点覆盖所有复制件。
+- 整件对称的外形直接把基体画全，不要镜像基体。
+- 一排孔也可以直接在 hole 的 `positions` 里列全，结果一样。图上写"5× 等距"、或者是凸台、槽这类非孔结构时用阵列更省事。
+- 看着对称的两个孔，标注不同（一个 THRU、一个 ↧10）就分开写，不能镜像。
 
 ### 特征表写法覆盖不到的：命令行计算器
 

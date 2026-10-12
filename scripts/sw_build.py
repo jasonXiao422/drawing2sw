@@ -623,9 +623,14 @@ class Builder:
 
     def make_y_axis(self):
         """前视、右视基准面相交 = 模型 Y 轴，回转体的轴线。"""
+        return self.make_axis("Y")
+
+    def make_axis(self, name: str):
+        """两个默认基准面相交得到模型坐标轴：X = 前视∩上视，Y = 前视∩右视，Z = 上视∩右视。"""
+        p1, p2 = {"X": ("front", "top"), "Y": ("front", "right"), "Z": ("top", "right")}[name]
         self.doc.ClearSelection2(True)
-        self.planes["front"].Select2(False, 0)
-        self.planes["right"].Select2(True, 0)
+        self.planes[p1].Select2(False, 0)
+        self.planes[p2].Select2(True, 0)
         # InsertAxis2 在零件文档 ModelDoc2 上，不在 FeatureManager 上（DEVELOPING.md #17）
         errs = []
         for name, fn in (("doc.InsertAxis2", lambda: self.doc.InsertAxis2(True)),
@@ -672,6 +677,98 @@ class Builder:
             except Exception as e:  # noqa: BLE001
                 self.last_errors.append(f"{name}: {e}")
         return None
+
+    def plane_obj(self, name: str, offset: float = 0.0):
+        """默认基准面，或它沿法向偏移 offset (mm) 的新基准面（只支持 >= 0）。"""
+        if abs(offset) < 1e-9:
+            return self.planes[name]
+        self.select_plane(name, offset)
+        return self.doc.FeatureByPositionReverse(0)
+
+    def _delete(self, feat):
+        self.doc.ClearSelection2(True)
+        feat.Select2(False, 0)
+        if not self.doc.EditDelete():
+            call(self.doc, "Extension").DeleteSelection2(0)
+        self.doc.ClearSelection2(True)
+
+    def linear_pattern(self, seeds: list, f: dict, exp: dict | None) -> dict:
+        """线性阵列。方向用基准面交线做的坐标轴；轴的正向由 SolidWorks 决定，所以先按不翻转建，
+        和预览这一步对不上就删掉换方向再建（最多 4 种组合）。没有预览参照时只建第一种，报告里注明。"""
+        cache = self.__dict__.setdefault("_axes", {})
+        dirs = [f["direction"]] + ([f["direction2"]] if "direction2" in f else [])
+        axes = []
+        for d in dirs:
+            if d[1] not in cache:
+                cache[d[1]] = self.make_axis(d[1])
+            axes.append(cache[d[1]])
+        n2 = f.get("count2", 1)
+        s2 = f.get("spacing2", 0) * MM
+        combos = [(a, b) for a in (False, True) for b in ((False, True) if n2 > 1 else (False,))]
+        errs = []
+        for flip1, flip2 in combos:
+            feat, name = None, None
+            for name, fn in (
+                ("FeatureLinearPattern5", lambda: self.fm.FeatureLinearPattern5(
+                    f["count"], f["spacing"] * MM, n2, s2, flip1, flip2, "NULL", "NULL", False, False,
+                    False, False, True, True, False, False, False, False, 0.0, 0.0, False, False)),
+                ("FeatureLinearPattern2", lambda: self.fm.FeatureLinearPattern2(
+                    f["count"], f["spacing"] * MM, n2, s2, flip1, flip2, "NULL", "NULL", False)),
+            ):
+                # 每次重新选：要阵列的特征 mark 4，方向 1 mark 1，方向 2 mark 2
+                self.doc.ClearSelection2(True)
+                for sd in seeds:
+                    sd.Select2(True, 4)
+                axes[0].Select2(True, 1)
+                if n2 > 1:
+                    axes[1].Select2(True, 2)
+                try:
+                    feat = fn()
+                except Exception as e:  # noqa: BLE001
+                    errs.append(f"{name}: {e}")
+                    continue
+                if feat is not None:
+                    break
+                errs.append(f"{name}: 返回空")
+            if feat is None:
+                raise RuntimeError(f"[{f['id']}] 线性阵列失败: " + " | ".join(errs[-2:]))
+            if exp is None:
+                return {"api": name, "flip": [flip1, flip2], "direction_checked": False}
+            if self.step_ok(exp):
+                return {"api": name, "flip": [flip1, flip2], "direction_checked": True}
+            self._delete(feat)
+        raise RuntimeError(f"[{f['id']}] 线性阵列各种方向组合都和预览对不上，检查 direction 和 spacing")
+
+    def mirror(self, seeds: list, f: dict) -> str:
+        plane = self.plane_obj(f["plane"], float(f.get("offset", 0)))
+        errs = []
+        for name, fn in (("InsertMirrorFeature2", lambda: self.fm.InsertMirrorFeature2(False, False, False, False, 0)),
+                         ("InsertMirrorFeature", lambda: self.fm.InsertMirrorFeature(False, False, False, False))):
+            self.doc.ClearSelection2(True)
+            for sd in seeds:
+                sd.Select2(True, 1)            # 要镜像的特征 mark 1
+            plane.Select2(True, 2)             # 镜像面 mark 2
+            try:
+                if fn() is not None:
+                    return name
+                errs.append(f"{name}: 返回空")
+            except Exception as e:  # noqa: BLE001
+                errs.append(f"{name}: {e}")
+        raise RuntimeError(f"[{f['id']}] 镜像失败: " + " | ".join(errs))
+
+    def step_ok(self, exp: dict, rel_tol: float = 1e-3, box_tol: float = 0.05) -> bool:
+        """和预览这一步比，只返回对不对，不抛错（阵列试方向用）。"""
+        self.doc.ForceRebuild3(False)
+        vol = call(self.doc.Extension, "CreateMassProperty").Volume * 1e9
+        bx = None
+        for body in (self.doc.GetBodies2(0, True) or ()):
+            b2 = body.GetBodyBox()
+            bx = list(b2) if bx is None else [min(bx[i], b2[i]) for i in range(3)] + [max(bx[i + 3], b2[i + 3]) for i in range(3)]
+        if bx is None:
+            return False
+        got = [c / MM for c in bx]
+        return (abs(vol - exp["volume_mm3"]) <= max(rel_tol * exp["volume_mm3"], 1.0)
+                and all(abs(a - e) <= box_tol for a, e in zip(got, exp["bbox_min"] + exp["bbox_max"])))
 
     def check_step(self, f: dict, exp: dict, log: list, rel_tol: float = 1e-3, box_tol: float = 0.05):
         """和 CadQuery 预览的同一步比体积和绝对包围盒。对不上就停，说明是哪个特征。"""
@@ -750,8 +847,9 @@ def build(table: dict, b: Builder, steps: list | None = None) -> list[dict]:
     第一个对不上的特征立刻停下并报告（DEVELOPING.md #30）。"""
     log = []
     b.log = log  # 出错时 main 也能拿到已经建好的特征列表
+    made = {}    # 特征 id -> SolidWorks 特征对象，阵列和镜像要选它们
 
-    def one(f):
+    def one(f, exp=None):
         t = f["type"]
         if t == "base_extrude":
             off = 0.0  # midplane 由 END_MIDPLANE 处理
@@ -772,13 +870,14 @@ def build(table: dict, b: Builder, steps: list | None = None) -> list[dict]:
             b.sm.CreateCenterLine(x1, y1, 0, x2, y2, 0)
             b.draw_profile(f["profile"])
             b.end_sketch()
-            b.revolve(cut=bool(f.get("cut")), angle_deg=float(f.get("angle", 360)))
+            made[f["id"]] = b.revolve(cut=bool(f.get("cut")), angle_deg=float(f.get("angle", 360)))
         elif t == "extrude":
             dirn = f.get("direction", "positive")
             b.begin_sketch(f["plane"], float(f.get("offset", 0)))
             b.draw_profile(f["profile"])
             b.end_sketch()
-            b.extrude(f["depth"], dirn == "midplane", reverse=dirn == "negative", merge=f.get("merge", True))
+            made[f["id"]] = b.extrude(f["depth"], dirn == "midplane", reverse=dirn == "negative",
+                                      merge=f.get("merge", True))
             if f["plane"] not in ("front", "top", "right"):
                 log.append({"id": f["id"], "status": "ok", "plane_method": getattr(b, "last_plane_method", "cached"),
                             "sketch_flipped": b.flip})
@@ -787,14 +886,24 @@ def build(table: dict, b: Builder, steps: list | None = None) -> list[dict]:
             b.begin_sketch(f["plane"], sketch_plane_for(f))
             b.draw_profile(f["profile"])
             b.end_sketch()
-            b.cut(f["depth"], f.get("direction", "both"))
+            made[f["id"]] = b.cut(f["depth"], f.get("direction", "both"))
         elif t == "hole":
             b.begin_sketch(f["plane"], sketch_plane_for(f))
             r = f["diameter"] / 2
             for u, v in ftable.hole_positions(f):
                 b.circle(u, v, r)
             b.end_sketch()
-            b.cut(f["depth"], f.get("direction", "both"))
+            made[f["id"]] = b.cut(f["depth"], f.get("direction", "both"))
+        elif t in ("linear_pattern", "mirror"):
+            missing = [r for r in f["features"] if r not in made]
+            if missing:
+                raise CapabilityBlocked(f"[{f['id']}] 不能复制 {missing}：只支持前面的 extrude、cut_extrude、hole、revolve")
+            seeds = [made[r] for r in f["features"]]
+            if t == "mirror":
+                log.append({"id": f["id"], "status": "ok", "api": b.mirror(seeds, f)})
+            else:
+                log.append(dict({"id": f["id"], "status": "ok"}, **b.linear_pattern(seeds, f, exp)))
+            return
         elif t == "spur_gear_teeth":
             log.append(build_gear_teeth(b, f))
             return
@@ -820,7 +929,7 @@ def build(table: dict, b: Builder, steps: list | None = None) -> list[dict]:
         log.append({"id": f["id"], "status": "ok"})
 
     for i, f in enumerate(table["features"]):
-        one(f)
+        one(f, steps[i] if steps else None)
         if steps:
             b.check_step(f, steps[i], log)
     return log
@@ -911,7 +1020,7 @@ def main() -> int:
         feat = call(b.doc, "FirstFeature")
         hidden = 0
         while feat is not None:
-            if call(feat, "GetTypeName2") == "RefPlane" and all(feat is not p for p in b.planes.values()):
+            if call(feat, "GetTypeName2") in ("RefPlane", "RefAxis") and all(feat is not p for p in b.planes.values()):
                 b.doc.ClearSelection2(True)
                 feat.Select2(False, 0)
                 b.doc.BlankRefGeom()
