@@ -32,7 +32,7 @@
 | hole | 光孔、螺纹底孔 | plane, offset, diameter, positions 或 bolt_circle, depth, thread |
 | edge_treatment | 倒角、圆角 | kind, size, edges |
 
-只能有一个基体特征。没有的特征类型不要自创，按 SKILL.md 原则 3 处理。
+只能有一个基体特征。没有的特征类型不要自创，按 SKILL.md 开头的说明报告能力缺口。
 
 ## profile 三种形状
 

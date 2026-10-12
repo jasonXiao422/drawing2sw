@@ -57,7 +57,7 @@
 3. **轮坯外径 = 齿顶圆 da**。half_profile 的最大 r 要等于 da/2，校验脚本会查。
 4. **核对**：d = mz 应等于分度圆直径，da = m(z + 2ha* + 2x)，df = m(z − 2ha* − 2c* + 2x)。对得上，单位和参数就都对了。
 5. 精度等级（8-8-7GK）写进 `accuracy`，只记录。
-6. 斜齿轮（参数表有螺旋角 β）、内齿轮、锥齿轮当前不支持，按 SKILL.md 原则 3 停下。
+6. 斜齿轮（参数表有螺旋角 β）、内齿轮、锥齿轮当前不支持。按 SKILL.md 开头的说明报告能力缺口，停下，不要用直齿轮凑。
 
 ```json
 { "id": "teeth", "type": "spur_gear_teeth", "module": 4, "teeth": 60, "pressure_angle": 20,

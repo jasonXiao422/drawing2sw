@@ -1,6 +1,6 @@
 # 单位、标准与中英文标注
 
-第 1 步必读。先把图纸的基础设定定下来，再读任何尺寸。单位错了，后面每个数都错，而且体积校验发现不了（因为特征表本身是自洽的）。
+SKILL.md 第 2 节读图前必读。先把图纸的基础设定定下来，再读任何尺寸。单位错了，后面每个数都错，而且体积校验发现不了（因为特征表本身是自洽的）。
 
 ## 铁律
 
@@ -42,14 +42,14 @@
 |---|---|---|---|
 | 直径 | Ø40、φ40 | Ø1.500、1.500 DIA | diameter |
 | 半径 | R5 | R.20、.20 RAD | 圆角 size |
-| 球径 | SR10 | SR.50 | 当前不支持 |
+| 球径 | SR10 | SR.50 | 没有专门写法。回转件端部球面可试 revolve 的 path 轮廓画圆弧，没实测过，要向用户说明 |
 | 数量 | 4×Ø9、4-Ø9 | 4X Ø.344 | positions 或 bolt_circle 的个数 |
 | 均布 | 均布、EQS | EQ SP、EQUALLY SPACED | bolt_circle |
 | 节圆 | PCD80、Ø80 节圆 | B.C. Ø3.150、BC | bolt_circle.pcd |
 | 通孔 | 通孔、通 | THRU | depth: through_all |
 | 深度 | 深 10、↧10 | DP .50、↧.50 | depth 数值 |
-| 沉孔 / 柱孔 | 沉孔 Ø18 深 11、⌴ | CBORE Ø.70 ↧.43、⌴ | 当前不支持，见 reading-prismatic.md |
-| 埋头孔 | 锪孔 90°、⌵ | CSK Ø.50 X 82°、⌵ | 当前不支持 |
+| 沉孔 / 柱孔 | 沉孔 Ø18 深 11、⌴ | CBORE Ø.70 ↧.43、⌴ | hole 的 cbore，见 reading-prismatic.md |
+| 埋头孔 | 锪孔 90°、⌵ | CSK Ø.50 X 82°、⌵ | hole 的 csink，见 reading-prismatic.md |
 | 倒角 | C1、1×45° | .04 X 45°、CHAM | edge_treatment chamfer |
 | 未注倒角 | 未注倒角 C0.5 | BREAK ALL SHARP EDGES .01 | drawing_setup.default_chamfer，并问用户要不要建 |
 | 螺纹 | M8、M8×1.25-6H | 1/4-20 UNC-2B、M8X1.25 | thread 记录规格，diameter 填底孔 |
