@@ -113,6 +113,9 @@ CadQuery 预览体积要和以前一样：
 | 41b | 圆周阵列 `circular_pattern`：`FeatureCircularPattern5(count, 相邻角弧度, flip, "NULL", False, EqualSpacing=False, ...)`，特征 mark 4、轴 mark 1；不是整圈时和线性阵列一样按预览试方向。实测：绕 -Y 不翻转、绕 +Y 要翻转 | 齿轮用的是 EqualSpacing=True + 总角 2π，这里改成给相邻角，部分圆周也能写 |
 | 44 | 包围盒用 `IBody2.GetExtremePoint` 沿 ±X/±Y/±Z 取精确极值点，`GetBodyBox` 只作兜底 | `GetBodyBox` 对曲面是松的：端面开半圆口的 Ø4 孔多出 0.132 mm，超过逐步自检 0.05 的容差误报，豆包因此关掉了自检（Mini Crank Case） |
 | 45 | 逐步自检除了体积、包围盒，还比质心（预览 trace 的 center_mm，SolidWorks CreateMassProperty.CenterOfMass），容差 max(0.01 mm, 2e-4 × 包围盒对角线) | 阵列复制件落在零件内部（凹槽、内部孔）时转反了，体积和包围盒都不变，以前会误判方向正确。另：阵列复制件落在悬空处（例如落在前一个阵列切出的槽上），SolidWorks 会静默丢掉这个复制件，预览却算进去，体积对不上会报出来 |
+| 46 | 保存：直接 `SaveAs3` 覆盖同名文件，成功后才删 `name_1` 这类旧编号；保存失败状态 `save_failed`、退出码 2，旧文件和模型窗口都保留 | 以前先删旧文件再保存，保存失败时状态仍是 ok、退出码 0，旧零件已经没了（Codex 审查发现）。用只读的目标文件实测过 |
+| 47 | 关旧窗口：存过盘、又有未保存改动的文档一律不关（`kept_open_unsaved`）；目标文件就是它时直接停（`blocked_target_open`），不建模 | 以前带 drawing2sw 标记的文档不管有没有改动都关掉，用户在模型上手动改了没存就会丢（Codex 审查发现）。用 SetSaveFlag 模拟实测过 |
+| 48 | 建模前强制关卡：完整校验（含 v0.5 证据、手写框里有字）→ 预览。校验错误 `blocked_validation`、预览算不出 `blocked_preview_failed`、孔口被盖住 `blocked_covered_holes`，都不启动 SolidWorks，退出码 3。只有没装 CadQuery 时可以不自检地继续，报告写明 | 以前 sw_build 只做展开和换单位，AI 跳过 validate 也能直接建；预览失败也照样建（Codex 审查发现）。tests/test_sw_safety.py |
 | 42 | 镜像：`InsertMirrorFeature2(False, False, False, False, 0)`，要镜像的特征 mark 1，镜像面 mark 2 | 和阵列的 mark 约定不一样 |
 | 43 | 零厚度的点：盲孔底正好落在实体底面所在平面、孔壁又和下面凸起的侧面相切（孔边 = 凸起边），切除后只剩一个点相连，`FeatureCut4` 返回 None。OCC 能建，答案 STEP 也是这样 | 和 #34 同类，SolidWorks 不允许非流形。不改尺寸迎合程序，报告给用户（cadsy part_0001：浅 0.01 就能建）|
 | — | `sw_build` 建完隐藏自己创建的偏移基准面 | 否则打开零件时一层层基准面挡住模型 |

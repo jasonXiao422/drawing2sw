@@ -4,16 +4,18 @@
   python sw_build.py --check                         # 环境检查
   python sw_build.py part.json -o D:/out/part.SLDPRT [--report work/sw_report.json]
 
+建模前依次：完整校验（schema、证据、工程规则）→ CadQuery 预览（逐步自检的参照、孔口是否被盖住）。
+任何一步不通过都不启动 SolidWorks，报告 status 写明原因，退出码非 0。
+
 设计规则（见 dev/DEVELOPING.md）:
   * 所有数值经 API 传入，统一 mm -> m，不依赖零件模板单位。
   * 基准面按特征树顺序取前三个 RefPlane，不按名字，中英文界面通用。
   * 草图期间关闭"创建时输入尺寸"并打开 AddToDB，避免弹窗和自动吸附。
-  * 不支持的情况返回 capability_blocked，不做近似替代。
+  * 不支持的情况返回 capability_blocked。
+  * 每个特征建完和预览比体积、精确包围盒、质心，对不上就停。
+  * 保存：直接覆盖同名文件，成功后才删 name_1 这类旧编号；保存失败报错，不删旧文件。
 
-状态: 拉伸基体、切除、通孔已在 SolidWorks 2025 学生版实测通过（体积与手算一致）。
-      v0.3 新增（待实测）：加料拉伸 extrude、圆弧轮廓 path（三点画弧）、任意斜面（三点建基准面，兜底用平面实体面）。
-      倒角/圆角：用 preview_cadquery.edge_points 算出边中点，再按坐标选边，待实测。
-      旋转基体、负偏移基准面待实测/实现。问题记到 dev/DEVELOPING.md。
+各特征的实测情况见 tests/COVERAGE.md，实现层的坑见 dev/DEVELOPING.md。
 """
 from __future__ import annotations
 
@@ -89,11 +91,11 @@ def _is_ours(d) -> bool:
         return False
 
 
-def close_previous(app, out_dir: Path) -> list[str]:
+def close_previous(app, out_dir: Path, skipped: list | None = None) -> list[str]:
     """建新零件前关掉旧窗口：
-    1. 带 drawing2sw 标记的文档：skill 自己建的（包括中途失败、没保存的），直接关，不保存；
-    2. 路径在输出文件夹里、没有未保存改动的文档。
-    用户自己打开的其他文件不动；输出文件夹里被手动改过、还没保存的也不动。"""
+    1. 带 drawing2sw 标记、从没存过盘的文档：skill 中途失败留下的半成品，直接关，不保存；
+    2. 带标记或在输出文件夹里、已经存过盘、没有未保存改动的文档。
+    已经存过盘、又有未保存改动的（用户打开后手动改过）一律不关，报告里提示；用户自己打开的其他文件不动。"""
     closed = []
     out_dir = str(out_dir.resolve()).lower()
     for d in list(call(app, "GetDocuments") or ()):
@@ -104,8 +106,11 @@ def close_previous(app, out_dir: Path) -> list[str]:
             ours = _is_ours(d)
             if not (ours or in_out):
                 continue
-            if in_out and call(d, "GetSaveFlag") and not ours:
+            if path and call(d, "GetSaveFlag"):
+                # 存过盘又有改动：用户手动改过，关掉会丢改动
                 print(f"跳过（有未保存的改动）：{path}", flush=True)
+                if skipped is not None:
+                    skipped.append(path)
                 continue
             app.CloseDoc(title)
             closed.append(path or title)
@@ -115,9 +120,10 @@ def close_previous(app, out_dir: Path) -> list[str]:
 
 
 def remove_versions(out: Path) -> list[str]:
-    """删掉同名零件的旧版本（name.SLDPRT、name_1.SLDPRT ...）。放弃的建模不留。"""
+    """删掉同名零件的旧编号副本（name_1.SLDPRT、name_2.SLDPRT ...）。name.SLDPRT 本身由保存直接覆盖，
+    保存成功之后才调用这里，保存失败时旧文件都还在。"""
     import re as _re  # noqa: PLC0415
-    pat = _re.compile(_re.escape(out.stem) + r"(_\d+)?" + _re.escape(out.suffix), _re.I)
+    pat = _re.compile(_re.escape(out.stem) + r"_\d+" + _re.escape(out.suffix), _re.I)
     removed = []
     for f in out.parent.glob("*"):
         if f.is_file() and pat.fullmatch(f.name):
@@ -1047,6 +1053,7 @@ def main() -> int:
     ap.add_argument("--allow-covered-holes", action="store_true",
                     help="预览报孔口被盖住时仍然建模。只在确认孔本来就不该开口时用，原因写进 --reason")
     ap.add_argument("--reason", default="", help="使用上面两个开关的原因，写进报告")
+    ap.add_argument("--observations", help="图纸证据 JSON；v0.5 特征表必须提供，和 validate_feature_table.py 一样")
     args = ap.parse_args()
 
     if args.check:
@@ -1056,8 +1063,33 @@ def main() -> int:
     if not args.path:
         ap.error("需要特征表路径，或使用 --check")
 
+    rep = {"backend": "solidworks"}
+
+    def stop(status: str, reason: str, **extra) -> int:
+        """建模前就不通过：不启动 SolidWorks，写报告，退出码 3。"""
+        rep.update(status=status, reason=reason, saved=None, **extra)
+        Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.report).write_text(json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(json.dumps(rep, ensure_ascii=False, indent=2))
+        return 3
+
+    # 1) 完整校验：和 validate_feature_table.py 同一套检查，有错误就不建
+    import validate_feature_table  # noqa: PLC0415
+    raw = ftable.load_raw(args.path)
+    evidence = ftable.load_raw(args.observations) if args.observations else None
+    v_errors, v_warnings = validate_feature_table.validate(raw, evidence)
+    if evidence:  # 手写视觉观察的框里要有字（和 validate_feature_table.py 命令行一致）
+        import text_boxes  # noqa: PLC0415
+        od = Path(args.observations).resolve().parent
+        e2, w2 = text_boxes.check_boxes(evidence, [Path.cwd(), od, od.parent, Path(__file__).resolve().parents[1]])
+        v_errors += e2
+        v_warnings += w2
+    if v_errors:
+        return stop("blocked_validation", "特征表校验没通过，先按错误改表（validate_feature_table.py 会列出同样的错误）",
+                    validation_errors=v_errors)
+    rep["validation_warnings"] = len(v_warnings)
     table = ftable.load(args.path)
-    rep = {"backend": "solidworks", "hole_count_from_table": ftable.count_holes(table)}
+    rep["hole_count_from_table"] = ftable.count_holes(table)
 
     # 先跑一次 CadQuery 预览：既给逐步自检当参照，也查孔口有没有被零厚度的皮盖住
     steps, covered = None, []
@@ -1072,9 +1104,14 @@ def main() -> int:
             print(f"预览算好了 {len(trace)} 步，建模时逐步自检", flush=True)
         else:
             rep["step_check"] = {"enabled": False, "why": "用户加了 --no-step-check", "reason": args.reason or "（没写原因）"}
-    except Exception as e:  # noqa: BLE001  没装 cadquery 或预览失败：照常建模，但报告里写清楚
-        rep["step_check"] = {"enabled": False, "why": f"预览失败，没有参照：{e}"}
+    except ImportError as e:  # 没装 cadquery：只能不自检地建，报告里写清楚
+        rep["step_check"] = {"enabled": False, "why": f"没装 CadQuery，没有参照：{e}"}
         print(f"跳过逐步自检：{e}", flush=True)
+    except Exception as e:  # noqa: BLE001  预览本身算不出来：特征表多半有问题，默认停下
+        if not args.no_step_check:
+            return stop("blocked_preview_failed",
+                        f"CadQuery 预览失败：{e}。先查特征表；确认是预览自身的局限才加 --no-step-check --reason 继续")
+        rep["step_check"] = {"enabled": False, "why": f"预览失败：{e}", "reason": args.reason or "（没写原因）"}
     if covered:
         rep["covered_hole_mouths"] = covered
         if not args.allow_covered_holes:
@@ -1089,10 +1126,17 @@ def main() -> int:
 
     app = connect()
     if args.out:
-        closed = close_previous(app, Path(args.out).parent)
+        kept = []
+        closed = close_previous(app, Path(args.out).parent, kept)
         if closed:
             rep["closed_previous"] = closed
             print(f"已关闭上次的零件 {len(closed)} 个", flush=True)
+        if kept:
+            rep["kept_open_unsaved"] = kept
+            if str(Path(args.out).resolve()).lower() in kept:
+                return stop("blocked_target_open",
+                            f"{args.out} 正在 SolidWorks 里打开，而且有没保存的改动。先在 SolidWorks 里保存或关闭它，"
+                            "或者换一个输出文件名；不会覆盖你的改动")
     b = Builder(app)
     rep["doc_units"] = b.set_doc_units(table["part"].get("source_units", "mm"))
     try:
@@ -1139,14 +1183,17 @@ def main() -> int:
         out = Path(args.out).resolve()
         out.parent.mkdir(parents=True, exist_ok=True)
         if rep["status"] == "ok":
-            removed = remove_versions(out)
-            if removed:
-                rep["replaced_old"] = removed
-            # 选项 1 = 静默保存，窗口里的文档就是这个文件（以前用 2 另存副本，窗口里积累没保存的"零件N"）
+            # 选项 1 = 静默保存，窗口里的文档就是这个文件（以前用 2 另存副本，窗口里积累没保存的"零件N"）。
+            # 直接覆盖同名文件；成功之后才删旧编号副本，失败时旧文件都还在（DEVELOPING.md #46）
             err = b.doc.SaveAs3(str(out), 0, 1)
-            rep["saved"] = str(out) if err == 0 else None
-            if err:
-                rep["save_error"] = err
+            if err == 0 and out.exists():
+                rep["saved"] = str(out)
+                removed = remove_versions(out)
+                if removed:
+                    rep["replaced_old"] = removed
+            else:
+                rep.update(status="save_failed", saved=None, save_error=err,
+                           reason=f"SolidWorks 保存失败（错误码 {err}），旧文件没有删除，模型窗口保留着，可以手动另存")
         else:
             rep["saved"] = None
             try:

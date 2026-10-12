@@ -7,13 +7,13 @@ SKILL.md 第 2 节开始读图时用。判断四个维度，每个维度决定�
 | 格式 | 怎么认 | 后续 |
 |---|---|---|
 | vector_pdf | PDF 里能选中文字；preprocess 提取到大量线段和文字 | 尺寸用提取结果，置信度可到 0.95+ |
-| dwg | .dwg 文件 | 自动转成 DXF 再读（scripts/dwg2dxf.py），和 dxf 一样准。**有 DWG 就优先用 DWG** |
-| dxf | .dxf 文件 | 尺寸实体直接读显示值，圆心直径是精确值，最准 |
+| dwg | .dwg 文件 | 自动转成 DXF 再读（scripts/dwg2dxf.py），能拿到和 dxf 一样的原始数据。**有 DWG 就优先用 DWG** |
+| dxf | .dxf 文件 | 尺寸实体直接读显示值，圆心直径能精确提取。但视图比例、DIMLFAC、手改过的标注文字仍要核对，数据精确不等于理解正确 |
 | raster | 扫描件、照片、截图；PDF 里只有一张图片 | 只能看图，置信度上限 0.85，必须人工确认全部尺寸 |
 
-准确度：DWG = DXF > 矢量 PDF > 扫描图。同一个零件有多种格式时，用最准的那个。
+能提取到的原始信息：DWG / DXF > 矢量 PDF > 扫描图。同一个零件有多种格式时，用信息最全的那个；无论哪种格式，尺寸归属和视图对应都要自己判断。
 
-DWG 转换顺序：ODA File Converter → 本机 CAD（AutoCAD / 中望 / 浩辰，和原图一样准）→ SolidWorks 导入再另存（最不准）。都不行时请用户在 CAD 软件里另存为 DXF。转换结果里的 `converted_from` 写明用了哪种。
+DWG 转换顺序：ODA File Converter → 本机 CAD（AutoCAD / 中望 / 浩辰，保留原始实体）→ SolidWorks 导入再另存（可能丢失尺寸实体和图层）。都不行时请用户在 CAD 软件里另存为 DXF。转换结果里的 `converted_from` 写明用了哪种。
 
 读 DXF 时注意：
 - 尺寸以 `displayed_text`（图上实际显示的文字）为准。`override_replaces_value: true` 表示标注被手改过，要和几何核对。
