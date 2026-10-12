@@ -244,6 +244,17 @@ def validate(table: dict, evidence: dict | None = None) -> tuple[list[str], list
                 elif "direction2" in f and f["direction2"][1] == f["direction"][1]:
                     errors.append(f"{label} 第二方向 {f['direction2']} 和第一方向 {f['direction']} 在同一条轴上，必须垂直")
 
+        if f["type"] == "shell" and not f.get("outward"):
+            th = f["thickness"]
+            small = [g for g in feats[:feats.index(f)] if g["type"] == "edge_treatment" and g["kind"] == "fillet"
+                     and g["size"] < th]
+            if small:
+                warnings.append(f"{label} 抽壳壁厚 {th:g} 大于前面的圆角 {sorted({g['size'] for g in small})}："
+                                "向内抽壳后这些位置的内壁会变成尖角（内壁圆角半径 = 圆角 - 壁厚 < 0）。"
+                                "图上内壁如果要求圆角，核对壁厚和圆角，或在抽壳之后单独给内壁倒圆")
+            if not f.get("open_faces"):
+                warnings.append(f"{label} 没写 open_faces：会做成完全封闭的空心件，确认图上确实没有开口")
+
         if f["type"] == "spur_gear_teeth":
             if not bases or bases[0]["type"] != "base_revolve":
                 errors.append(f"{label} 轮齿只能切在回转体轮坯（base_revolve）上")

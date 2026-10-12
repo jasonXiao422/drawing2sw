@@ -34,6 +34,7 @@
 | linear_pattern | 一排或一格相同的结构（脚、槽、筋、孔） | features, direction, count, spacing（可选 direction2, count2, spacing2） |
 | circular_pattern | 绕轴一圈的相同结构（齿、缺口、轮辐） | features, axis, count（可选 angle） |
 | mirror | 关于基准面对称的结构 | features, plane, offset |
+| shell | 盒体、壳体、杯子：挖空成等厚的壳 | thickness, open_faces（要去掉的面），outward |
 
 只能有一个基体特征。没有的特征类型不要自创，按 SKILL.md 开头的说明报告能力缺口。
 
@@ -192,6 +193,18 @@ path 的 `start`、`to`、`center` 都可以写成两个对象的交点，有两
 - 整件对称的外形直接把基体画全，不要镜像基体。
 - 一排孔也可以直接在 hole 的 `positions` 里列全，结果一样。图上写"5× 等距"、或者是凸台、槽这类非孔结构时用阵列更省事。
 - 看着对称的两个孔，标注不同（一个 THRU、一个 ↧10）就分开写，不能镜像。
+
+### 抽壳 shell
+
+```json
+{"id": "shell", "type": "shell", "thickness": 2, "open_faces": {"points": [[45, 60, 0]]}, "meta": {...}}
+```
+
+- `thickness`：壁厚。`open_faces`：要去掉的面，每个面取一个点（模型坐标，面的内部点，不要取在边上）；不写就是完全封闭的空心件。
+- 默认向内抽壳，外形不变；`"outward": true` 向外加厚，原来的外形变成内腔。向外时锐边保持尖角（和 SolidWorks 一致）。
+- **外形的圆角写在抽壳之前**，内壁会自动带上"圆角 − 壁厚"的圆角。圆角半径小于壁厚时，内壁在那里变成尖角，校验会提示。
+- 抽壳会把已有的孔也变成薄壁管（例如盒子中间的通孔）。孔不想要管壁，就把孔放到抽壳之后再切。
+- 多厚度抽壳（个别面更厚）还不支持，遇到时报告能力缺口。
 
 ### 特征表写法覆盖不到的：命令行计算器
 

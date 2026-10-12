@@ -252,11 +252,13 @@ def to_mm(table: dict) -> dict:
             f["axis"] = _scale_pts(f["axis"], k)
         if isinstance(f.get("edges"), dict):
             f["edges"] = {"points": _scale_pts(f["edges"]["points"], k)}
+        if isinstance(f.get("open_faces"), dict):
+            f["open_faces"] = {"points": _scale_pts(f["open_faces"]["points"], k)}
         if "half_profile" in f:
             f["half_profile"] = _scale_pts(f["half_profile"], k)
         if isinstance(f.get("depth"), (int, float)):
             f["depth"] = f["depth"] * k
-        for key in ("offset", "diameter", "size", "module", "spacing", "spacing2"):
+        for key in ("offset", "diameter", "size", "module", "spacing", "spacing2", "thickness"):
             if key in f:
                 f[key] = f[key] * k
         if "positions" in f:

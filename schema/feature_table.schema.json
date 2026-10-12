@@ -1227,6 +1227,54 @@
               "$ref": "#/$defs/meta"
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "type",
+            "thickness",
+            "meta"
+          ],
+          "description": "抽壳：把实体挖空成等厚的壳。open_faces 写要去掉的面（每个面上取一个点，模型坐标，取面的内部点，不要取在边上）；不写就是封闭的空心件。外形的圆角要写在抽壳之前，内壁会自动跟着带圆角。多厚度抽壳（个别面更厚）目前不支持",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "shell"
+            },
+            "thickness": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "壁厚，按 part.units"
+            },
+            "open_faces": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "points"
+              ],
+              "properties": {
+                "points": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/vec3"
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "outward": {
+              "type": "boolean",
+              "default": false,
+              "description": "true = 向外加厚（外形变大、原外形成为内腔）。图纸一般是向内"
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          }
         }
       ]
     },

@@ -539,6 +539,62 @@ class Builder:
             "unmatched": unmatched,
         }
 
+    def select_faces(self, pts_mm, tol: float = 0.01) -> dict:
+        """按"目标点落在哪个面上"选面（和选边一样用 GetClosestPointOn，DEVELOPING.md #9）。"""
+        faces = []
+        for body in (self.doc.GetBodies2(0, True) or ()):
+            faces += list(call(body, "GetFaces") or ())
+        self.doc.ClearSelection2(True)
+        sm = call(self.doc, "SelectionManager")
+        data = call(sm, "CreateSelectData")
+        data.Mark = 0
+        picked, unmatched = set(), []
+        for t in pts_mm:
+            best, best_d = None, float("inf")
+            for i, fc in enumerate(faces):
+                try:
+                    q = fc.GetClosestPointOn(t[0] * MM, t[1] * MM, t[2] * MM)
+                    d = math.dist(t, [c / MM for c in q[:3]])
+                except Exception:  # noqa: BLE001
+                    continue
+                if d < best_d:
+                    best, best_d = i, d
+            if best is None or best_d > tol:
+                unmatched.append({"target": list(t), "nearest_mm": round(best_d, 4)})
+                continue
+            if best in picked:
+                continue
+            ok = False
+            for how in (lambda: faces[best].Select4(True, data), lambda: faces[best].Select2(True, 0)):
+                try:
+                    ok = bool(how())
+                except Exception:  # noqa: BLE001
+                    ok = False
+                if ok:
+                    break
+            if ok:
+                picked.add(best)
+            else:
+                unmatched.append({"target": list(t), "note": "找到了面但 Select 返回 False"})
+        return {"matched": len(picked), "targets": len(pts_mm), "faces_total": len(faces), "unmatched": unmatched}
+
+    def shell(self, f: dict) -> dict:
+        """抽壳：先选要去掉的面，再 ModelDoc2.InsertFeatureShell（不返回特征，按特征树最后一个是不是 Shell 判断）。"""
+        pts = (f.get("open_faces") or {}).get("points", [])
+        sel = self.select_faces(pts) if pts else {"matched": 0, "targets": 0}
+        if sel["matched"] != len(pts):
+            raise RuntimeError(f"[{f['id']}] 只选中 {sel['matched']}/{len(pts)} 个要去掉的面。诊断: "
+                               + json.dumps(sel, ensure_ascii=False))
+        if not pts:
+            self.doc.ClearSelection2(True)
+        before = call(self.doc.FeatureByPositionReverse(0), "Name")
+        self.doc.InsertFeatureShell(float(f["thickness"]) * MM, bool(f.get("outward", False)))
+        last = self.doc.FeatureByPositionReverse(0)
+        if call(last, "Name") == before or call(last, "GetTypeName2") != "Shell":
+            raise RuntimeError(f"[{f['id']}] 抽壳失败（特征树里没有新的抽壳特征）。常见原因：外形圆角半径小于壁厚、"
+                               "壁厚大于局部厚度、选错了面")
+        return {"select": sel}
+
     def fillet(self, r: float, reselect=None) -> str:
         """圆角。半径大于相邻凹角半径时默认设置会失败（DEVELOPING.md #31），依次换设置重试。
         reselect：失败后选择集会被清掉，每次重试前调用它重新选边。"""
@@ -997,6 +1053,9 @@ def build(table: dict, b: Builder, steps: list | None = None) -> list[dict]:
             return
         elif t == "spur_gear_teeth":
             log.append(build_gear_teeth(b, f))
+            return
+        elif t == "shell":
+            log.append(dict({"id": f["id"], "status": "ok"}, **b.shell(f)))
             return
         elif t == "edge_treatment":
             try:

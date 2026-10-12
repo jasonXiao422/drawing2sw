@@ -104,6 +104,23 @@ def target_edges(result: cq.Workplane, f: dict, axis: str, base_type: str) -> li
     return edges
 
 
+def target_faces(result: cq.Workplane, f: dict, key: str = "open_faces") -> list:
+    """按点选面：每个点取距离为 0 的那个面；点落在两个面的交线上就报错（选哪个是碰运气）。"""
+    faces = result.faces().vals()
+    out = []
+    for pt in (f.get(key) or {}).get("points", []):
+        v = cq.Vertex.makeVertex(*pt)
+        ranked = sorted(faces, key=lambda fc: fc.distance(v))
+        if not ranked or ranked[0].distance(v) > 0.01:
+            near = ranked[0].distance(v) if ranked else float("inf")
+            raise CapabilityBlocked(f"[{f['id']}] 点 {pt} 附近 0.01 mm 内没有面（最近 {near:.3f} mm）")
+        if len(ranked) > 1 and ranked[1].distance(v) <= 0.01 and not ranked[1].isSame(ranked[0]):
+            raise CapabilityBlocked(f"[{f['id']}] 点 {pt} 同时落在两个面上（在它们的交线上），换成面中间的一个点")
+        if not any(ranked[0].isSame(x) for x in out):
+            out.append(ranked[0])
+    return out
+
+
 def build(table: dict, stop_before: str | None = None, trace: list | None = None):
     """逐个特征建模。stop_before 给定时，建到该特征之前就返回 (result, axis, base_type)。
     trace 给定时，每个特征之后记下体积和绝对包围盒，给 SolidWorks 逐步自检用。"""
@@ -190,6 +207,15 @@ def build(table: dict, stop_before: str | None = None, trace: list | None = None
                     wp = wp.spline(g["left"][1:], includeCurrent=True)
                     wp = wp.lineTo(*g["outer"][0]).close()
                 result = result.cut(wp.extrude(2 * big))
+            elif t == "shell":
+                th = float(f["thickness"])
+                try:
+                    sol = result.val().hollow(target_faces(result, f), th if f.get("outward") else -th, kind="intersection")
+                except CapabilityBlocked:
+                    raise
+                except Exception as e:  # noqa: BLE001
+                    raise ValueError(f"[{f['id']}] 抽壳失败：{e}。常见原因：外形圆角半径小于壁厚、壁厚大于局部厚度") from e
+                result = result.newObject([sol])
             elif t == "edge_treatment":
                 obj = result.newObject(target_edges(result, f, axis, base_type))
                 result = obj.chamfer(f["size"]) if f["kind"] == "chamfer" else obj.fillet(f["size"])
