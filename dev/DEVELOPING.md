@@ -119,6 +119,8 @@ CadQuery 预览体积要和以前一样：
 | 49 | 近似默认禁止：圆角只剩曲率连续、样条只剩折线、齿槽阵列只剩折线时抛 `ApproxNeeded`，状态 `needs_approval_approx`、不保存；`--allow-approx --reason` 才用，报告 `approximations` 列出 | J 定的原则：用户默认拿到的要么是精确模型，要么是明确的失败；不确定的交还用户，用户说不清交给用户的 AI 判断。open_questions 同理（blocking / confirm 要 resolution） |
 | 50 | 抽壳：CadQuery 2.8 用 `Solid.hollow(faces, -t, kind="intersection")`（`Shape.shell()` 是取壳体的访问器，不是抽壳）；`kind="arc"` 会给向外偏移的锐边加圆角，和 SolidWorks 不一致（向外抽壳实测差 390 mm³），旋转体上还报 `no parameter on edge` | intersection 下向外抽壳 84154.689 = 手算，旋转杯能算 |
 | 51 | SolidWorks 抽壳：`ModelDoc2.InsertFeatureShell(厚度米, outward)`，没有返回值；先按点选要去掉的面（`Face2.GetClosestPointOn`，和选边一样），建完看特征树最后一个是不是 `Shell` | 圆角半径 < 壁厚时 SolidWorks 也能成功，内壁变尖角，所以校验只提示不拦 |
+| 52 | 拔模：`FeatureExtrusion2` / `FeatureCut4` 第 8 个参数 Dchk1 开关、第 10 个 Ddir1 向外、第 12 个 Dang1 弧度。CadQuery 用 `extrude(d, taper=角度)`（正 = 向内），反方向时先正向拉再按草图面镜像（轮廓在镜像面上不变） | 合成件 SolidWorks 21248.343 = 拟柱体公式；CadQuery 锥度差 0.2 mm³，在容差内 |
+| 53 | 基准面负偏移：`InsertRefPlane(Distance \| OptionFlip, |偏移|)`，OptionFlip = **256**（1024 是"投影到最近位置"）；建完读回 `RefPlane.Transform.ArrayData[9:12]` 核对在哪一侧，不对就删掉换另一种 | 以前负偏移直接 capability_blocked。铸铝壳缺口在 z = -14 实测，读回 -14.0 |
 | 42 | 镜像：`InsertMirrorFeature2(False, False, False, False, 0)`，要镜像的特征 mark 1，镜像面 mark 2 | 和阵列的 mark 约定不一样 |
 | 43 | 零厚度的点：盲孔底正好落在实体底面所在平面、孔壁又和下面凸起的侧面相切（孔边 = 凸起边），切除后只剩一个点相连，`FeatureCut4` 返回 None。OCC 能建，答案 STEP 也是这样 | 和 #34 同类，SolidWorks 不允许非流形。不改尺寸迎合程序，报告给用户（cadsy part_0001：浅 0.01 就能建）|
 | — | `sw_build` 建完隐藏自己创建的偏移基准面 | 否则打开零件时一层层基准面挡住模型 |

@@ -35,6 +35,7 @@ SW_INPUT_DIM_ON_CREATE = 10           # swUserPreferenceToggle_e.swInputDimValOn
 END_BLIND, END_THROUGH_ALL, END_MIDPLANE = 0, 1, 6
 REFPLANE_DISTANCE = 8                 # swRefPlaneReferenceConstraint_Distance
 REFPLANE_COINCIDENT = 4               # swRefPlaneReferenceConstraint_Coincident
+REFPLANE_FLIP = 256                   # swRefPlaneReferenceConstraint_OptionFlip（不是 1024，1024 是投影到最近位置）
 # 文档单位（只影响界面显示，几何一律按米传入，见 DEVELOPING.md #1）
 SW_UNIT_SYSTEM = 471                  # swUserPreferenceIntegerValue_e.swUnitSystem
 SW_UNITS_LINEAR = 51                  # swUserPreferenceIntegerValue_e.swUnitsLinear
@@ -246,15 +247,36 @@ class Builder:
         if abs(offset) < 1e-9:
             base.Select2(False, 0)
             return
-        if offset < 0:
-            # TODO: 反向偏移需要 InsertRefPlane 的翻转选项，实测后补上
-            raise CapabilityBlocked(f"{name} 基准面负偏移 {offset} mm 暂未实现")
-        base.Select2(False, 0)
-        plane = self.fm.InsertRefPlane(REFPLANE_DISTANCE, offset * MM, 0, 0, 0, 0)
-        if plane is None:
-            raise RuntimeError(f"创建偏移基准面失败 ({name} + {offset} mm)")
-        self.doc.ClearSelection2(True)
-        plane.Select2(False, 0)
+        # 负偏移用 OptionFlip。距离偏移往哪边由 SolidWorks 决定，所以建完读回基准面的位置核对，
+        # 不对就删掉换另一种再建（DEVELOPING.md #53）
+        tries = ((REFPLANE_DISTANCE | REFPLANE_FLIP, REFPLANE_DISTANCE) if offset < 0
+                 else (REFPLANE_DISTANCE, REFPLANE_DISTANCE | REFPLANE_FLIP))
+        got = []
+        for flags in tries:
+            self.doc.ClearSelection2(True)
+            base.Select2(False, 0)
+            plane = self.fm.InsertRefPlane(flags, abs(offset) * MM, 0, 0, 0, 0)
+            if plane is None:
+                got.append(f"flags={flags}: 返回空")
+                continue
+            pos = self._plane_offset(plane, name)
+            if pos is None or abs(pos - offset) < 1e-4:
+                self.doc.ClearSelection2(True)
+                plane.Select2(False, 0)
+                return
+            got.append(f"flags={flags}: 实际在 {pos:.4f} mm")
+            self._delete(plane)
+        raise RuntimeError(f"创建偏移基准面失败 ({name} {offset:+g} mm)：" + "；".join(got))
+
+    def _plane_offset(self, plane, name: str):
+        """读回基准面原点沿默认基准面法向的位置 (mm)；读不到返回 None。"""
+        try:
+            rp = call(plane, "GetSpecificFeature2")
+            ad = list(call(call(rp, "Transform"), "ArrayData"))
+            n = ftable.PLANES[name]["normal"]
+            return sum(ad[9 + i] * n[i] for i in range(3)) / MM
+        except Exception:  # noqa: BLE001
+            return None
 
     # ------------------------------------------------------------ 斜面（任意平面）
     # 做法 1：3D 草图画三个点（原点、原点+x_dir、原点+y_dir），用"重合"约束过三点建基准面。
@@ -417,20 +439,22 @@ class Builder:
 
     # ------------------------------------------------------------ 特征
 
-    def extrude(self, depth: float, midplane: bool, reverse: bool = False, merge: bool = True):
+    def extrude(self, depth: float, midplane: bool, reverse: bool = False, merge: bool = True,
+                draft: float = 0.0, draft_outward: bool = False):
         cond = END_MIDPLANE if midplane else END_BLIND
         # 第 2 个参数 Flip=False；第 3 个 Dir：反向。斜面草图法向和特征表相反时再反一次
+        # 第 8 / 10 / 12 个参数：Dchk1 拔模开关、Ddir1 向外拔模、Dang1 拔模角（弧度）（DEVELOPING.md #52）
         # 倒数第 6 个参数 Merge：合并到已有实体
         f = self.fm.FeatureExtrusion2(
             True, False, reverse != self.flip, cond, 0, depth * MM, 0,
-            False, False, False, False, 0, 0,
+            bool(draft), False, bool(draft_outward), False, math.radians(draft), 0,
             False, False, False, False, merge, True, True, 0, 0, False)
         if f is None:
             raise RuntimeError("拉伸失败。如果新实体和已有实体只沿一条边相接（零厚度几何），SolidWorks 不允许合并，"
                                "见 DEVELOPING.md 零厚度几何一条" if merge else "拉伸失败")
         return f
 
-    def cut(self, depth, direction: str):
+    def cut(self, depth, direction: str, draft: float = 0.0, draft_outward: bool = False):
         through = depth == "through_all"
         d = 0 if through else float(depth) * MM
         t = END_THROUGH_ALL if through else END_BLIND
@@ -438,7 +462,7 @@ class Builder:
         f = self.fm.FeatureCut4(
             # 切除默认方向和草图法向相反（拉伸凸台是沿法向），所以 positive 要反向（DEVELOPING.md #30）
             not both, False, (direction == "positive") != self.flip, t, t if both else 0, d, d if both else 0,
-            False, False, False, False, 0, 0,
+            bool(draft), False, bool(draft_outward), False, math.radians(draft), 0,
             False, False, False, False, False, True, True, True, True, False, 0, 0, False, False)
         if f is None:
             raise RuntimeError("切除失败")
@@ -1001,7 +1025,8 @@ def build(table: dict, b: Builder, steps: list | None = None) -> list[dict]:
             b.begin_sketch(f["plane"], off)
             b.draw_profile(f["profile"])
             b.end_sketch()
-            b.extrude(f["depth"], f.get("midplane", False))
+            b.extrude(f["depth"], f.get("midplane", False), draft=float(f.get("draft", 0)),
+                      draft_outward=bool(f.get("draft_outward")))
         elif t == "base_revolve":
             b.begin_sketch("front")
             ys = [p[1] for p in f["half_profile"]]
@@ -1022,7 +1047,8 @@ def build(table: dict, b: Builder, steps: list | None = None) -> list[dict]:
             b.draw_profile(f["profile"])
             b.end_sketch()
             made[f["id"]] = b.extrude(f["depth"], dirn == "midplane", reverse=dirn == "negative",
-                                      merge=f.get("merge", True))
+                                      merge=f.get("merge", True), draft=float(f.get("draft", 0)),
+                                      draft_outward=bool(f.get("draft_outward")))
             if f["plane"] not in ("front", "top", "right"):
                 log.append({"id": f["id"], "status": "ok", "plane_method": getattr(b, "last_plane_method", "cached"),
                             "sketch_flipped": b.flip})
@@ -1031,7 +1057,8 @@ def build(table: dict, b: Builder, steps: list | None = None) -> list[dict]:
             b.begin_sketch(f["plane"], sketch_plane_for(f))
             b.draw_profile(f["profile"])
             b.end_sketch()
-            made[f["id"]] = b.cut(f["depth"], f.get("direction", "both"))
+            made[f["id"]] = b.cut(f["depth"], f.get("direction", "both"), draft=float(f.get("draft", 0)),
+                                  draft_outward=bool(f.get("draft_outward")))
         elif t == "hole":
             b.begin_sketch(f["plane"], sketch_plane_for(f))
             r = f["diameter"] / 2

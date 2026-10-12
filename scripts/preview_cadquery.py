@@ -59,6 +59,17 @@ def extrude_tool(plane: str, offset: float, profile_fn, depth, direction, big):
     return profile_fn(wp).extrude(length)
 
 
+def drafted(plane, offset: float, profile_fn, d: float, f: dict, negative: bool):
+    """带拔模的拉伸体：在草图面上正向拉伸 d（CadQuery taper 正值 = 向内收），反方向时按草图面镜像过去。
+    草图轮廓就在镜像面上，所以镜像后轮廓不变，只是方向反了。"""
+    taper = -float(f["draft"]) if f.get("draft_outward") else float(f["draft"])
+    pl = cq_plane(plane, offset)
+    solid = profile_fn(cq.Workplane(pl)).extrude(d, taper=taper).val()
+    if negative:
+        solid = solid.mirror(pl.zDir, pl.origin)
+    return solid
+
+
 def outer_edges_of_extreme_face(solid: cq.Workplane, axis: str, top: bool):
     sel = (">" if top else "<") + axis
     face = solid.faces(sel).val()
@@ -138,7 +149,11 @@ def build(table: dict, stop_before: str | None = None, trace: list | None = None
         if t == "base_extrude":
             axis = {"front": "Z", "top": "Y", "right": "X"}[f["plane"]]
             off = -f["depth"] / 2 if f.get("midplane") else 0.0
-            result = sketch(cq.Workplane(cq_plane(f["plane"], off)), f["profile"]).extrude(f["depth"])
+            if f.get("draft"):
+                result = cq.Workplane(cq_plane(f["plane"])).newObject(
+                    [drafted(f["plane"], 0.0, lambda wp: sketch(wp, f["profile"]), f["depth"], f, False)])
+            else:
+                result = sketch(cq.Workplane(cq_plane(f["plane"], off)), f["profile"]).extrude(f["depth"])
         elif t == "base_revolve":
             axis = "Y"
             result = (cq.Workplane(cq_plane("front"))
@@ -158,14 +173,24 @@ def build(table: dict, stop_before: str | None = None, trace: list | None = None
             elif t == "extrude":
                 d = float(f["depth"])
                 dirn = f.get("direction", "positive")
-                start = {"positive": 0.0, "negative": -d, "midplane": -d / 2}[dirn]
-                wp = cq.Workplane(cq_plane(f["plane"], f.get("offset", 0) + start))
-                solid = sketch(wp, f["profile"]).extrude(d)
+                if f.get("draft"):
+                    solid = drafted(f["plane"], f.get("offset", 0), lambda wp: sketch(wp, f["profile"]), d, f,
+                                    dirn == "negative")
+                    solid = cq.Workplane(cq_plane(f["plane"])).newObject([solid])
+                else:
+                    start = {"positive": 0.0, "negative": -d, "midplane": -d / 2}[dirn]
+                    wp = cq.Workplane(cq_plane(f["plane"], f.get("offset", 0) + start))
+                    solid = sketch(wp, f["profile"]).extrude(d)
                 result = result.union(solid)
                 tools[f["id"]] = (solid, False)
             elif t == "cut_extrude":
-                tool = extrude_tool(f["plane"], f.get("offset", 0), lambda wp: sketch(wp, f["profile"]),
-                                    f["depth"], f.get("direction", "both"), big)
+                if f.get("draft"):
+                    tool = cq.Workplane(cq_plane(f["plane"])).newObject([drafted(
+                        f["plane"], f.get("offset", 0), lambda wp: sketch(wp, f["profile"]), float(f["depth"]), f,
+                        f.get("direction") == "negative")])
+                else:
+                    tool = extrude_tool(f["plane"], f.get("offset", 0), lambda wp: sketch(wp, f["profile"]),
+                                        f["depth"], f.get("direction", "both"), big)
                 result = result.cut(tool)
                 tools[f["id"]] = (tool, True)
             elif t == "hole":

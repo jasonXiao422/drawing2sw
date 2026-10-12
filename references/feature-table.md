@@ -35,6 +35,7 @@
 | circular_pattern | 绕轴一圈的相同结构（齿、缺口、轮辐） | features, axis, count（可选 angle） |
 | mirror | 关于基准面对称的结构 | features, plane, offset |
 | shell | 盒体、壳体、杯子：挖空成等厚的壳 | thickness, open_faces（要去掉的面），outward |
+| （拉伸类的参数）draft | 压铸 / 注塑件的拔模 | draft（单侧角度），draft_outward |
 
 只能有一个基体特征。没有的特征类型不要自创，按 SKILL.md 开头的说明报告能力缺口。
 
@@ -193,6 +194,22 @@ path 的 `start`、`to`、`center` 都可以写成两个对象的交点，有两
 - 整件对称的外形直接把基体画全，不要镜像基体。
 - 一排孔也可以直接在 hole 的 `positions` 里列全，结果一样。图上写"5× 等距"、或者是凸台、槽这类非孔结构时用阵列更省事。
 - 看着对称的两个孔，标注不同（一个 THRU、一个 ↧10）就分开写，不能镜像。
+
+### 拔模 draft（压铸件、注塑件）
+
+`base_extrude`、`extrude`、`cut_extrude` 都可以加：
+
+```json
+{"id": "body", "type": "base_extrude", "plane": "top", "profile": {...}, "depth": 57, "draft": 0.25}
+{"id": "cavity", "type": "cut_extrude", "plane": "top", "offset": 57, "direction": "negative",
+ "profile": {...}, "depth": 54, "draft": 0.25}
+```
+
+- `draft`：**单侧**拔模角（侧面和拉伸方向的夹角），度。默认向内收：离草图面越远轮廓越小；`"draft_outward": true` 向外放。
+- 草图画在**尺寸标得全的那一端**，另一端的尺寸由拔模算出来，用来核对（另一端尺寸 = 这一端 ∓ 2 × 深度 × tan(拔模角)）。
+- 只能用于单方向、深度是数值的拉伸 / 切除。
+- 压铸件常见内外反向拔模：外形往开口方向收、内腔往开口方向放，壁厚从根部到开口变化。这种零件用"带拔模的拉伸 + 带拔模的切除"，**不能用抽壳**（抽壳只能做等厚壁）。
+- 图上标的角度先用两端尺寸核对：有的图标的是两侧墙的夹角（例如标 0.50°，两端尺寸算出来单侧是 0.25°）。对不上就写进 open_questions。
 
 ### 抽壳 shell
 

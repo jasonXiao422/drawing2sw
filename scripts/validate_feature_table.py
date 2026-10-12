@@ -244,6 +244,13 @@ def validate(table: dict, evidence: dict | None = None) -> tuple[list[str], list
                 elif "direction2" in f and f["direction2"][1] == f["direction"][1]:
                     errors.append(f"{label} 第二方向 {f['direction2']} 和第一方向 {f['direction']} 在同一条轴上，必须垂直")
 
+        if f.get("draft"):
+            dirn = f.get("direction", "both" if f["type"] == "cut_extrude" else "positive")
+            if not isinstance(f.get("depth"), (int, float)):
+                errors.append(f"{label} 拔模只能用于深度是数值的拉伸 / 切除，不能和 {f.get('depth')} 一起用")
+            if f.get("midplane") or dirn in ("both", "midplane"):
+                errors.append(f"{label} 拔模只能单方向拉伸（direction 写 positive 或 negative），双向时两边的拔模方向说不清")
+
         if f["type"] == "shell" and not f.get("outward"):
             th = f["thickness"]
             small = [g for g in feats[:feats.index(f)] if g["type"] == "edge_treatment" and g["kind"] == "fillet"

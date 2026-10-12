@@ -207,6 +207,7 @@ The agent will stop and ask about units, projection method, keyway and hole orie
 | Details | Chamfers, fillets, arbitrary inclined planes, cut up to a curved face |
 | Copies | Linear patterns (row or grid) `linear_pattern`, circular patterns `circular_pattern`, mirror `mirror` |
 | Thin walls | Shell `shell` (inward, outward, closed hollow) |
+| Draft | Drafted extrudes and cuts `draft` (die-cast and molded parts, inner and outer draft can oppose) |
 | Gears | Involute spur teeth |
 | Drawing setup | mm / inch, first / third angle, scale, dual units, DIMLFAC |
 

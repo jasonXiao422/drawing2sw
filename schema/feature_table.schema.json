@@ -582,6 +582,17 @@
             },
             "meta": {
               "$ref": "#/$defs/meta"
+            },
+            "draft": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 30,
+              "description": "拔模角，度，单侧（侧面和拉伸方向的夹角）。默认向内收：离草图面越远轮廓越小。压铸、注塑件常见。只能用于单方向、深度是数值的拉伸 / 切除"
+            },
+            "draft_outward": {
+              "type": "boolean",
+              "default": false,
+              "description": "true = 向外放：离草图面越远轮廓越大"
             }
           }
         },
@@ -662,6 +673,17 @@
               "type": "boolean",
               "default": true,
               "description": "false：SolidWorks 里作为单独实体，不和已有实体合并。只用于零厚度几何（新实体和已有实体只沿一条边相接，SolidWorks 不允许合并）。几何不变，零件会有多个实体，要在报告里说明。CadQuery 预览照常合并。"
+            },
+            "draft": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 30,
+              "description": "拔模角，度，单侧（侧面和拉伸方向的夹角）。默认向内收：离草图面越远轮廓越小。压铸、注塑件常见。只能用于单方向、深度是数值的拉伸 / 切除"
+            },
+            "draft_outward": {
+              "type": "boolean",
+              "default": false,
+              "description": "true = 向外放：离草图面越远轮廓越大"
             }
           }
         },
@@ -770,6 +792,17 @@
             },
             "meta": {
               "$ref": "#/$defs/meta"
+            },
+            "draft": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 30,
+              "description": "拔模角，度，单侧（侧面和拉伸方向的夹角）。默认向内收：离草图面越远轮廓越小。压铸、注塑件常见。只能用于单方向、深度是数值的拉伸 / 切除"
+            },
+            "draft_outward": {
+              "type": "boolean",
+              "default": false,
+              "description": "true = 向外放：离草图面越远轮廓越大"
             }
           }
         },

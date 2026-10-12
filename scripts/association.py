@@ -136,6 +136,10 @@ def feature_numbers(feature: dict, table: dict | None = None) -> list[float]:
                  abs(u0 - ext[0]), abs(v0 - ext[2])]
     if pe:
         nums += [pe[1] - pe[0], pe[3] - pe[2]]
+        if feature.get("draft") and isinstance(feature.get("depth"), (int, float)):
+            # 拔模：另一端的尺寸 = 草图端尺寸 ∓ 2 × 深度 × tan(拔模角)（图上常在两端各标一次）
+            k = 2 * feature["depth"] * math.tan(math.radians(feature["draft"])) * (-1 if feature.get("draft_outward") else 1)
+            nums += [pe[1] - pe[0] - k, pe[3] - pe[2] - k, pe[1] - pe[0] + k, pe[3] - pe[2] + k]
     hp = feature.get("half_profile")
     if isinstance(hp, list) and hp:
         rs = [p[0] for p in hp if isinstance(p, (list, tuple)) and len(p) >= 2]
