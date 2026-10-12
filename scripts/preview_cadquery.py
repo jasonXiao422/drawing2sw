@@ -186,10 +186,30 @@ def edge_points(table: dict, feature_id: str) -> list[tuple[float, float, float]
     return [e.positionAt(0.5).toTuple() for e in target_edges(result, f, axis, base_type)]
 
 
+def covered_hole_mouths(solid, table: dict) -> list[dict]:
+    """孔口被零厚度的面盖住：孔从草图面切进去，但草图面和零件表面差一点点不共面时，
+    会留下一层"皮"，孔在下面切出来了、表面上没有开口。体积几乎不变，逐步自检也发现不了。
+    检查办法：打开的孔口中心是空的，离实体最近的是孔边（距离约等于半径）；被盖住时距离为 0。"""
+    out = []
+    for f in table["features"]:
+        if f.get("type") != "hole" or f.get("direction", "both") == "both" or "__" in str(f.get("id")):
+            continue
+        for u, v in ftable.hole_positions(f):
+            p = ftable.to_model(f["plane"], u, v, f.get("offset", 0.0))
+            d = solid.distance(cq.Vertex.makeVertex(*p))
+            if d < min(0.05, f["diameter"] / 20):   # 打开的孔口中心到实体的距离约等于半径
+                out.append({"id": f["id"], "position": [u, v], "mouth_mm": [round(c, 4) for c in p],
+                            "note": "孔口中心落在一个面上：孔可能被零厚度的皮盖住。检查孔的草图面是不是和零件表面完全共面"
+                                    "（两者要用同一组数算出来）"})
+    return out
+
+
 def report(result: cq.Workplane, table: dict) -> dict:
     solid = result.val()
     bb = solid.BoundingBox()
+    covered = covered_hole_mouths(solid, table)
     return {
+        **({"covered_hole_mouths": covered} if covered else {}),
         "backend": "cadquery",
         "volume_mm3": round(solid.Volume(), 3),
         "surface_area_mm2": round(solid.Area(), 3),

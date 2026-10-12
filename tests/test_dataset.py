@@ -116,6 +116,29 @@ class Callouts(unittest.TestCase):
             self.assertEqual(self.parse(text)["kind"], "unknown")
 
 
+class CoveredHoleMouth(unittest.TestCase):
+    """孔的草图面和斜面差一点点不共面时，孔口会被零厚度的皮盖住，体积几乎不变。"""
+
+    def table(self, corner_z):
+        import math
+        n = [-0.5, math.sqrt(3) / 2, 0]
+        mid = (17 + 17 - 11 * math.tan(math.radians(30))) / 2
+        return {"schema_version": "0.4", "part": {"name": "t", "part_type": "prismatic", "units": "mm"},
+                "features": [
+                    {"id": "block", "type": "base_extrude", "plane": "front", "depth": 15,
+                     "profile": {"shape": "polygon", "points": [[0, 0], [22, 0], [22, corner_z], [11, 17], [0, corner_z]]}},
+                    {"id": "bore", "type": "hole", "plane": {"origin": [5.5, mid, 7.5], "normal": n, "x_dir": [n[1], -n[0], 0]},
+                     "diameter": 6, "positions": [[0, 0]], "depth": 5, "direction": "negative"}]}
+
+    def test_detects_lid_and_passes_exact_face(self):
+        import math
+        import preview_cadquery as pc
+        exact = self.table(round(17 - 11 * math.tan(math.radians(30)), 6))
+        rounded = self.table(10.65)
+        self.assertEqual(pc.report(pc.build(exact), exact).get("covered_hole_mouths", []), [])
+        self.assertTrue(pc.report(pc.build(rounded), rounded).get("covered_hole_mouths"))
+
+
 class Dataset(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

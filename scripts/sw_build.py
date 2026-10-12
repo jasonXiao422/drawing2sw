@@ -483,17 +483,18 @@ class Builder:
         data = call(sm, "CreateSelectData")
         data.Mark = mark
 
-        picked, unmatched = set(), []
+        picked, unmatched, duplicate = set(), [], 0
         for t in pts_mm:
             best, best_d = None, float("inf")
             for i in range(len(edges)):
-                if i in picked:
-                    continue
                 d = dist(i, t)
                 if d < best_d:
                     best, best_d = i, d
             if best is None or best_d > tol:
                 unmatched.append({"target": [round(c, 3) for c in t], "nearest_mm": round(best_d, 4)})
+                continue
+            if best in picked:   # 两个点落在同一条边上（例如整圆在 SolidWorks 里只有一条边），只选一次
+                duplicate += 1
                 continue
             e = edges[best]
             ok = False
@@ -515,8 +516,9 @@ class Builder:
         except Exception:  # noqa: BLE001
             selected = None
         return {
-            "matched": len(picked),
+            "matched": len(picked) + duplicate,
             "targets": len(pts_mm),
+            "same_edge_points": duplicate,
             "selected_in_sw": selected,
             "edges_total": len(edges),
             "midpoints_failed": sum(m is None for m in mids),
