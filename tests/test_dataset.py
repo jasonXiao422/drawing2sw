@@ -48,6 +48,45 @@ class NumberParsing(unittest.TestCase):
         self.assertFalse(association.contains(nums, 100))
 
 
+class Callouts(unittest.TestCase):
+    def parse(self, text):
+        import callouts
+        return callouts.parse(text)
+
+    def test_counterbore_through_hole(self):
+        p = self.parse("2X ⌀4.5 THRU ⌴⌀7 ↧3.5")
+        self.assertEqual(p["feature_hint"], {"diameter": 4.5, "depth": "through_all",
+                                             "cbore": {"diameter": 7.0, "depth": 3.5}})
+        self.assertEqual(p["count"], 2)
+
+    def test_gb_counterbore(self):
+        p = self.parse("4×Φ9 沉孔Φ15深5")
+        self.assertEqual((p["count"], p["diameter"], p["cbore"]), (4, 9.0, {"diameter": 15.0, "depth": 5.0}))
+
+    def test_bolt_circle_iso_and_asme(self):
+        for text in ("4X ⌀5 THRU EQ SP ON ⌀60 ±0.2 B.C.", "4×⌀5 EQUALLY SPACED ON ⌀60 PCD", "4×Φ5 均布 PCD60"):
+            with self.subTest(text=text):
+                self.assertEqual(self.parse(text)["feature_hint"]["bolt_circle"], {"pcd": 60.0, "count": 4})
+
+    def test_spotface_with_tolerance_in_between(self):
+        p = self.parse("⌀30 THRU ⌴⌀40 ±0.2 SF ↧5")
+        self.assertEqual(p["spotface"]["diameter"], 40.0)
+        self.assertEqual(p["spotface"]["depth"], 5.0)
+        self.assertNotIn("unparsed", p)
+
+    def test_countersink_thread_slot_gdt(self):
+        self.assertEqual(self.parse("⌀10 ⌵⌀18 X 90°")["csink"], {"diameter": 18.0, "angle": 90.0})
+        self.assertEqual(self.parse("M8x1.25 ↧12")["thread"]["pitch"], 1.25)
+        self.assertEqual(self.parse("4×7 × 29 ↧2,5")["slot"], {"width": 7.0, "length": 29.0, "depth": 2.5})
+        g = self.parse("perpendicularity|⌀0.2|B\ncylindricity|0.2")
+        self.assertEqual([f["characteristic"] for f in g["frames"]], ["perpendicularity", "cylindricity"])
+        self.assertFalse(association.looks_like_dimension("flatness|0.2"))
+
+    def test_unknown_is_not_forced(self):
+        for text in ("SCALE 2:1", "ISO 2768-f", "Synthetic data"):
+            self.assertEqual(self.parse(text)["kind"], "unknown")
+
+
 class Dataset(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

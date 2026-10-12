@@ -40,7 +40,7 @@ description: 读取机械单零件工程图（DWG、DXF、PDF、图片），将�
 4. 按 [feature-table.md](references/feature-table.md) 输出 part.json。仅加载相关的 [回转件读法](references/reading-revolved.md) 或 [棱柱件读法](references/reading-prismatic.md)。
 5. 每个特征提供 meta.evidence 和 evidence_refs，part.source.sha256 与原图一致。推导尺寸写明输入依据和公式，不能伪装成原图标注。
 
-已有辅助工具：`geom2d.py` 算交点/相切，`standards.py` 查已有标准表，`search_refs.py` 搜具体问题。标准表中未核验的数据应说明状态，图纸明确标注优先。
+已有辅助工具：`callouts.py` 解析孔、沉孔、分布圆、槽、倒角、形位公差标注（R26），`geom2d.py` 算交点/相切，`standards.py` 查已有标准表，`search_refs.py` 搜具体问题。标准表中未核验的数据应说明状态，图纸明确标注优先。
 
 ## 3. 校验与确认
 

@@ -1,0 +1,191 @@
+{
+  "schema_version": "1.1",
+  "purpose": "External synthetic drawings of Zero-to-CAD parts with STEP answers",
+  "license": "Apache-2.0",
+  "cases": [
+    {
+      "id": "part_0001",
+      "drawing": "part_0001/iso.png",
+      "sha256": "07d13f3ea8fe6c79599a67e63c18d403c422cb4bed458c354a21ed01166c8ba0",
+      "inputs": {
+        "png_iso": "part_0001/iso.png",
+        "png_asme": "part_0001/asme.png"
+      },
+      "answer_step": "part_0001/model.step",
+      "expected": {
+        "volume_mm3": 32097.806,
+        "surface_area_mm2": 9325.515,
+        "bbox_mm": [
+          70.0,
+          45.0,
+          13.0
+        ]
+      },
+      "alignment": "pose_free",
+      "license": "Apache-2.0",
+      "source": "cadsy/cad-technical-drawings (from ADSKAILab/Zero-To-CAD-100k)",
+      "evaluation": "geometry_only; no dimension-to-feature labels"
+    },
+    {
+      "id": "part_0002",
+      "drawing": "part_0002/iso.png",
+      "sha256": "5ff82766fafabc23215be06e30c123999bb3de2d03d34a5b8ba56720d178933c",
+      "inputs": {
+        "png_iso": "part_0002/iso.png",
+        "png_asme": "part_0002/asme.png"
+      },
+      "answer_step": "part_0002/model.step",
+      "expected": {
+        "volume_mm3": 17900.615,
+        "surface_area_mm2": 5102.726,
+        "bbox_mm": [
+          72.0,
+          23.2,
+          15.0
+        ]
+      },
+      "alignment": "pose_free",
+      "license": "Apache-2.0",
+      "source": "cadsy/cad-technical-drawings (from ADSKAILab/Zero-To-CAD-100k)",
+      "evaluation": "geometry_only; no dimension-to-feature labels"
+    },
+    {
+      "id": "part_0003",
+      "drawing": "part_0003/iso.png",
+      "sha256": "927e1105ea99ddf2ce7143a7cb208156865b9fecd43b9dfa4cd77270cc7b356a",
+      "inputs": {
+        "png_iso": "part_0003/iso.png",
+        "png_asme": "part_0003/asme.png"
+      },
+      "answer_step": "part_0003/model.step",
+      "expected": {
+        "volume_mm3": 24511.779,
+        "surface_area_mm2": 6709.183,
+        "bbox_mm": [
+          70.0,
+          30.0,
+          12.0
+        ]
+      },
+      "alignment": "pose_free",
+      "license": "Apache-2.0",
+      "source": "cadsy/cad-technical-drawings (from ADSKAILab/Zero-To-CAD-100k)",
+      "evaluation": "geometry_only; no dimension-to-feature labels"
+    },
+    {
+      "id": "part_0004",
+      "drawing": "part_0004/iso.png",
+      "sha256": "46d07fabc87063803c29b025fe2d671d4bc4d155d7562dd5d347a03406db508f",
+      "inputs": {
+        "png_iso": "part_0004/iso.png",
+        "png_asme": "part_0004/asme.png"
+      },
+      "answer_step": "part_0004/model.step",
+      "expected": {
+        "volume_mm3": 26806.425,
+        "surface_area_mm2": 12140.068,
+        "bbox_mm": [
+          80.0,
+          80.0,
+          7.0
+        ]
+      },
+      "alignment": "pose_free",
+      "license": "Apache-2.0",
+      "source": "cadsy/cad-technical-drawings (from ADSKAILab/Zero-To-CAD-100k)",
+      "evaluation": "geometry_only; no dimension-to-feature labels"
+    },
+    {
+      "id": "part_0005",
+      "drawing": "part_0005/iso.png",
+      "sha256": "31d12ae625d5cef7507f1e690d361270df62a71177f16e01fc9b5a2f91b92a2b",
+      "inputs": {
+        "png_iso": "part_0005/iso.png",
+        "png_asme": "part_0005/asme.png"
+      },
+      "answer_step": "part_0005/model.step",
+      "expected": {
+        "volume_mm3": 21806.184,
+        "surface_area_mm2": 7398.315,
+        "bbox_mm": [
+          63.5085,
+          55.0,
+          14.0
+        ]
+      },
+      "alignment": "pose_free",
+      "license": "Apache-2.0",
+      "source": "cadsy/cad-technical-drawings (from ADSKAILab/Zero-To-CAD-100k)",
+      "evaluation": "geometry_only; no dimension-to-feature labels"
+    },
+    {
+      "id": "part_0006",
+      "drawing": "part_0006/iso.png",
+      "sha256": "14cc1f1a77d696275a5fdb4260c5cae3206d0c30f757fc21b6608255e68afbcd",
+      "inputs": {
+        "png_iso": "part_0006/iso.png",
+        "png_asme": "part_0006/asme.png"
+      },
+      "answer_step": "part_0006/model.step",
+      "expected": {
+        "volume_mm3": 16812.608,
+        "surface_area_mm2": 7679.065,
+        "bbox_mm": [
+          40.0,
+          40.0,
+          30.0
+        ]
+      },
+      "alignment": "pose_free",
+      "license": "Apache-2.0",
+      "source": "cadsy/cad-technical-drawings (from ADSKAILab/Zero-To-CAD-100k)",
+      "evaluation": "geometry_only; no dimension-to-feature labels"
+    },
+    {
+      "id": "part_0007",
+      "drawing": "part_0007/iso.png",
+      "sha256": "96e6f7494bddb3e7698929c505c683b1fea5140330b792a38fa7f28f5d920992",
+      "inputs": {
+        "png_iso": "part_0007/iso.png",
+        "png_asme": "part_0007/asme.png"
+      },
+      "answer_step": "part_0007/model.step",
+      "expected": {
+        "volume_mm3": 27004.172,
+        "surface_area_mm2": 10760.388,
+        "bbox_mm": [
+          80.0,
+          50.0,
+          8.0
+        ]
+      },
+      "alignment": "pose_free",
+      "license": "Apache-2.0",
+      "source": "cadsy/cad-technical-drawings (from ADSKAILab/Zero-To-CAD-100k)",
+      "evaluation": "geometry_only; no dimension-to-feature labels"
+    },
+    {
+      "id": "part_0008",
+      "drawing": "part_0008/iso.png",
+      "sha256": "0cfa7f14780eadb2413f14b2fa5bfe7b6e9903b37ed5f9488a41109b61f238a3",
+      "inputs": {
+        "png_iso": "part_0008/iso.png",
+        "png_asme": "part_0008/asme.png"
+      },
+      "answer_step": "part_0008/model.step",
+      "expected": {
+        "volume_mm3": 16881.637,
+        "surface_area_mm2": 8862.125,
+        "bbox_mm": [
+          80.0,
+          80.0,
+          10.0
+        ]
+      },
+      "alignment": "pose_free",
+      "license": "Apache-2.0",
+      "source": "cadsy/cad-technical-drawings (from ADSKAILab/Zero-To-CAD-100k)",
+      "evaluation": "geometry_only; no dimension-to-feature labels"
+    }
+  ]
+}

@@ -14,16 +14,6 @@ import re
 
 _NUM = re.compile(r"(?<![\d.,])(\d+(?:[.,]\d+)?|[.,]\d+)")
 _SKIP_KEYS = {"meta", "id", "type", "plane", "direction", "kind", "edges", "shape", "x_dir", "normal"}
-_TOL = (r"(?:\s*[A-Za-z]{1,2}\d{1,2})?"                       # 配合公差 H7 / h6 / js6
-        r"(?:\s*±\s*\d*[.,]?\d+)?"                              # ±0.1
-        r"(?:\s*[+-]\s*\d*[.,]?\d+(?:\s*/?\s*[+-]?\s*\d*[.,]?\d+)?)?")  # +0.1/-0.05
-_DIM_TEXT = re.compile(
-    r"^\(?(?:\d+\s*[x×X]\s*)?(?:[ØΦφ⌀]|%%c|PCD|SR|R|M|C)?\s*\d*[.,]?\d+(?:[x×X]\d*[.,]?\d+)?" + _TOL +
-    r"(?:\s*[x×X]\s*45°?)?(?:\s*°)?\)?(?:\s*(?:THRU|EQS|EQ SP|B\.C\.|PCD|均布|通孔?|DEEP|深))*\s*$", re.I)
-_CHAMFER = re.compile(r"^\d*[.,]?\d+\s*[x×X]\s*45\s*°?\s*$")
-_COUNT = re.compile(r"^\(?\s*\d+\s*[x×X]\s*")
-
-
 def numbers_in(text: str) -> list[float]:
     """标注文字里的数字。'4× Ø9 THRU' -> [4, 9]；'.375' -> [0.375]；'12,5' -> [12.5]。"""
     out = []
@@ -37,16 +27,15 @@ def numbers_in(text: str) -> list[float]:
 
 
 def primary_value(text: str) -> float | None:
-    """标注的主数值：去掉开头的数量（4×），取第一个数。'4× Ø9 THRU' -> 9；'Ø20 H7' -> 20；'20±0.1' -> 20。"""
-    text = (text or "").strip()
-    if _CHAMFER.match(text):          # 1 X 45°：倒角尺寸是 1
-        return numbers_in(text)[0]
-    nums = numbers_in(_COUNT.sub("", text))
-    return nums[0] if nums else None
+    """标注的主数值：'4× Ø9 THRU' -> 9；'Ø20 H7' -> 20；'1 X 45°' -> 1。解析规则在 callouts.py。"""
+    import callouts
+    return callouts.primary_value(callouts.parse(text))
 
 
 def looks_like_dimension(text: str) -> bool:
-    return bool(text) and bool(_DIM_TEXT.match(text.strip()))
+    """尺寸或孔、槽、倒角、圆角标注。形位公差、标题栏文字不算。"""
+    import callouts
+    return callouts.parse(text)["kind"] not in ("unknown", "gdt")
 
 
 def _leaves(x, key=None, out=None):

@@ -1,0 +1,966 @@
+{
+  "schema_version": "1.0",
+  "source": {
+    "file": "iso.png",
+    "sha256": "31d12ae625d5cef7507f1e690d361270df62a71177f16e01fc9b5a2f91b92a2b"
+  },
+  "pages": [
+    {
+      "page": 1,
+      "image": "iso.png",
+      "size_px": [
+        2480,
+        1754
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "id": "label-1",
+      "page": 1,
+      "text": "2",
+      "bbox": [
+        544.8,
+        20.5,
+        555.0,
+        38.6
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-2",
+      "page": 1,
+      "text": "5",
+      "bbox": [
+        1408.7,
+        20.5,
+        1418.2,
+        38.6
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-3",
+      "page": 1,
+      "text": "1",
+      "bbox": [
+        259.1,
+        20.6,
+        265.0,
+        38.5
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-4",
+      "page": 1,
+      "text": "4",
+      "bbox": [
+        1120.2,
+        20.6,
+        1131.0,
+        38.4
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-5",
+      "page": 1,
+      "text": "7",
+      "bbox": [
+        1984.1,
+        20.6,
+        1994.3,
+        38.4
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-6",
+      "page": 1,
+      "text": "6",
+      "bbox": [
+        1696.5,
+        20.5,
+        1706.1,
+        38.6
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-7",
+      "page": 1,
+      "text": "3",
+      "bbox": [
+        833.0,
+        20.4,
+        842.5,
+        38.7
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-8",
+      "page": 1,
+      "text": "8",
+      "bbox": [
+        2272.3,
+        20.4,
+        2281.8,
+        38.7
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-9",
+      "page": 1,
+      "text": "A",
+      "bbox": [
+        52.3,
+        186.5,
+        65.8,
+        204.3
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-10",
+      "page": 1,
+      "text": "A",
+      "bbox": [
+        2443.8,
+        186.5,
+        2457.2,
+        204.3
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-11",
+      "page": 1,
+      "text": "B",
+      "bbox": [
+        53.9,
+        459.1,
+        64.2,
+        476.9
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-12",
+      "page": 1,
+      "text": "B",
+      "bbox": [
+        2445.3,
+        459.1,
+        2455.6,
+        476.9
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "dimension-1",
+      "page": 1,
+      "text": "27,5",
+      "bbox": [
+        244.3,
+        480.4,
+        284.2,
+        502.0
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "dimension",
+      "view": "side"
+    },
+    {
+      "id": "dimension-2",
+      "page": 1,
+      "text": "31,75",
+      "bbox": [
+        954.6,
+        480.4,
+        1006.7,
+        502.0
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "dimension",
+      "view": "front"
+    },
+    {
+      "id": "callout-1",
+      "page": 1,
+      "text": "2×C1",
+      "bbox": [
+        537.3,
+        498.3,
+        599.1,
+        516.6
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "callout",
+      "view": "side"
+    },
+    {
+      "id": "dimension-3",
+      "page": 1,
+      "text": "6",
+      "bbox": [
+        848.3,
+        533.7,
+        866.4,
+        543.2
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "dimension",
+      "view": "front"
+    },
+    {
+      "id": "dimension-4",
+      "page": 1,
+      "text": "14",
+      "bbox": [
+        1282.5,
+        551.0,
+        1300.4,
+        573.1
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "dimension",
+      "view": "front"
+    },
+    {
+      "id": "dimension-5",
+      "page": 1,
+      "text": "27,5",
+      "bbox": [
+        244.3,
+        622.1,
+        284.2,
+        643.7
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "dimension",
+      "view": "side"
+    },
+    {
+      "id": "dimension-6",
+      "page": 1,
+      "text": "31,75",
+      "bbox": [
+        954.6,
+        622.1,
+        1006.7,
+        643.7
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "dimension",
+      "view": "front"
+    },
+    {
+      "id": "callout-2",
+      "page": 1,
+      "text": "⌀2 ⌴⌀4 ±0,05 ↧2",
+      "bbox": [
+        1115.7,
+        702.8,
+        1358.8,
+        724.4
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "callout",
+      "view": "plan"
+    },
+    {
+      "id": "label-13",
+      "page": 1,
+      "text": "C",
+      "bbox": [
+        53.3,
+        731.5,
+        64.8,
+        749.8
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-14",
+      "page": 1,
+      "text": "C",
+      "bbox": [
+        2444.7,
+        731.5,
+        2456.3,
+        749.8
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "callout-3",
+      "page": 1,
+      "text": "4×⌀2 EQUALLY SPACED ON ⌀33,94 PCD",
+      "bbox": [
+        1310.6,
+        744.1,
+        1771.3,
+        765.7
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "callout",
+      "view": "plan"
+    },
+    {
+      "id": "dimension-7",
+      "page": 1,
+      "text": "63,51",
+      "bbox": [
+        1050.3,
+        756.1,
+        1098.6,
+        777.7
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "dimension",
+      "view": "plan"
+    },
+    {
+      "id": "feature_control_frame-1",
+      "page": 1,
+      "text": "cylindricity|0,05",
+      "bbox": [
+        658.1,
+        889.3,
+        774.7,
+        940.0
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "feature_control_frame",
+      "view": "plan"
+    },
+    {
+      "id": "dimension-8",
+      "page": 1,
+      "text": "55",
+      "bbox": [
+        1282.4,
+        947.9,
+        1300.5,
+        969.8
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "dimension",
+      "view": "plan"
+    },
+    {
+      "id": "label-15",
+      "page": 1,
+      "text": "D",
+      "bbox": [
+        53.6,
+        1004.4,
+        64.5,
+        1022.2
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-16",
+      "page": 1,
+      "text": "D",
+      "bbox": [
+        2445.1,
+        1004.4,
+        2455.9,
+        1022.2
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "dimension-9",
+      "page": 1,
+      "text": "27,5",
+      "bbox": [
+        846.6,
+        1020.1,
+        868.2,
+        1060.0
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "dimension",
+      "view": "plan"
+    },
+    {
+      "id": "callout-4",
+      "page": 1,
+      "text": "4×⌀2 EQUALLY SPACED ON ⌀24 PCD",
+      "bbox": [
+        1145.3,
+        1128.5,
+        1576.3,
+        1149.6
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "callout",
+      "view": "plan"
+    },
+    {
+      "id": "dimension-10",
+      "page": 1,
+      "text": "31,75",
+      "bbox": [
+        954.6,
+        1140.0,
+        1006.7,
+        1161.6
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "dimension",
+      "view": "plan"
+    },
+    {
+      "id": "feature_control_frame-2",
+      "page": 1,
+      "text": "cylindricity|0,1",
+      "bbox": [
+        1145.3,
+        1150.5,
+        1246.1,
+        1201.2
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "feature_control_frame",
+      "view": "plan"
+    },
+    {
+      "id": "callout-5",
+      "page": 1,
+      "text": "⌀16",
+      "bbox": [
+        1149.2,
+        1254.0,
+        1209.9,
+        1273.6
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "callout",
+      "view": "plan"
+    },
+    {
+      "id": "label-17",
+      "page": 1,
+      "text": "E",
+      "bbox": [
+        54.3,
+        1277.1,
+        63.8,
+        1294.9
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-18",
+      "page": 1,
+      "text": "E",
+      "bbox": [
+        2445.7,
+        1277.1,
+        2455.3,
+        1294.9
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_value-1",
+      "page": 1,
+      "text": "1:1",
+      "bbox": [
+        1657.4,
+        1444.7,
+        1681.5,
+        1462.8
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_value",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_label-1",
+      "page": 1,
+      "text": "Scale",
+      "bbox": [
+        926.3,
+        1471.9,
+        969.6,
+        1487.8
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_label",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_value-2",
+      "page": 1,
+      "text": "ISO 2768-f",
+      "bbox": [
+        1618.7,
+        1510.9,
+        1720.1,
+        1530.2
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_value",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_label-2",
+      "page": 1,
+      "text": "General tolerance",
+      "bbox": [
+        926.3,
+        1538.8,
+        1069.3,
+        1554.6
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_label",
+      "view": "sheet"
+    },
+    {
+      "id": "label-19",
+      "page": 1,
+      "text": "F",
+      "bbox": [
+        54.4,
+        1549.7,
+        63.7,
+        1567.5
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-20",
+      "page": 1,
+      "text": "F",
+      "bbox": [
+        2445.8,
+        1549.7,
+        2455.1,
+        1567.5
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_value-3",
+      "page": 1,
+      "text": "2026-09-01",
+      "bbox": [
+        1804.5,
+        1578.2,
+        1910.2,
+        1596.5
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_value",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_value-4",
+      "page": 1,
+      "text": "Synthetic data",
+      "bbox": [
+        1130.3,
+        1575.3,
+        1269.1,
+        1599.4
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_value",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_value-5",
+      "page": 1,
+      "text": "1",
+      "bbox": [
+        2073.6,
+        1578.4,
+        2079.5,
+        1596.3
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_value",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_label-3",
+      "page": 1,
+      "text": "Identification number",
+      "bbox": [
+        1489.9,
+        1605.4,
+        1664.0,
+        1621.4
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_label",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_label-4",
+      "page": 1,
+      "text": "Title",
+      "bbox": [
+        926.3,
+        1605.6,
+        961.2,
+        1621.4
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_label",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_label-5",
+      "page": 1,
+      "text": "Issue date",
+      "bbox": [
+        1740.4,
+        1605.6,
+        1823.2,
+        1621.4
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_label",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_label-6",
+      "page": 1,
+      "text": "Sheet",
+      "bbox": [
+        1990.9,
+        1605.6,
+        2035.9,
+        1621.4
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_label",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_value-6",
+      "page": 1,
+      "text": "cadsy.se",
+      "bbox": [
+        1094.4,
+        1642.1,
+        1179.8,
+        1666.3
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_value",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_value-7",
+      "page": 1,
+      "text": "cadsy.se",
+      "bbox": [
+        1451.4,
+        1642.1,
+        1536.8,
+        1666.3
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_value",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_label-7",
+      "page": 1,
+      "text": "Legal owner",
+      "bbox": [
+        926.3,
+        1668.2,
+        1024.1,
+        1688.3
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_label",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_label-8",
+      "page": 1,
+      "text": "Approval person",
+      "bbox": [
+        1640.2,
+        1668.4,
+        1773.0,
+        1688.3
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_label",
+      "view": "sheet"
+    },
+    {
+      "id": "projection_first_angle-1",
+      "page": 1,
+      "text": "Projection",
+      "bbox": [
+        2178.8,
+        1668.8,
+        2259.9,
+        1688.3
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "projection_first_angle",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_label-9",
+      "page": 1,
+      "text": "Document type",
+      "bbox": [
+        1915.8,
+        1669.0,
+        2037.0,
+        1688.3
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_label",
+      "view": "sheet"
+    },
+    {
+      "id": "title_block_label-10",
+      "page": 1,
+      "text": "Creator",
+      "bbox": [
+        1364.7,
+        1673.0,
+        1423.9,
+        1688.3
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "title_block_label",
+      "view": "sheet"
+    },
+    {
+      "id": "label-21",
+      "page": 1,
+      "text": "3",
+      "bbox": [
+        833.0,
+        1715.3,
+        842.5,
+        1733.6
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-22",
+      "page": 1,
+      "text": "6",
+      "bbox": [
+        1696.5,
+        1715.4,
+        1706.1,
+        1733.5
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-23",
+      "page": 1,
+      "text": "8",
+      "bbox": [
+        2272.3,
+        1715.3,
+        2281.8,
+        1733.6
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-24",
+      "page": 1,
+      "text": "1",
+      "bbox": [
+        259.1,
+        1715.5,
+        265.0,
+        1733.4
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-25",
+      "page": 1,
+      "text": "2",
+      "bbox": [
+        544.8,
+        1715.4,
+        555.0,
+        1733.5
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-26",
+      "page": 1,
+      "text": "4",
+      "bbox": [
+        1120.2,
+        1715.6,
+        1131.0,
+        1733.4
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-27",
+      "page": 1,
+      "text": "5",
+      "bbox": [
+        1408.7,
+        1715.4,
+        1418.2,
+        1733.5
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    },
+    {
+      "id": "label-28",
+      "page": 1,
+      "text": "7",
+      "bbox": [
+        1984.1,
+        1715.6,
+        1994.3,
+        1733.4
+      ],
+      "coordinate_space": "image_px",
+      "provider": "dataset_label",
+      "kind": "text",
+      "view": "sheet"
+    }
+  ],
+  "views": [],
+  "open_questions": []
+}
