@@ -78,37 +78,54 @@ def connect():
     return app
 
 
+MARK = "drawing2sw"   # 自己新建的零件都写这个自定义属性，下次建模前据此关掉
+
+
+def _is_ours(d) -> bool:
+    try:
+        mgr = call(d, "Extension").CustomPropertyManager("")
+        return MARK in (call(mgr, "GetNames") or ())
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def close_previous(app, out_dir: Path) -> list[str]:
-    """关掉上次运行留下的零件：路径在输出文件夹里的文档。用户自己的其他文件不动。"""
+    """建新零件前关掉旧窗口：
+    1. 带 drawing2sw 标记的文档：skill 自己建的（包括中途失败、没保存的），直接关，不保存；
+    2. 路径在输出文件夹里、没有未保存改动的文档。
+    用户自己打开的其他文件不动；输出文件夹里被手动改过、还没保存的也不动。"""
     closed = []
     out_dir = str(out_dir.resolve()).lower()
-    docs = call(app, "GetDocuments") or ()
-    for d in docs:
+    for d in list(call(app, "GetDocuments") or ()):
         try:
             path = (call(d, "GetPathName") or "").lower()
-            if not (path and path.startswith(out_dir)):
+            title = call(d, "GetTitle")
+            in_out = bool(path) and path.startswith(out_dir)
+            ours = _is_ours(d)
+            if not (ours or in_out):
                 continue
-            if call(d, "GetSaveFlag"):  # 有未保存的改动（可能是手动改过），不关，免得丢
+            if in_out and call(d, "GetSaveFlag") and not ours:
                 print(f"跳过（有未保存的改动）：{path}", flush=True)
                 continue
-            app.CloseDoc(call(d, "GetTitle"))
-            closed.append(path)
+            app.CloseDoc(title)
+            closed.append(path or title)
         except Exception:  # noqa: BLE001
             pass
     return closed
 
 
-def prune_out(out_dir: Path, keep: int) -> list[str]:
-    """输出文件夹只保留最新的 keep 个 .SLDPRT，删掉更旧的。打开中的文件删不掉，跳过。"""
-    files = sorted((p for p in out_dir.glob("*") if p.suffix.lower() == ".sldprt"),
-                   key=lambda p: p.stat().st_mtime, reverse=True)
+def remove_versions(out: Path) -> list[str]:
+    """删掉同名零件的旧版本（name.SLDPRT、name_1.SLDPRT ...）。放弃的建模不留。"""
+    import re as _re  # noqa: PLC0415
+    pat = _re.compile(_re.escape(out.stem) + r"(_\d+)?" + _re.escape(out.suffix), _re.I)
     removed = []
-    for p in files[keep:]:
-        try:
-            p.unlink()
-            removed.append(p.name)
-        except OSError:
-            pass
+    for f in out.parent.glob("*"):
+        if f.is_file() and pat.fullmatch(f.name):
+            try:
+                f.unlink()
+                removed.append(f.name)
+            except OSError:
+                removed.append(f"{f.name}（被占用，没删掉）")
     return removed
 
 
@@ -167,6 +184,10 @@ class Builder:
         self.doc = app.NewDocument(tpl, 0, 0, 0)
         if self.doc is None:
             raise RuntimeError(f"用模板新建零件失败: {tpl}。请检查 SolidWorks 里是否有未关闭的对话框")
+        try:  # 标记：下次建模前 close_previous 会关掉它
+            call(self.doc, "Extension").CustomPropertyManager("").Add3(MARK, 30, "1", 1)
+        except Exception:  # noqa: BLE001
+            pass
         self.sm = self.doc.SketchManager
         self.fm = self.doc.FeatureManager
         self.planes = self._default_planes()
@@ -836,7 +857,6 @@ def main() -> int:
     ap.add_argument("--report", default="work/sw_report.json")
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--no-step-check", action="store_true", help="不和 CadQuery 预览逐步比对")
-    ap.add_argument("--keep", type=int, default=10, help="输出文件夹最多保留几个零件，旧的自动删除；0 表示不删")
     args = ap.parse_args()
 
     if args.check:
@@ -905,20 +925,26 @@ def main() -> int:
         rep["measure_error"] = str(e)
 
     if args.out:
+        # 只有成功的零件才保存：覆盖同名旧版本（连同 name_1 这类旧编号一起删掉）。
+        # 失败的不保存，窗口直接关掉不存盘；报告里有建到哪一步、为什么失败。
         out = Path(args.out).resolve()
         out.parent.mkdir(parents=True, exist_ok=True)
-        stem, i = out.stem, 1
-        while out.exists():  # plate.SLDPRT -> plate_1 -> plate_2 ...，不覆盖旧文件
-            out = out.with_name(f"{stem}_{i}{out.suffix}")
-            i += 1
-        err = b.doc.SaveAs3(str(out), 0, 2)
-        rep["saved"] = str(out) if err == 0 else None
-        if err:
-            rep["save_error"] = err
-        if args.keep > 0:
-            removed = prune_out(out.parent, args.keep)
+        if rep["status"] == "ok":
+            removed = remove_versions(out)
             if removed:
-                rep["pruned_old"] = removed
+                rep["replaced_old"] = removed
+            # 选项 1 = 静默保存，窗口里的文档就是这个文件（以前用 2 另存副本，窗口里积累没保存的"零件N"）
+            err = b.doc.SaveAs3(str(out), 0, 1)
+            rep["saved"] = str(out) if err == 0 else None
+            if err:
+                rep["save_error"] = err
+        else:
+            rep["saved"] = None
+            try:
+                app.CloseDoc(call(b.doc, "GetTitle"))
+                rep["discarded"] = "建模失败，零件没有保存，窗口已关闭"
+            except Exception:  # noqa: BLE001
+                pass
 
     Path(args.report).parent.mkdir(parents=True, exist_ok=True)
     Path(args.report).write_text(json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8")
