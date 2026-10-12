@@ -101,7 +101,7 @@
     <li class="ai"><span class="step">B</span><h3 data-i18n="flow.2.t">AI 读图</h3><p data-i18n="flow.2.d">确认单位和投影法，关联视图，判断每个尺寸属于哪个特征。看不清或缺尺寸就提问，不猜。</p><code>part.json</code></li>
     <li><span class="step">C</span><h3 data-i18n="flow.3.t">校验</h3><p data-i18n="flow.3.d">JSON Schema、证据引用、工程规则逐项检查。切点、交点由几何库计算，AI 只写图上标的数。</p><code>validate_feature_table.py</code></li>
     <li><span class="step">D</span><h3 data-i18n="flow.4.t">预览与复核</h3><p data-i18n="flow.4.d">CadQuery 生成 STEP，投影成四向线框，和原图叠在一起看孔位和方向。</p><code>preview.step</code></li>
-    <li><span class="step">E</span><h3 data-i18n="flow.5.t">SolidWorks 建模</h3><p data-i18n="flow.5.d">通过 COM 逐个特征建模，每一步都和 CadQuery 对比体积和位置，出错能定位到特征。</p><code>part.SLDPRT</code></li>
+    <li><span class="step">E</span><h3 data-i18n="flow.5.t">SolidWorks 建模</h3><p data-i18n="flow.5.d">通过 COM 逐个特征建模，每一步都和 CadQuery 对比体积、精确包围盒和质心，出错能定位到特征。校验不过、问题没人拍板时不会开始建。</p><code>part.SLDPRT</code></li>
   </ol>
 
   <div class="table-demo">
@@ -229,7 +229,7 @@
   <div class="steps3">
     <div><span class="step">1</span><h3 data-i18n="s1.t">先跑示例</h3><p data-i18n="s1.d">不用 AI，三条命令确认环境没问题：</p><code>scripts\preview_cadquery.py examples\bracket_prismatic.json -o work\plate.step</code></div>
     <div><span class="step">2</span><h3 data-i18n="s2.t">交给 AI</h3><p data-i18n="s2.d">直接用自然语言说：</p><code data-i18n="s2.c">用 drawing2sw 把 D:\drawings\支架.pdf 建成 SolidWorks 零件</code></div>
-    <div><span class="step">3</span><h3 data-i18n="s3.t">回答它的问题</h3><p data-i18n="s3.d">单位、投影法、孔和键槽的方位、图上没标的尺寸，AI 会停下来问你。这些一定要人看。</p></div>
+    <div><span class="step">3</span><h3 data-i18n="s3.t">回答它的问题</h3><p data-i18n="s3.d">单位、投影法、孔和键槽的方位、图上没标的尺寸，AI 会停下来问你。你说不清就让 AI 判断，它要写明理由，报告里单独列出。没人拍板就不建模。</p></div>
   </div>
 </section>
 

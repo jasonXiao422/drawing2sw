@@ -49,12 +49,13 @@ The idea: **the model reads the drawing; deterministic code does the geometry.**
 
 | | |
 |---|---|
-| 📐 **Many inputs** | Native dimension entities from DWG/DXF, positioned text from PDF, automatic view splitting for scans and photos, optional PaddleOCR |
+| 📐 **Many inputs** | Native dimension entities from DWG/DXF, positioned text from PDF; for scans and photos, automatic view splitting and numbered text boxes (the model labels boxes by number instead of guessing pixel coordinates), optional PaddleOCR |
 | 🧾 **Traceable intermediate format** | A CAD-neutral JSON feature table. Each feature carries `evidence_refs` and is bound to the source file's SHA-256 |
 | 🧮 **Geometry in code** | Write only the dimensions on the drawing. `geom2d` solves tangent arcs, intersections and fillet points |
 | 🛠 **Two backends** | CadQuery writes STEP on any OS. On Windows, SolidWorks is driven feature by feature over COM |
 | 🔗 **Dimension association check** | Warns when a feature cites a dimension whose value it never uses (likely assigned to the wrong feature), and lists dimensions no feature uses |
-| ✅ **Step-by-step self-check** | Each SolidWorks step is compared with CadQuery for volume and position, so failures point to a specific feature |
+| ✅ **Step-by-step self-check** | Each SolidWorks step is compared with CadQuery for volume, exact bounding box and centre of mass, so failures point to a specific feature (including volume-neutral ones such as a pattern going the wrong way) |
+| 🚦 **Gates before SolidWorks** | SolidWorks does not start if validation fails, an uncertain item has not been signed off, or the preview finds a hole mouth covered by a zero-thickness skin. Approximations are off by default; a failed save never deletes the previous part |
 | 🔍 **Projection review** | Project the model into four wireframe views and overlay them on the drawing |
 | 🧪 **Reproducible evaluation** | A synthetic drawing generator that labels which feature every dimension belongs to; scoring covers pose-free geometry (mirrors still fail) and dimension association |
 
@@ -68,11 +69,12 @@ flowchart LR
     D --> E[part.json<br>feature table]
     E --> F[Validate<br>schema · evidence · rules]
     F --> G[CadQuery<br>STEP + projections]
-    G --> H[SolidWorks<br>build + self-check]
+    G --> Q{{You confirm<br>uncertain dims and assumptions}}
+    Q --> H[SolidWorks<br>build + self-check]
     H --> I[Compare<br>volume · area · bbox]
 ```
 
-Only the diamond is the model. Everything else is ordinary, repeatable Python.
+The diamonds are judgement: the model reads the drawing, and you sign off anything uncertain (or hand it back to the model, which then has to write down its reasoning). Everything else is ordinary, repeatable Python.
 
 ## Quick start
 
@@ -194,7 +196,19 @@ Then type `/drawing2sw`, or just ask it to model a drawing. For a single project
 Use drawing2sw to model D:\drawings\bracket.pdf as a SolidWorks part. Save it to D:\out\
 ```
 
-The agent will stop and ask about units, projection method, keyway and hole orientation, and any dimension missing from the drawing. **Volume checks cannot catch these. A person has to look.**
+The agent preprocesses the drawing, settles units and projection, fills the feature table, validates it, shows you a STEP preview, asks about anything uncertain, builds the SolidWorks part and hands over a report.
+
+**Anything uncertain comes back to you.** Open questions are graded:
+
+| Level | Examples | Before SolidWorks |
+|---|---|---|
+| blocking | A key dimension is missing, dimensions contradict, the unit is unknown | Must be resolved |
+| confirm | An assumed value (unstated hole depth, a dimension scaled off the drawing, how to read a draft angle) | You answer; if you are unsure, the model decides and records why |
+| note | Tolerances, material, surface finish | Listed only |
+
+The build script refuses to run while a blocking or confirm item has no answer, and the report lists every decision the model made for you. Units, projection, keyway and hole orientation **cannot be caught by volume checks; a person has to look.**
+
+If only an approximate method works (for example a curvature-continuous fillet instead of a true radius), the build also stops and asks instead of approximating silently.
 
 ## What it can build
 
@@ -220,13 +234,17 @@ The agent will stop and ask about units, projection method, keyway and hole orie
 - **Moving a hole 2 mm does not change the volume.** Hole positions need projection review or a boolean comparison with a reference STEP.
 - **Both backends agreeing does not mean the drawing was read correctly.** They execute the same table.
 - **Evidence links prove traceability,** not that a dimension was assigned to the right feature.
+- **The step check compares two backends.** Matching volume, bounding box and centre of mass means SolidWorks executed the table faithfully, not that the table is right.
+
+At hand-off the agent lists which checks passed, what was not checked, every assumption, every decision it made for you, and any approximation.
 
 ## Evaluation
 
 ```powershell
-.venv\Scripts\python.exe -m unittest discover -s tests -p "test_v05*.py"
-.venv\Scripts\python.exe tests\test_geom2d.py
+.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py"
 ```
+
+Covers the evidence chain, dimension association, patterns and mirror, shell, draft, text boxes and the pre-build gates. None of it needs SolidWorks.
 
 Generate new synthetic drawings (hole plates, bolt-circle disks, stepped shafts, flanges; GB / ISO / ASME; DXF / PDF / PNG / simulated scan):
 
@@ -256,6 +274,8 @@ Open SolidWorks once by hand and close every dialog. A hidden dialog is the usua
 <details><summary><b>Which model works best?</b></summary>
 
 No controlled blind comparison yet, so no claim. The model must see images and run local commands.
+
+One data point so far: Doubao read a crank-case practice drawing blind and got 5 of 10 features wrong. About half were reading errors; the other half were things the skill failed to stop at the time (covered hole mouths, step check switched off, guessed evidence boxes). Those became enforced checks in v0.7.1–v0.7.3.
 </details>
 
 More in [setup and troubleshooting](references/setup.md) (Chinese).

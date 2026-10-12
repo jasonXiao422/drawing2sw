@@ -93,4 +93,14 @@ results.append(check("埋头孔展开出 2 个特征", len(fs), 2, 0))
 results.append(check("埋头孔锥面到 Φ10 处的位置误差", math.dist(cone["profile"]["points"][2], [5, -5]), 0))
 
 print("全部通过" if all(results) else "有失败")
-sys.exit(0 if all(results) else 1)
+
+
+class Geom2dChecks(__import__("unittest").TestCase):
+    """unittest discover 也能跑：上面的检查在导入时已经算完，这里只看结果。"""
+
+    def test_all_checks_pass(self):
+        self.assertTrue(all(results), "geom2d 自检有失败，直接运行本文件看是哪一项")
+
+
+if __name__ == "__main__":
+    sys.exit(0 if all(results) else 1)
