@@ -1,6 +1,6 @@
 ---
 name: drawing2sw
-description: 读取机械单零件工程图（DWG、DXF、PDF、图片），将标注与视图证据转换为特征表，使用确定性脚本生成 STEP 或 SolidWorks 零件，并检查几何与图纸对应关系。用于按图建模和二维零件图转三维；支持的特征范围以 schema 为准。
+description: 读取机械单零件工程图（DWG、DXF、PDF、图片），将标注与视图证据转换为特征表，使用确定性脚本生成 STEP 或 SolidWorks 零件，并检查几何与图纸对应关系。用于按图建模和二维零件图转三维；支持的特征范围以 schema 为准。Reads a single-part mechanical engineering drawing (DWG, DXF, PDF or image), turns its dimensions into a traceable feature table, and builds the part in SolidWorks or as STEP with deterministic scripts. Use for drawing-to-CAD, 2D drawing to 3D model, and SolidWorks part modeling from drawings.
 ---
 
 # Drawing2SW：可追溯的跨模型读图建模
