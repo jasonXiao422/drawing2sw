@@ -60,15 +60,27 @@ UNIT_WORDS = {"inch": ("inch", "英寸", " in.", "\""), "mm": ("mm", "毫米", "
 
 
 def _raw_max_length(table: dict) -> float:
-    """特征表里最大的长度数值（图纸单位），用来粗查单位是否填错。"""
-    vals = []
+    """特征表里最大的长度数值（图纸单位），用来粗查单位是否填错。
+    遍历轮廓、孔位、回转轮廓里的所有数值（path、tangent_loop 也算），跳过角度、数量、置信度。"""
+    skip = {"meta", "angle", "tip_angle", "start_angle", "count", "teeth", "pressure_angle",
+            "addendum_coef", "clearance_coef", "shift_coef", "confidence", "ccw", "large", "convex"}
+    vals: list[float] = []
+
+    def walk(x, key=None):
+        if key in skip or isinstance(x, bool):
+            return
+        if isinstance(x, (int, float)):
+            vals.append(abs(float(x)))
+        elif isinstance(x, dict):
+            for k, v in x.items():
+                walk(v, k)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v, key)
+
     for f in table["features"]:
-        pr = f.get("profile", {})
-        vals += [pr.get(k, 0) for k in ("width", "height", "diameter")]
-        vals += [abs(c) for p in pr.get("points", []) for c in p]
-        vals += [abs(c) for p in f.get("half_profile", []) for c in p]
-        if isinstance(f.get("depth"), (int, float)):
-            vals.append(f["depth"])
+        for key in ("profile", "half_profile", "positions", "depth", "diameter", "bolt_circle", "offset"):
+            walk(f.get(key), key)
     return max(vals or [0])
 
 

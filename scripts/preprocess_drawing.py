@@ -62,8 +62,12 @@ _DUAL = re.compile(r"\d+(?:\.\d+)?\s*\[\s*\d*\.\d+\s*\]")
 def detect_setup(texts: list[str], numbers: list[str]) -> dict:
     """从全部文字里找单位、标准、投影法、比例等线索。返回 {字段: [{value, text}]} 和数值特征。"""
     hints: dict[str, list] = {}
-    for t in texts:
+    # 单位说明常被拆成两行（"ALL DIMENSIONS" / "ARE IN MILLIMETERS"），相邻两行拼起来再找一次
+    pairs = [f"{a} {b}" for a, b in zip(texts, texts[1:])]
+    for i, t in enumerate(texts + pairs):
         for field, value, pat in SETUP_RULES:
+            if i >= len(texts) and field in hints:
+                continue
             m = re.search(pat, t, re.IGNORECASE)
             if m:
                 v = value if value is not None else re.sub(r"\s+", "", m.group(1))

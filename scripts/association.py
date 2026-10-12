@@ -85,6 +85,20 @@ def _profile_extent(profile: dict) -> tuple[float, float, float, float] | None:
     return None
 
 
+def _extent(profile) -> tuple[float, float, float, float] | None:
+    """轮廓的 (u0, u1, v0, v1)。path、tangent_loop 用 ftable 展开后的点。"""
+    e = _profile_extent(profile)
+    if e is not None or not isinstance(profile, dict):
+        return e
+    try:
+        import ftable
+        import geom2d
+        pts = ftable.profile_points(ftable._resolve_profile(profile, geom2d), n_circle=72)
+        return min(q[0] for q in pts), max(q[0] for q in pts), min(q[1] for q in pts), max(q[1] for q in pts)
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def feature_numbers(feature: dict, table: dict | None = None) -> list[float]:
     """这个特征"用到"的所有数：直接参数 + 常见标注方式能推出的距离。"""
     nums = _leaves(feature)
@@ -92,7 +106,7 @@ def feature_numbers(feature: dict, table: dict | None = None) -> list[float]:
     if table:
         feats = table.get("features", [])
         base = feats[0] if feats and feats[0] is not feature else None
-    ext = _profile_extent(base.get("profile")) if base and base.get("plane") == feature.get("plane", base.get("plane")) else None
+    ext = _extent(base.get("profile")) if base and base.get("plane") == feature.get("plane", base.get("plane")) else None
     datum_u = datum_v = None
     if ext:
         datum_u, datum_v = ext[0], ext[2]
@@ -112,12 +126,13 @@ def feature_numbers(feature: dict, table: dict | None = None) -> list[float]:
         c = bc.get("center") or [0, 0]
         if datum_u is not None:
             nums += [abs(c[0] - datum_u), abs(c[1] - datum_v)]
-    pe = _profile_extent(feature.get("profile")) if feature is not base else None
+    pe = _extent(feature.get("profile")) if feature is not base else None
     if pe and ext:
         u0, u1, v0, v1 = pe
         cu, cv = (u0 + u1) / 2, (v0 + v1) / 2   # 圆孔、对称槽常标到中心
         nums += [abs(u0 - datum_u), abs(v0 - datum_v), abs(ext[1] - u1), abs(ext[3] - v1),
-                 abs(cu - datum_u), abs(cv - datum_v)]
+                 abs(cu - datum_u), abs(cv - datum_v), abs(ext[1] - cu), abs(ext[3] - cv),
+                 abs(u0 - ext[0]), abs(v0 - ext[2])]
     if pe:
         nums += [pe[1] - pe[0], pe[3] - pe[2]]
     hp = feature.get("half_profile")
@@ -146,6 +161,11 @@ def feature_numbers(feature: dict, table: dict | None = None) -> list[float]:
             nums += [max(us) - min(us), max(vs) - min(vs), max(abs(u) for u in us), max(abs(v) for v in vs)]
         except Exception:  # noqa: BLE001  展开失败由 validate 报，这里不重复
             pass
+    # 直径写成 R 标注时（R1.5 对应直径 3 的圆）
+    for key in ("diameter",):
+        for holder in (feature, feature.get("profile") or {}, feature.get("cbore") or {}, feature.get("csink") or {}):
+            if isinstance(holder.get(key), (int, float)):
+                nums.append(holder[key] / 2)
     if feature.get("type") == "edge_treatment" and isinstance(feature.get("size"), (int, float)):
         nums.append(45.0)  # 1 X 45° 倒角
     return nums

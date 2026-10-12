@@ -82,6 +82,35 @@ class Callouts(unittest.TestCase):
         self.assertEqual([f["characteristic"] for f in g["frames"]], ["perpendicularity", "cylindricity"])
         self.assertFalse(association.looks_like_dimension("flatness|0.2"))
 
+    def test_textbook_and_inventor_styles(self):
+        cases = {
+            "M3x0.5 - 6H 3 PLCS": ("threaded_hole", {"count": 3}),
+            "Ø3 THRU 4 PLCS": ("hole", {"count": 4, "depth": "through_all"}),
+            "2 X 45° CHAMFER": ("chamfer", {"size": 2.0, "count": 1}),
+            "6mm X 45° CHAMFER": ("chamfer", {"size": 6.0}),
+            "Ø50 THRU ⌴ Ø70 ▼ 12": ("hole", {"cbore": {"diameter": 70.0, "depth": 12.0}}),
+            "Ø12 ▼ 55.73 ⌵ Ø25 X 90°": ("hole", {"depth": 55.73, "csink": {"diameter": 25.0, "angle": 90.0}}),
+            "Ø12.50 ⌴25▼3": ("hole", {"cbore": {"diameter": 25.0, "depth": 3.0}}),
+            "Ø31.82-31.75": ("diameter", {"diameter": 31.785}),
+            "2X Ø.500 IN LINE": ("hole", {"in_line": True, "count": 2}),
+            "3X 5X10 KEYWAYS EQUALLY SPACED": ("keyway", {"keyway": {"width": 5.0, "depth": 10.0}}),
+            "Ø3 HEMISPHERICAL CUT": ("spherical_cut", {"diameter": 3.0}),
+            "2X R": ("fillet", {"radius": None}),
+        }
+        for text, (kind, fields) in cases.items():
+            with self.subTest(text=text):
+                p = self.parse(text)
+                self.assertEqual(p["kind"], kind)
+                self.assertNotIn("unparsed", p)
+                for k, v in fields.items():
+                    self.assertEqual(p[k], v)
+        t = self.parse("1/2-13 UNC - 2B ⌴ Ø22 ▼ 5 3 PLCS")
+        self.assertEqual((t["thread"]["nominal_diameter"], t["thread"]["threads_per_inch"], t["count"]), (0.5, 13, 3))
+        self.assertEqual(self.parse("#10-32 UNF ▼.5")["thread"]["nominal_diameter"], 0.19)
+        self.assertEqual(self.parse("ALL CHAMFERS = 0.5 X 45°")["chamfer"]["size"], 0.5)
+        self.assertEqual(self.parse("FILLETS AND ROUNDS R.12")["fillet"]["radius"], 0.12)
+        self.assertEqual(self.parse("未注圆角R2")["fillet"]["radius"], 2.0)
+
     def test_unknown_is_not_forced(self):
         for text in ("SCALE 2:1", "ISO 2768-f", "Synthetic data"):
             self.assertEqual(self.parse(text)["kind"], "unknown")

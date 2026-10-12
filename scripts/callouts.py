@@ -39,7 +39,13 @@ def normalize(text: str) -> str:
     t = t.replace("×", "X").replace("＊", "X")
     t = re.sub(r"(?<=\d)\s*[xX]\s*(?=[⌀M\d.])", " X ", t)        # 4x⌀9 / 7x29
     t = re.sub(r"^(\d+)\s*X\s*", r"\1X ", t)
-    t = t.replace("深度", "↧").replace("深", "↧").replace("DEEP", "↧D").replace("▽", "↧")
+    t = t.replace("深度", "↧").replace("深", "↧").replace("DEEP", "↧D")
+    t = re.sub(r"[▽▼↓⊽]", "↧", t)                                  # 深度符号的各种字形
+    t = re.sub(r"L_J|└┘|⊔|⌴", "⌴", t)                               # 沉孔 / 锪平
+    t = re.sub(r"[∨]|(?<![A-Z])V(?=\s*⌀)", "⌵", t)                 # 沉头
+    t = re.sub(r"\bC'?BORE\b", "⌴", t, flags=re.I)
+    t = re.sub(r"\bSPOT\s*FACE\b|\bSPOTFACE\b", "⌴SF", t, flags=re.I)
+    t = re.sub(r"\bC'?SINK\b|\bCSK\b", "⌵", t, flags=re.I)
     t = t.replace("沉孔", "⌴").replace("锪平", "⌴SF").replace("沉头", "⌵")
     t = t.replace("通孔", "THRU").replace("通", "THRU")
     t = re.sub(r"EQUALLY SPACED|EQ\.? SP\.?|均布", "EQS", t, flags=re.I)
@@ -85,6 +91,51 @@ def parse(text: str) -> dict:
         if rows:
             return {"text": raw, "kind": "gdt", "frames": rows,
                     "note": "形位公差不改变公称几何，不写进特征表的尺寸"}
+
+    # 总注：作用于图上所有没单独标的棱边
+    m = (re.search(r"ALL\s+CHAMFERS?\s*=?\s*" + _NUM + r"\s*(?:MM)?\s*X\s*45", t, re.I)
+         or re.search(r"未注倒角\s*C?\s*" + _NUM, t))
+    if m:
+        return {**out, "kind": "general_note", "chamfer": {"size": float(m.group(1)), "angle": 45.0},
+                "note": "总注：所有没单独标注的棱边都倒这个角。逐条确认哪些边算'棱边'，不要漏掉也不要倒到功能面上"}
+    m = (re.search(r"(?:FILLETS?\s*(?:AND|&)\s*ROUNDS?|ALL\s+(?:FILLETS|ROUNDS))\s*=?\s*R\s*" + _NUM, t, re.I)
+         or re.search(r"未注圆角\s*R\s*" + _NUM, t))
+    if m:
+        return {**out, "kind": "general_note", "fillet": {"radius": float(m.group(1))},
+                "note": "总注：所有没单独标注的内外圆角（铸件常见）都是这个半径"}
+    # 后置数量 3 PLCS / 4 PLACES / 3处；件数 2 REQD（要做几件，和几何无关）；IN LINE（几个孔同轴）
+    trailing = None
+    m = re.search(r"\s*(\d+)\s*(?:PLCS|PLACES|PL|处)\.?\s*$", t, re.I)
+    if m:
+        trailing, t = int(m.group(1)), t[:m.start()].strip()
+    m = re.search(r"\s*(\d+)\s*REQ'?D\.?\s*$", t, re.I)
+    if m:
+        out["parts_required"], t = int(m.group(1)), t[:m.start()].strip()
+    if re.search(r"\s*IN\s+LINE\s*$", t, re.I):
+        out["in_line"], t = True, re.sub(r"\s*IN\s+LINE\s*$", "", t, flags=re.I)
+        out["note"] = "IN LINE：这几个孔同轴，一起钻"
+    if trailing:
+        t = f"{trailing}X " + t if not re.match(r"^\d+X", t) else t
+    # 倒角 2 X 45° CHAMFER / 6mm X 45° CHAMFER / 3×45°CHAM：第一个数是倒角尺寸，不是数量
+    m = re.fullmatch(r"(?:(\d+)X\s+(?=\S+\s*(?:MM)?\s*X\s*45))?" + _NUM + r"\s*(?:MM)?\s*X\s*45\s*°?\s*(?:CHAMFER|CHAM\.?)?", t, re.I)
+    if m:
+        return {**out, "kind": "chamfer", "count": int(m.group(1)) if m.group(1) else 1,
+                "size": float(m.group(2)), "angle": 45.0}
+    # 极限尺寸 ⌀.310 - .312 / ⌀1.4590/1.4585 / ⌀31.82-31.75：两个很接近的数是上下限
+    m = re.fullmatch(r"(⌀)?\s*" + _NUM + r"\s*[-/]\s*" + _NUM, t)
+    if m:
+        a, b = float(m.group(2)), float(m.group(3))
+        if abs(a - b) <= 0.05 * max(a, b):
+            mean = round((a + b) / 2, 6)
+            return {**out, "kind": "diameter" if m.group(1) else "dimension",
+                    ("diameter" if m.group(1) else "value"): mean, "limits": sorted([a, b]),
+                    **({"feature_hint": {"diameter": mean}} if m.group(1) else {}),
+                    "note": "极限尺寸：给的是上下限，建模取中间值"}
+    # 球面切口 ⌀3 HEMISPHERICAL CUT
+    m = re.fullmatch(r"⌀\s*" + _NUM + r"\s*(?:HEMI)?SPHERICAL(?:\s*CUT)?", t, re.I)
+    if m:
+        return {**out, "kind": "spherical_cut", "diameter": float(m.group(1)),
+                "note": "半球形凹坑：用 revolve 切除，轮廓是半圆"}
 
     # 倒角 1 X 45°（要在"数量 X"之前判断，不然 1 X 被当成数量）
     m = re.fullmatch(_NUM + r"\s*X\s*45\s*°?", t)
@@ -133,6 +184,14 @@ def parse(text: str) -> dict:
             return {**out, "kind": "height", "value": float(m.group(1)), **({"tolerance": tol} if tol else {}),
                     "note": "高度标注：这个面相对基准面的高度，看是哪个视图里标的"}
     t = re.sub(r"^SLOT\s*", "", t, flags=re.I)
+    if re.fullmatch(r"S?R", t):
+        return {**out, "kind": "fillet", "radius": None,
+                "note": "只写 R 不写数：半径由别的几何决定（相切、和另一段同心等），不要猜数"}
+    m = re.fullmatch(_NUM + r"\s*X\s*" + _NUM + r"\s*KEYWAYS?(?:\s*EQS)?", t, re.I)
+    if m:
+        return {**out, "kind": "keyway", "keyway": {"width": float(m.group(1)), "depth": float(m.group(2))},
+                "equally_spaced": "EQS" in t,
+                "note": "键槽 宽 × 深；深度从哪个面量起要看图（孔壁还是轴面）"}
     # 圆角 R5 ±0.05
     m = re.match(r"^S?R\s*" + _NUM, t)
     if m:
@@ -155,7 +214,26 @@ def parse(text: str) -> dict:
     hint: dict = {}
     # 螺纹 M8 / M8x1.25 / M6-6H
     m = re.match(r"^M\s*" + _NUM + r"(?:\s*X\s*" + _NUM + r")?(?:\s*-\s*(\d[A-Za-z]{1,2}))?", t)
-    if m:
+    mi = re.match(r"^(#\d+|\d+-\d+/\d+|\d+/\d+|\d*\.\d+|\d+)\s*-\s*(\d+)\s*(UNC|UNF|UNEF|UNS|UN)"
+                  r"(?:\s*-\s*(\d[AB]))?", t, re.I)
+    if mi and not m:
+        size = mi.group(1)
+        if size.startswith("#"):
+            nominal = 0.060 + 0.013 * int(size[1:])
+        elif "/" in size:
+            whole, _, frac = size.rpartition("-")
+            n, d = frac.split("/")
+            nominal = (float(whole) if whole else 0.0) + int(n) / int(d)
+        else:
+            nominal = float(size)
+        out["kind"] = "threaded_hole"
+        out["thread"] = {"size": f"{size}-{mi.group(2)} {mi.group(3).upper()}", "nominal_diameter": round(nominal, 4),
+                         "threads_per_inch": int(mi.group(2))}
+        if mi.group(4):
+            out["thread"]["tolerance_class"] = mi.group(4)
+        rest = t[mi.end():]
+        out["note"] = "英制螺纹：尺寸单位是英寸。特征表写底孔直径（查表），公称直径和牙数写进 thread"
+    elif m:
         out["kind"] = "threaded_hole"
         out["thread"] = {"size": f"M{m.group(1)}", "nominal_diameter": float(m.group(1))}
         if m.group(2):
@@ -198,7 +276,7 @@ def parse(text: str) -> dict:
                 target["depth"] = float(mm.group(1))
             elif "depth" not in out:
                 out["depth"] = float(mm.group(1))
-        elif (mm := take(r"⌴\s*(SF)?\s*⌀\s*" + _NUM + r"(?:\s*(SF))?")):
+        elif (mm := take(r"⌴\s*(SF)?\s*⌀?\s*" + _NUM + r"(?:\s*(SF))?")):
             key = "spotface" if (mm.group(1) or mm.group(3)) else "cbore"
             out[key] = {"diameter": float(mm.group(2))}
             t2, rest = _tol(rest)
