@@ -1,0 +1,18 @@
+name: Reliability checks
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -p 'test_v05*.py' -v
+      - run: python tests/test_geom2d.py
+      - run: python scripts/package_skill.py -o dist/drawing2sw.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drawing2sw-skill
+          path: dist/drawing2sw.zip

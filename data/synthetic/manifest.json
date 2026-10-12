@@ -1,0 +1,246 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Pipeline regression; not a generalization benchmark",
+  "cases": [
+    {
+      "id": "plate-01",
+      "drawing": "plate-01/drawing.pdf",
+      "sha256": "a56751363ef6cf287fffe5ef451623a6fbfc87d5f06342014bff6b993840fbdb",
+      "answer_step": "plate-01/answer.step",
+      "answer_table": "plate-01/answer.json",
+      "expected": {
+        "volume_mm3": 23660.707993412303,
+        "surface_area_mm2": 9673.097335529232,
+        "bbox_mm": [
+          80,
+          50,
+          6
+        ],
+        "hole_count": 2
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry",
+      "datum": "front lower-left, X right, Y up, Z toward viewer; thickness in +Z"
+    },
+    {
+      "id": "plate-02",
+      "drawing": "plate-02/drawing.pdf",
+      "sha256": "023e752f50dcac857a0f404fd5ec81578548e03c1af808be705a295a6c7229b7",
+      "answer_step": "plate-02/answer.step",
+      "answer_table": "plate-02/answer.json",
+      "expected": {
+        "volume_mm3": 31070.43698635041,
+        "surface_area_mm2": 11095.152641862504,
+        "bbox_mm": [
+          85,
+          53,
+          7
+        ],
+        "hole_count": 2
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry",
+      "datum": "front lower-left, X right, Y up, Z toward viewer; thickness in +Z"
+    },
+    {
+      "id": "plate-03",
+      "drawing": "plate-03/drawing.pdf",
+      "sha256": "6549195b8b00225f0d47d8ddfb5b8a659746fa7c4a6e69dd5d1c13261b9bb6b0",
+      "answer_step": "plate-03/answer.step",
+      "answer_table": "plate-03/answer.json",
+      "expected": {
+        "volume_mm3": 39704.2478398964,
+        "surface_area_mm2": 12613.920337176158,
+        "bbox_mm": [
+          90,
+          56,
+          8
+        ],
+        "hole_count": 2
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry",
+      "datum": "front lower-left, X right, Y up, Z toward viewer; thickness in +Z"
+    },
+    {
+      "id": "plate-04",
+      "drawing": "plate-04/drawing.pdf",
+      "sha256": "87f6d68307b6a20ee1d871aaad9c0beb50804cad894d0c1bcc36ffab477556ca",
+      "answer_step": "plate-04/answer.step",
+      "answer_table": "plate-04/answer.json",
+      "expected": {
+        "volume_mm3": 49649.78435956008,
+        "surface_area_mm2": 14229.400421470194,
+        "bbox_mm": [
+          95,
+          59,
+          9
+        ],
+        "hole_count": 2
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry",
+      "datum": "front lower-left, X right, Y up, Z toward viewer; thickness in +Z"
+    },
+    {
+      "id": "plate-05",
+      "drawing": "plate-05/drawing.pdf",
+      "sha256": "06f33901bc00e13f0000f44f7b2518e09692bc1a0d58441be14b6afeb0de94b3",
+      "answer_step": "plate-05/answer.step",
+      "answer_table": "plate-05/answer.json",
+      "expected": {
+        "volume_mm3": 60994.69035085127,
+        "surface_area_mm2": 15941.592894744621,
+        "bbox_mm": [
+          100,
+          62,
+          10
+        ],
+        "hole_count": 2
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry",
+      "datum": "front lower-left, X right, Y up, Z toward viewer; thickness in +Z"
+    },
+    {
+      "id": "plate-06",
+      "drawing": "plate-06/drawing.pdf",
+      "sha256": "14e55d58fc5dd681bc6914d2e5ba6515a93f50092ada555ad2a207ccd4ec4048",
+      "answer_step": "plate-06/answer.step",
+      "answer_table": "plate-06/answer.json",
+      "expected": {
+        "volume_mm3": 73826.60961927976,
+        "surface_area_mm2": 17750.49775699943,
+        "bbox_mm": [
+          105,
+          65,
+          11
+        ],
+        "hole_count": 2
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry",
+      "datum": "front lower-left, X right, Y up, Z toward viewer; thickness in +Z"
+    },
+    {
+      "id": "plate-07",
+      "drawing": "plate-07/drawing.pdf",
+      "sha256": "b542e74d1f9570e48ebad78deb8930eeaddea4f0baf778b3d81b5c4aac8056ae",
+      "answer_step": "plate-07/answer.step",
+      "answer_table": "plate-07/answer.json",
+      "expected": {
+        "volume_mm3": 24178.39693846636,
+        "surface_area_mm2": 9481.496869774373,
+        "bbox_mm": [
+          76.19999999999999,
+          50.8,
+          6.35
+        ],
+        "hole_count": 2
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry",
+      "datum": "front lower-left, X right, Y up, Z toward viewer; thickness in +Z"
+    },
+    {
+      "id": "plate-08",
+      "drawing": "plate-08/drawing.pdf",
+      "sha256": "c6c82a7d7abcc796a3e9a836fdcfebd76dc4064226abcf06ee070a4bbce4081e",
+      "answer_step": "plate-08/answer.step",
+      "answer_table": "plate-08/answer.json",
+      "expected": {
+        "volume_mm3": 27891.09112596636,
+        "surface_area_mm2": 10771.816869774373,
+        "bbox_mm": [
+          82.55,
+          53.974999999999994,
+          6.35
+        ],
+        "hole_count": 2
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry",
+      "datum": "front lower-left, X right, Y up, Z toward viewer; thickness in +Z"
+    },
+    {
+      "id": "plate-09",
+      "drawing": "plate-09/drawing.pdf",
+      "sha256": "5264463dbd086cafcaddb5b7c63de2fa0dc1e77d17a7be7ca8e0f47b1da23841",
+      "answer_step": "plate-09/answer.step",
+      "answer_table": "plate-09/answer.json",
+      "expected": {
+        "volume_mm3": 31859.83318846636,
+        "surface_area_mm2": 12142.781869774371,
+        "bbox_mm": [
+          88.89999999999999,
+          57.15,
+          6.35
+        ],
+        "hole_count": 2
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry",
+      "datum": "front lower-left, X right, Y up, Z toward viewer; thickness in +Z"
+    },
+    {
+      "id": "plate-10",
+      "drawing": "plate-10/drawing.pdf",
+      "sha256": "3b1f3ce8cd7e405c36b8d6838c716e2a500930edfc9427b05df5c98fedcbb27d",
+      "answer_step": "plate-10/answer.step",
+      "answer_table": "plate-10/answer.json",
+      "expected": {
+        "volume_mm3": 36084.62312596636,
+        "surface_area_mm2": 13594.391869774372,
+        "bbox_mm": [
+          95.25,
+          60.324999999999996,
+          6.35
+        ],
+        "hole_count": 2
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry",
+      "datum": "front lower-left, X right, Y up, Z toward viewer; thickness in +Z"
+    },
+    {
+      "id": "plate-11",
+      "drawing": "plate-11/drawing.pdf",
+      "sha256": "26eb41c1cf5b7b4f8a051620fa57cb247014a908487525bf42288bc3412532c5",
+      "answer_step": "plate-11/answer.step",
+      "answer_table": "plate-11/answer.json",
+      "expected": {
+        "volume_mm3": 40565.460938466356,
+        "surface_area_mm2": 15126.646869774373,
+        "bbox_mm": [
+          101.6,
+          63.5,
+          6.35
+        ],
+        "hole_count": 2
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry",
+      "datum": "front lower-left, X right, Y up, Z toward viewer; thickness in +Z"
+    },
+    {
+      "id": "plate-12",
+      "drawing": "plate-12/drawing.pdf",
+      "sha256": "7485d3a7423d40e1e980cd8113034756a4b7a9b78fd24d3bfb66f263f2c327e1",
+      "answer_step": "plate-12/answer.step",
+      "answer_table": "plate-12/answer.json",
+      "expected": {
+        "volume_mm3": 45302.34662596636,
+        "surface_area_mm2": 16739.54686977437,
+        "bbox_mm": [
+          107.94999999999999,
+          66.675,
+          6.35
+        ],
+        "hole_count": 2
+      },
+      "license": "MIT",
+      "evaluation": "synthetic_geometry",
+      "datum": "front lower-left, X right, Y up, Z toward viewer; thickness in +Z"
+    }
+  ]
+}

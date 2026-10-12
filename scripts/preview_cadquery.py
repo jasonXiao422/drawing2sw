@@ -192,6 +192,8 @@ def report(result: cq.Workplane, table: dict) -> dict:
     return {
         "backend": "cadquery",
         "volume_mm3": round(solid.Volume(), 3),
+        "surface_area_mm2": round(solid.Area(), 3),
+        "face_count": len(solid.Faces()),
         "bbox_mm": [round(bb.xlen, 4), round(bb.ylen, 4), round(bb.zlen, 4)],
         "hole_count_from_table": ftable.count_holes(table),
         "solid_count": len(result.solids().vals()),

@@ -104,7 +104,7 @@ def check_setup(table: dict, errors: list[str], warnings: list[str]) -> None:
         errors.append(f"双单位标注的主单位是 {dd['primary']}，但 length_unit 是 {unit}，两者必须一致")
 
 
-def validate(table: dict) -> tuple[list[str], list[str]]:
+def validate(table: dict, evidence: dict | None = None) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
 
@@ -129,6 +129,10 @@ def validate(table: dict) -> tuple[list[str], list[str]]:
     if errors:
         return errors, warnings  # 结构不对时不做后续检查
 
+    import observations
+    ev_errors, ev_warnings = observations.check_feature_evidence(table, evidence)
+    errors.extend(ev_errors)
+    warnings.extend(ev_warnings)
     check_setup(table, errors, warnings)
     if errors:
         return errors, warnings
@@ -241,9 +245,16 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("path")
     ap.add_argument("--json", action="store_true", help="以 JSON 输出")
+    ap.add_argument("--observations", help="图纸证据 JSON，v0.5 必须提供")
+    ap.add_argument("--source", help="可选：重新计算原图 SHA-256，检查证据来源文件")
     args = ap.parse_args()
 
-    errors, warnings = validate(ftable.load_raw(args.path))
+    evidence = ftable.load_raw(args.observations) if args.observations else None
+    errors, warnings = validate(ftable.load_raw(args.path), evidence)
+    if args.source:
+        import observations
+        if not evidence or observations.sha256(args.source) != evidence.get("source", {}).get("sha256"):
+            errors.append("Provided source file does not match evidence SHA-256")
     if args.json:
         print(json.dumps({"ok": not errors, "errors": errors, "warnings": warnings},
                          ensure_ascii=False, indent=2))

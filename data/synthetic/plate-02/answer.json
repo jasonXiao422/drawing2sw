@@ -1,0 +1,60 @@
+{
+  "schema_version": "0.4",
+  "part": {
+    "name": "plate-02",
+    "part_type": "prismatic",
+    "units": "mm",
+    "projection": "third_angle",
+    "drawing_setup": {
+      "length_unit": "mm",
+      "unit_evidence": "All dimensions: mm",
+      "standard": "ASME",
+      "language": "en",
+      "confidence": 1
+    }
+  },
+  "features": [
+    {
+      "id": "plate",
+      "type": "base_extrude",
+      "plane": "front",
+      "profile": {
+        "shape": "rect",
+        "width": 85,
+        "height": 53,
+        "center": [
+          42.5,
+          26.5
+        ]
+      },
+      "depth": 7,
+      "meta": {
+        "confidence": 1,
+        "evidence": "Generated dimensions W,H,T"
+      }
+    },
+    {
+      "id": "holes",
+      "type": "hole",
+      "plane": "front",
+      "diameter": 6.5,
+      "positions": [
+        [
+          17.0,
+          13.25
+        ],
+        [
+          59.49999999999999,
+          34.45
+        ]
+      ],
+      "depth": "through_all",
+      "direction": "both",
+      "meta": {
+        "confidence": 1,
+        "evidence": "Generated hole coordinate table"
+      }
+    }
+  ],
+  "open_questions": []
+}

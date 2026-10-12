@@ -1,97 +1,69 @@
-# drawing2sw
+# Drawing2SW
 
-读机械零件工程图，自动在 SolidWorks 里建模。做成 Agent Skill（SKILL.md 格式），Claude、Codex、Qoder 等支持 skill 的 AI 工具都能用。
+**面向机械单零件的跨模型读图建模工具链。** 将 DWG、DXF、PDF、图片转换成可追溯的特征表，再由确定性脚本生成 STEP 和 SolidWorks 零件。
 
-## 怎么工作
+Drawing2SW is a model-agnostic mechanical drawing-to-CAD skill with source-linked observations, deterministic feature compilation and explicit verification limits.
 
+## v0.5 有什么变化
+
+- 原图 → 标注/视图证据 → 特征表，特征引用标注 ID，并绑定原图 SHA-256。
+- PaddleOCR 3.x JSON 导入与可选 CPU 推理适配器；不改 CAD 主环境。
+- 缺失测量指标不能误报通过；区分属性校验和图纸正确性。CadQuery 报告增加表面积和面数。
+- 四方向可见/隐藏线 SVG，以及可平移、旋转、缩放的本地叠图页。
+- 12 张有解析几何答案的合成图，以及 2 组带 MIT 许可与来源的真实 PNG/DWG 挑战样例。
+- 盲测输入打包、离线评分、干净 skill ZIP、自动化回归测试。
+
+保留 drawing2sw 名称和既有命令。v0.2–0.4 特征表继续可用；v0.5 新表必须校验证据。不同模型的效果尚未通过统一盲测确认。
+
+## 架构
+
+```text
+图纸 → 原生文字/几何提取、可选 OCR
+     → observations.json（原文、位置、视图、来源）
+     → 模型关联尺寸并填写 part.json
+     → schema / 证据 / 工程规则校验
+     → CadQuery STEP + 投影复核
+     → SolidWorks 逐步建模
+     → 属性检查、参考几何比较、人工复核
 ```
-工程图 (DWG / DXF / PDF / 图片)
-   │  preprocess_drawing.py   矢量图直接提取尺寸文字和圆
-   ▼
-AI 读图 → 特征表 part.json   （唯一需要 AI 的一步）
-   │  validate_feature_table.py   schema + 工程规则检查
-   ▼
-用户确认低置信度项
-   │
-   ├─ preview_cadquery.py   任何系统可跑，出 STEP + 体积
-   └─ sw_build.py            SolidWorks COM 建模
-   ▼
-verify_model.py   体积、包围盒误差 ≤ 1%，孔数一致
-```
 
-AI 只负责"看懂图，填表"。建模全是确定性代码，同一张表永远得到同一个零件。
+接口可跨模型使用。模型或宿主需要能读图片、读取引用文件、调用本地脚本；无本地执行能力时需另一执行端。工具不会为没有空间理解能力的模型自动补齐所有能力，也不承诺支持所有工程图。
 
-## 参考了谁
+## 安装与试用
 
-| 来源 | 借鉴了什么 |
-|---|---|
-| [SolidPilot](https://glama.ai/mcp/servers/ihefudnp5d)（SolidWorks MCP） | 意图 → CAD 中立中间表示 → 确定性编译的分层；不支持就返回 `capability_blocked`，不降级；1% 体积误差的校验标准 |
-| [MCP_CAD](https://glama.ai/mcp/servers/gvqccxa7vf) | 受限工具面（AI 不能调任意 API）；每次建模前人工确认；几何数据不离开本机 |
-| [CAD-Coder](https://arxiv.org/abs/2505.14646)（MIT） | 用 CadQuery 作为 CAD 中立的验证后端 |
-| [eDOCr](https://github.com/wiberganton/eDOCr) | 工程图 OCR 思路，路线图里用于扫描件 |
-| Agent Skills 规范 | SKILL.md 只放流程，细节拆到 references/ 按需读取，脚本做确定性工作 |
+推荐现有项目使用 Python 3.12。Windows + SolidWorks 可生成 SLDPRT；有 CadQuery 即可预览 STEP。安装步骤见 [setup](references/setup.md)。
 
-## 当前状态 (v0.4)
-
-| 模块 | 状态 |
-|---|---|
-| 特征表 schema | ✅ v0.4：基体拉伸/旋转、加料拉伸（凸台、筋板、肋、耳板）、切除、孔、倒角圆角、旋转切除、齿轮；直线+圆弧轮廓；任意斜面；图纸基础设定。v0.4 意图写法：拐角倒圆、切线连接、交点、按半径画弧、沉孔/埋头孔/钻尖，切点圆心由脚本算 |
-| 单位 | ✅ 图纸用什么单位就填什么，脚本统一换算；mm / cm / m / inch；SolidWorks 文档单位自动跟随图纸 |
-| 预处理 | ✅ DWG（自动转 DXF）/ DXF / 矢量 PDF / 图片。DXF 读块内标题栏、表格、显示文字、DIMLFAC、图层线型，并渲染成图片 |
-| CadQuery 预览 | ✅ 出 STEP、体积、每一步的体积和位置；可渲染四个方向对照图纸 |
-| SolidWorks 建模 | ✅ 每建一步都和预览比对，第一个对不上的特征立刻停下。拉伸、旋转、切除、孔、均布孔、圆角、倒角、斜面、渐开线齿轮都实测通过 |
-| 读图测试 | 🟡 5 张真实图：DWG 齿轮、两道 CATICS 题（和答案模型差 0.0001% 以内）、一张教材架体图（无答案，待人工检查） |
-| 国标查表 | 🟡 键槽、通孔、沉孔、螺纹底孔。数值未逐条核对标准原文 |
-| 不支持 | ❌ 线性阵列、镜像、抽壳、拔模、扫描、放样、螺旋、钣金、装配体 |
-
-## 安装
-
-需要 Windows、SolidWorks、Python 3.12（3.13 以上太新，旧版本不用卸载，另装一个即可）。
-
-在 drawing2sw 文件夹里打开终端，运行：
-
-```
+```powershell
 powershell -ExecutionPolicy Bypass -File install.ps1
+.venv\Scripts\python.exe scripts\validate_feature_table.py examples\bracket_prismatic.json
+.venv\Scripts\python.exe scripts\preview_cadquery.py examples\bracket_prismatic.json -o work\plate.step
+.venv\Scripts\python.exe scripts\verify_model.py examples\bracket_prismatic.json --report work\plate_report.json
 ```
 
-自动建环境、装依赖、做自检。缺 Python 3.12 时会告诉你怎么装。详见 `references/setup.md`。
+新图读法见 [SKILL.md](SKILL.md)。可追溯格式见 [evidence workflow](references/evidence-workflow.md)，OCR 见 [ocr.md](references/ocr.md)。完整 v0.5 示例放在 examples/evidence/。
 
-## 快速试用（不需要图纸）
+## 当前边界
 
-下面的 `python` 在 Windows 上替换成 `.venv\Scripts\python.exe`。
+支持拉伸、旋转、切除、孔、沉孔、圆角倒角、斜面及渐开线直齿等 schema 内的单件特征。钣金、装配、扫描/放样、抽壳和通用镜像/线性阵列未覆盖。
 
-```
-cd drawing2sw
-python scripts/validate_feature_table.py examples/flange_revolved.json
-python scripts/preview_cadquery.py examples/flange_revolved.json -o work/flange.step
-python scripts/verify_model.py examples/flange_revolved.json --report work/flange_report.json
-# Windows + SolidWorks:
-python scripts/check_env.py --sw
-python scripts/sw_build.py examples/bracket_prismatic.json -o D:/out/plate.SLDPRT
-python scripts/sw_build.py examples/bracket_inch.json -o D:/out/plate_inch.SLDPRT   # 英寸图示例
-```
+几何通过不等于工程图读对：位置、镜像、制造公差、GD&T 和建模意图还需专门检查。投影工具供复核，尚未实现剖视自动比对。OCR 本地模型推理取决于可选依赖；适配器测试不代表尺寸识别率。
 
-## 目录
+## 评测与数据
 
-```
-SKILL.md          主流程（AI 读这个）
-references/       读图和填表规则、坐标约定、特征表说明、各类图纸读法
-schema/           特征表 JSON Schema
-scripts/          确定性脚本：预处理、校验、展开几何、预览、SolidWorks 建模、对答案
-standards/        国标查表数据
-examples/         示例特征表
-install.ps1       一键安装（Windows）
+[评测说明](references/benchmark.md) · [数据来源](data/README.md) · [第三方声明](THIRD_PARTY_NOTICES.md)
 
-dev/              开发用（不属于 skill）：开发说明 DEVELOPING.md、出题工具、可选向量检索
-tests/            开发用：测试图纸和答案、覆盖矩阵、几何自检
-PROGRESS.md       开发交接文档
+合成集只覆盖尺寸完整的双孔板，不能用于宣称真实图纸成功率。外部图没有 3D 答案，单列人工评估。测试输入包不含答案；必须在独立权限范围内运行模型，不能给模型整个开发仓库。
+
+```powershell
+.venv\Scripts\python.exe -m unittest discover -s tests -p "test_v05*.py"
+.venv\Scripts\python.exe tests\test_geom2d.py
+.venv\Scripts\python.exe scripts\package_skill.py -o dist\drawing2sw-0.5.zip
 ```
 
-发布 skill 只需要上半部分。
+skill 包只带运行所需脚本、参考、schema、示例、安装说明及许可证，不包含评测答案、原有私有图纸、虚拟环境或工作记录。
 
-## 怎么往里填东西
+## 来源与许可
 
-1. 往 `tests/drawings/` 放图纸，有答案模型更好
-2. 让 AI 按 SKILL.md 盲读、建模、对答案，失败就分析原因
-3. 读图规则写进 `references/reading-rules.md`；实现层的坑写进 `dev/DEVELOPING.md`
-4. 需要新特征时，按 `dev/DEVELOPING.md`：先改 schema，能展开的在 `ftable.resolve()` 里展开，不能的同时改 preview 和 sw_build
+本项目代码及原创合成样例采用 MIT。两组第三方图纸版权属于 Aaditya Jain，保留其 MIT 许可证。依赖、模型和数据分别遵守上游条款，见 THIRD_PARTY_NOTICES.md。
+
+原项目借鉴了 SolidPilot/MCP_CAD 的受限 CAD 执行与中间表示，以及 CAD-Coder 的 CadQuery 思路。本版进一步学习 PaddleOCR、eDOCr2、Drawing2CAD 的输入处理和评测设计；已实现的接入与仅供研究的项目明确分列。

@@ -1,0 +1,80 @@
+{
+  "schema_version": "0.5",
+  "part": {
+    "name": "plate-01",
+    "part_type": "prismatic",
+    "units": "mm",
+    "projection": "third_angle",
+    "drawing_setup": {
+      "length_unit": "mm",
+      "unit_evidence": "All dimensions: mm",
+      "standard": "ASME",
+      "language": "en",
+      "confidence": 1
+    },
+    "source": {
+      "file": "examples/evidence/drawing.pdf",
+      "format": "vector_pdf",
+      "sha256": "a56751363ef6cf287fffe5ef451623a6fbfc87d5f06342014bff6b993840fbdb"
+    }
+  },
+  "features": [
+    {
+      "id": "plate",
+      "type": "base_extrude",
+      "plane": "front",
+      "profile": {
+        "shape": "rect",
+        "width": 80,
+        "height": 50,
+        "center": [
+          40.0,
+          25.0
+        ]
+      },
+      "depth": 6,
+      "meta": {
+        "confidence": 0.95,
+        "evidence": "W,H determine the front rectangle, T is the extrusion depth. The stated datum defines +Z.",
+        "evidence_refs": [
+          "p1-text-2",
+          "p1-text-3",
+          "p1-text-4",
+          "p1-text-5",
+          "p1-text-7"
+        ]
+      }
+    },
+    {
+      "id": "holes",
+      "type": "hole",
+      "plane": "front",
+      "diameter": 6.0,
+      "positions": [
+        [
+          16.0,
+          12.5
+        ],
+        [
+          56.0,
+          32.5
+        ]
+      ],
+      "depth": "through_all",
+      "direction": "both",
+      "meta": {
+        "confidence": 0.95,
+        "evidence": "Both table rows give X,Y and diameter from the lower-left datum. Both holes are through.",
+        "evidence_refs": [
+          "p1-text-2",
+          "p1-text-3",
+          "p1-text-11",
+          "p1-text-12",
+          "p1-text-13",
+          "p1-text-14"
+        ]
+      }
+    }
+  ],
+  "open_questions": []
+}

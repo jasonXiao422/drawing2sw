@@ -32,6 +32,8 @@ PREFIX_HINT = {"Ø": "diameter", "Φ": "diameter", "φ": "diameter", "⌀": "dia
 # ---------------------------------------------------------------- 图纸基础设定线索
 # 只给线索和原文，不替 AI 下结论。规则见 references/units-standards.md
 SETUP_RULES = [
+    ("length_unit", "mm", r"\bdimensions?\s*:\s*mm\b"),
+    ("length_unit", "inch", r"\bdimensions?\s*:\s*inch(?:es)?\b"),
     # (字段, 值, 正则)  正则不区分大小写
     ("length_unit", "mm", r"单位\s*[:：]?\s*(mm|毫米)|(?:dimensions?|dims?)\s+(?:are\s+)?in\s+(?:mm|millimet)|\bunits?\s*[:：]?\s*mm\b|\(mm\)|\bMMGS\b"),
     ("length_unit", "inch", r"(?:dimensions?|dims?)\s+(?:are\s+)?in\s+inch|\bunits?\s*[:：]?\s*(?:inch|in)\b|单位\s*[:：]?\s*(?:英寸|inch)|\bIPS\b|\binches\b"),
@@ -229,6 +231,7 @@ def _dim_info(e) -> dict:
     item = {"kind": kind, "measurement": round(meas, 6) if meas is not None else None,
             "dimlfac": lfac, "value_shown": round(shown, 6) if shown is not None else None,
             "text": text or (f"{shown:g}" if shown is not None else ""),
+            "entity_handle": e.dxf.get("handle", ""),
             "layer": e.dxf.layer, "at": _r(e.dxf.get("text_midpoint", e.dxf.get("defpoint", (0, 0))), 2)}
     if override and "<>" not in override and re.search(r"\d", override):
         item["override_replaces_value"] = True  # 标注文字被手改过，测量值不一定可信
@@ -470,6 +473,12 @@ def main() -> None:
                     print(f"  第 {p['page']} 页切成 {len(r['views'])} 块：先看 {r['overview']}")
                 except Exception as e:  # noqa: BLE001
                     p["views"] = {"error": str(e)}
+    import observations
+    evidence = observations.from_extract(result, src)
+    evidence_path = out.with_name(out.stem + "_observations.json")
+    observations.dump(evidence, evidence_path)
+    result["observations_file"] = str(evidence_path)
+    result["source_sha256"] = evidence["source"]["sha256"]
     out.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     n = sum(len(p.get("dimension_candidates", [])) for p in result.get("pages", []))
     n += len(result.get("dxf", {}).get("dimensions", []))

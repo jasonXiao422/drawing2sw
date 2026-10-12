@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "id": "fixture-bracket",
+      "drawing": "external/aaditya-jain/fixture-bracket.png",
+      "sha256": "60ece67c2afe5303c42fad33579b4c3fbc3cdd6577b57ad5f9365fb4005ff6fa",
+      "license": "MIT",
+      "evaluation": "manual_only",
+      "dwg": "external/aaditya-jain/fixture-bracket.dwg",
+      "expected": null
+    },
+    {
+      "id": "radial-profile",
+      "drawing": "external/aaditya-jain/radial-profile.png",
+      "sha256": "316bf5d398df3ebc8698174c2df23f4562e1eb985f28fe07361bbe6bc138f8a2",
+      "license": "MIT",
+      "evaluation": "manual_only",
+      "dwg": "external/aaditya-jain/radial-profile.dwg",
+      "expected": null
+    }
+  ]
+}

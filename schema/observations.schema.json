@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Original drawing evidence v1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source", "pages", "observations", "views", "open_questions"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "source": {"type": "object", "additionalProperties": false, "required": ["file", "sha256"], "properties": {
+      "file": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+    }},
+    "pages": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["page", "image", "size_px"], "properties": {
+      "page": {"type": "integer", "minimum": 1}, "image": {"type": "string"},
+      "size_px": {"$ref": "#/$defs/size"}, "size_pt": {"$ref": "#/$defs/size"}
+    }}},
+    "observations": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+      "required": ["id", "page", "text", "coordinate_space", "provider", "kind"], "properties": {
+        "id": {"type": "string", "minLength": 1}, "page": {"type": "integer", "minimum": 1},
+        "text": {"type": "string", "minLength": 1}, "kind": {"type": "string"},
+        "coordinate_space": {"enum": ["image_px", "pdf_pt", "dxf_wcs"]},
+        "provider": {"enum": ["pdf_text", "dxf_dimension", "paddleocr", "visual", "human"]},
+        "bbox": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4},
+        "point": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+        "score": {"type": "number", "minimum": 0, "maximum": 1},
+        "entity_handle": {"type": "string"}, "requires_review": {"type": "boolean"}
+      }
+    }},
+    "views": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+      "required": ["id", "page", "role", "observation_refs"], "properties": {
+        "id": {"type": "string"}, "page": {"type": "integer", "minimum": 1},
+        "role": {"enum": ["front", "top", "left", "right", "section", "detail", "isometric", "title", "unknown"]},
+        "observation_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "notes": {"type": "string"}
+      }
+    }},
+    "open_questions": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {"size": {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}, "minItems": 2, "maxItems": 2}}
+}

@@ -1,0 +1,46 @@
+{
+  "repository": "https://github.com/Aadityajain-hub/AutoCAD_2D_Drawings",
+  "commit": "c0c8ee336382921c21857fc22ebfd762ace96028",
+  "author": "Aaditya Jain",
+  "license": "MIT",
+  "retrieved": "2026-10-12",
+  "modifications": "Filenames shortened; file contents unchanged.",
+  "purpose": "Manual drawing/OCR challenge cases. No 3D ground truth or completeness guarantee.",
+  "files": [
+    {
+      "file": "fixture-bracket.dwg",
+      "upstream_path": "2D ORTHOGRAPHIC PROJECTION OF A MECHANICAL FIXTURE BRACKET.dwg",
+      "sha256": "dc6810dd6736f2e88fb460f3639c3748484909488ffc0de020ca7e8eabe5c954",
+      "bytes": 80606,
+      "url": "https://raw.githubusercontent.com/Aadityajain-hub/AutoCAD_2D_Drawings/c0c8ee336382921c21857fc22ebfd762ace96028/2D%20ORTHOGRAPHIC%20PROJECTION%20OF%20A%20MECHANICAL%20FIXTURE%20BRACKET.dwg"
+    },
+    {
+      "file": "fixture-bracket.png",
+      "upstream_path": "2D ORTHOGRAPHIC PROJECTION OF A MECHANICAL FIXTURE BRACKET.png",
+      "sha256": "60ece67c2afe5303c42fad33579b4c3fbc3cdd6577b57ad5f9365fb4005ff6fa",
+      "bytes": 249122,
+      "url": "https://raw.githubusercontent.com/Aadityajain-hub/AutoCAD_2D_Drawings/c0c8ee336382921c21857fc22ebfd762ace96028/2D%20ORTHOGRAPHIC%20PROJECTION%20OF%20A%20MECHANICAL%20FIXTURE%20BRACKET.png"
+    },
+    {
+      "file": "radial-profile.dwg",
+      "upstream_path": "2D PROFILE DRAWING WITH RADIAL AND ANGULAR DIMENSION.dwg",
+      "sha256": "ed4f5684f108909666daf0a042ed391aafa40f5331a9024d37789e3684288b03",
+      "bytes": 76610,
+      "url": "https://raw.githubusercontent.com/Aadityajain-hub/AutoCAD_2D_Drawings/c0c8ee336382921c21857fc22ebfd762ace96028/2D%20PROFILE%20DRAWING%20WITH%20RADIAL%20AND%20ANGULAR%20DIMENSION.dwg"
+    },
+    {
+      "file": "radial-profile.png",
+      "upstream_path": "2D PROFILE DRAWING WITH RADIAL AND ANGULAR DIMENSION.png",
+      "sha256": "316bf5d398df3ebc8698174c2df23f4562e1eb985f28fe07361bbe6bc138f8a2",
+      "bytes": 355100,
+      "url": "https://raw.githubusercontent.com/Aadityajain-hub/AutoCAD_2D_Drawings/c0c8ee336382921c21857fc22ebfd762ace96028/2D%20PROFILE%20DRAWING%20WITH%20RADIAL%20AND%20ANGULAR%20DIMENSION.png"
+    },
+    {
+      "file": "LICENSE",
+      "upstream_path": "LICENSE",
+      "sha256": "b67e43894d72f5ca88b9e91338c85fa8a6ca8dd447cf1a267a2d26bb2c5c9091",
+      "bytes": 1069,
+      "url": "https://raw.githubusercontent.com/Aadityajain-hub/AutoCAD_2D_Drawings/c0c8ee336382921c21857fc22ebfd762ace96028/LICENSE"
+    }
+  ]
+}

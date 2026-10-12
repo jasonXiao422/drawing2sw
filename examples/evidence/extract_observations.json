@@ -1,0 +1,253 @@
+{
+  "schema_version": "1.0",
+  "source": {
+    "file": "drawing.pdf",
+    "sha256": "a56751363ef6cf287fffe5ef451623a6fbfc87d5f06342014bff6b993840fbdb"
+  },
+  "pages": [
+    {
+      "page": 1,
+      "image": "examples\\evidence\\drawing_p1.png",
+      "size_pt": [
+        842.0,
+        595.0
+      ],
+      "size_px": [
+        1755,
+        1240
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "id": "p1-text-1",
+      "page": 1,
+      "text": "Drawing2SW synthetic benchmark | plate-01",
+      "bbox": [
+        35.0,
+        16.7,
+        370.1,
+        40.1
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-2",
+      "page": 1,
+      "text": "All dimensions: mm | THIRD ANGLE | 2 equal THROUGH holes | No fillets/chamfers",
+      "bbox": [
+        35.0,
+        45.2,
+        445.8,
+        60.3
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-3",
+      "page": 1,
+      "text": "Datum: front lower-left corner (0,0,0); X right, Y up, Z toward viewer. Thickness extends +Z.",
+      "bbox": [
+        35.0,
+        66.2,
+        438.8,
+        80.0
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-4",
+      "page": 1,
+      "text": "W = 80",
+      "bbox": [
+        205.0,
+        398.2,
+        240.2,
+        413.3
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-5",
+      "page": 1,
+      "text": "H = 50",
+      "bbox": [
+        50.0,
+        278.2,
+        82.7,
+        293.3
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-6",
+      "page": 1,
+      "text": "FRONT VIEW",
+      "bbox": [
+        65.0,
+        438.2,
+        134.1,
+        453.3
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-7",
+      "page": 1,
+      "text": "TOP VIEW thickness T = 6",
+      "bbox": [
+        65.0,
+        91.2,
+        202.2,
+        106.3
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-8",
+      "page": 1,
+      "text": "RIGHT VIEW",
+      "bbox": [
+        440.0,
+        438.2,
+        505.4,
+        453.3
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-9",
+      "page": 1,
+      "text": "HOLE COORDINATES",
+      "bbox": [
+        545.0,
+        161.0,
+        679.4,
+        178.9
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-10",
+      "page": 1,
+      "text": "X and Y measured from datum",
+      "bbox": [
+        545.0,
+        186.2,
+        694.8,
+        201.3
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-11",
+      "page": 1,
+      "text": "ID X Y DIAMETER",
+      "bbox": [
+        545.0,
+        213.2,
+        707.0,
+        228.3
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-12",
+      "page": 1,
+      "text": "1 16 12.5 6",
+      "bbox": [
+        545.0,
+        238.2,
+        655.1,
+        253.3
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-13",
+      "page": 1,
+      "text": "2 56 32.5 6",
+      "bbox": [
+        545.0,
+        263.2,
+        655.1,
+        278.3
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-14",
+      "page": 1,
+      "text": "Both holes: THROUGH",
+      "bbox": [
+        545.0,
+        313.2,
+        658.7,
+        328.3
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    },
+    {
+      "id": "p1-text-15",
+      "page": 1,
+      "text": "Original synthetic data, MIT. Drawing is complete for nominal solid geometry; no manufacturing tolerances specified.",
+      "bbox": [
+        35.0,
+        545.3,
+        497.7,
+        557.7
+      ],
+      "coordinate_space": "pdf_pt",
+      "provider": "pdf_text",
+      "kind": "text"
+    }
+  ],
+  "views": [
+    {
+      "id": "front",
+      "page": 1,
+      "role": "front",
+      "observation_refs": [
+        "p1-text-2",
+        "p1-text-3",
+        "p1-text-4",
+        "p1-text-5",
+        "p1-text-7",
+        "p1-text-11",
+        "p1-text-12",
+        "p1-text-13",
+        "p1-text-14"
+      ],
+      "notes": "Synthetic example with explicitly defined datum; tutorial, not held-out test."
+    }
+  ],
+  "open_questions": []
+}

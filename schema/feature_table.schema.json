@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "drawing2sw/feature_table/0.4",
-  "title": "Feature Table v0.4",
+  "$id": "drawing2sw/feature_table/0.5",
+  "title": "Feature Table v0.5 (backwards compatible)",
   "description": "CAD 中立的零件特征表。读图的输出，建模的输入。所有长度按 part.units（= drawing_setup.length_unit，图纸用什么单位就填什么，不要自己换算）；脚本读入时统一换算成 mm。角度一律 deg。part.expected 永远用 mm。坐标约定见 references/coordinates.md：front=XY 面(法向+Z)，top=XZ 面(法向+Y，草图 v=-Z)，right=YZ 面(法向+X，草图 u=-Z)，与 SolidWorks 默认基准面一致。",
   "type": "object",
   "required": [
@@ -15,7 +15,8 @@
       "enum": [
         "0.2",
         "0.3",
-        "0.4"
+        "0.4",
+        "0.5"
       ]
     },
     "part": {
@@ -61,6 +62,7 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
             "file": {
               "type": "string"
             },
@@ -246,6 +248,11 @@
         "evidence": {
           "type": "string",
           "description": "依据哪个视图、哪个尺寸，例如 '主视图 Ø40 h7'"
+        },
+        "evidence_refs": {
+          "type": "array", "items": {"type": "string", "minLength": 1},
+          "minItems": 1, "uniqueItems": true,
+          "description": "Observation IDs from the original drawing evidence document."
         },
         "needs_review": {
           "type": "boolean",

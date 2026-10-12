@@ -1,0 +1,300 @@
+{
+  "format": "vector_pdf",
+  "note": "矢量 PDF：尺寸数值以 dimension_candidates 为准，看图用于理解视图关系。",
+  "setup_hints": {
+    "length_unit": [
+      {
+        "value": "mm",
+        "text": "All dimensions: mm | THIRD ANGLE | 2 equal THROUGH holes | No fillets/chamfers"
+      }
+    ],
+    "projection": [
+      {
+        "value": "third_angle",
+        "text": "All dimensions: mm | THIRD ANGLE | 2 equal THROUGH holes | No fillets/chamfers"
+      }
+    ],
+    "language_guess": "en",
+    "number_profile": {
+      "count": 24,
+      "leading_dot": 0,
+      "three_decimals": 0,
+      "fractions": 0,
+      "decimal_comma": 0,
+      "dual_dimension_texts": []
+    }
+  },
+  "pages": [
+    {
+      "page": 1,
+      "size_pt": [
+        842.0,
+        595.0
+      ],
+      "vector_path_count": 31,
+      "text_items": [
+        {
+          "text": "Drawing2SW synthetic benchmark | plate-01",
+          "bbox": [
+            35.0,
+            16.7,
+            370.1,
+            40.1
+          ]
+        },
+        {
+          "text": "All dimensions: mm | THIRD ANGLE | 2 equal THROUGH holes | No fillets/chamfers",
+          "bbox": [
+            35.0,
+            45.2,
+            445.8,
+            60.3
+          ]
+        },
+        {
+          "text": "Datum: front lower-left corner (0,0,0); X right, Y up, Z toward viewer. Thickness extends +Z.",
+          "bbox": [
+            35.0,
+            66.2,
+            438.8,
+            80.0
+          ]
+        },
+        {
+          "text": "W = 80",
+          "bbox": [
+            205.0,
+            398.2,
+            240.2,
+            413.3
+          ]
+        },
+        {
+          "text": "H = 50",
+          "bbox": [
+            50.0,
+            278.2,
+            82.7,
+            293.3
+          ]
+        },
+        {
+          "text": "FRONT VIEW",
+          "bbox": [
+            65.0,
+            438.2,
+            134.1,
+            453.3
+          ]
+        },
+        {
+          "text": "TOP VIEW thickness T = 6",
+          "bbox": [
+            65.0,
+            91.2,
+            202.2,
+            106.3
+          ]
+        },
+        {
+          "text": "RIGHT VIEW",
+          "bbox": [
+            440.0,
+            438.2,
+            505.4,
+            453.3
+          ]
+        },
+        {
+          "text": "HOLE COORDINATES",
+          "bbox": [
+            545.0,
+            161.0,
+            679.4,
+            178.9
+          ]
+        },
+        {
+          "text": "X and Y measured from datum",
+          "bbox": [
+            545.0,
+            186.2,
+            694.8,
+            201.3
+          ]
+        },
+        {
+          "text": "ID X Y DIAMETER",
+          "bbox": [
+            545.0,
+            213.2,
+            707.0,
+            228.3
+          ]
+        },
+        {
+          "text": "1 16 12.5 6",
+          "bbox": [
+            545.0,
+            238.2,
+            655.1,
+            253.3
+          ]
+        },
+        {
+          "text": "2 56 32.5 6",
+          "bbox": [
+            545.0,
+            263.2,
+            655.1,
+            278.3
+          ]
+        },
+        {
+          "text": "Both holes: THROUGH",
+          "bbox": [
+            545.0,
+            313.2,
+            658.7,
+            328.3
+          ]
+        },
+        {
+          "text": "Original synthetic data, MIT. Drawing is complete for nominal solid geometry; no manufacturing tolerances specified.",
+          "bbox": [
+            35.0,
+            545.3,
+            497.7,
+            557.7
+          ]
+        }
+      ],
+      "dimension_candidates": [
+        {
+          "text": "2",
+          "kind": "linear",
+          "bbox": [
+            222.3,
+            45.2,
+            228.4,
+            60.3
+          ]
+        },
+        {
+          "text": "80",
+          "kind": "linear",
+          "bbox": [
+            227.9,
+            398.2,
+            240.2,
+            413.3
+          ]
+        },
+        {
+          "text": "50",
+          "kind": "linear",
+          "bbox": [
+            70.5,
+            278.2,
+            82.7,
+            293.3
+          ]
+        },
+        {
+          "text": "6",
+          "kind": "linear",
+          "bbox": [
+            196.1,
+            91.2,
+            202.2,
+            106.3
+          ]
+        },
+        {
+          "text": "1",
+          "kind": "linear",
+          "bbox": [
+            545.0,
+            238.2,
+            551.1,
+            253.3
+          ]
+        },
+        {
+          "text": "16",
+          "kind": "linear",
+          "bbox": [
+            572.5,
+            238.2,
+            584.8,
+            253.3
+          ]
+        },
+        {
+          "text": "12.5",
+          "kind": "linear",
+          "bbox": [
+            606.2,
+            238.2,
+            627.6,
+            253.3
+          ]
+        },
+        {
+          "text": "6",
+          "kind": "linear",
+          "bbox": [
+            649.0,
+            238.2,
+            655.1,
+            253.3
+          ]
+        },
+        {
+          "text": "2",
+          "kind": "linear",
+          "bbox": [
+            545.0,
+            263.2,
+            551.1,
+            278.3
+          ]
+        },
+        {
+          "text": "56",
+          "kind": "linear",
+          "bbox": [
+            572.5,
+            263.2,
+            584.8,
+            278.3
+          ]
+        },
+        {
+          "text": "32.5",
+          "kind": "linear",
+          "bbox": [
+            606.2,
+            263.2,
+            627.6,
+            278.3
+          ]
+        },
+        {
+          "text": "6",
+          "kind": "linear",
+          "bbox": [
+            649.0,
+            263.2,
+            655.1,
+            278.3
+          ]
+        }
+      ],
+      "image": "examples\\evidence\\drawing_p1.png"
+    }
+  ],
+  "source": "examples\\evidence\\drawing.pdf",
+  "observations_file": "examples\\evidence\\extract_observations.json",
+  "source_sha256": "a56751363ef6cf287fffe5ef451623a6fbfc87d5f06342014bff6b993840fbdb"
+}
