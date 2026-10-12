@@ -101,6 +101,12 @@ powershell -ExecutionPolicy Bypass -File install.ps1
 
 `install.ps1` 会找到 Python 3.12，建立独立的 `.venv`，安装依赖，最后跑一遍环境自检。默认源下载失败时会自动换清华镜像。
 
+**下载很慢时（豆包用户注意）**：豆包工作运行命令时默认用华为云的 pip 源，有些包会下载很久但不报错，脚本不会自动换源。某个包几分钟没有进展，按 Ctrl+C 停掉，改用清华源重新运行：
+
+```powershell
+$env:PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"; powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
 <details>
 <summary>手动安装 / macOS / Linux</summary>
 
@@ -165,7 +171,7 @@ Windows 手动安装把 `.venv/bin/python` 换成 `.venv\Scripts\python.exe`。�
    git clone --depth 1 https://github.com/jasonXiao422/drawing2sw.git <上面的目录>
    如果目录已经存在，进去运行 `git pull` 更新。
 3. 下载完先给我看 SKILL.md 开头 20 行，并说明 install.ps1 会做什么（在 skill 目录里建一个 .venv，从 PyPI 装 requirements.txt 里的依赖，默认源失败时换清华镜像，最后跑环境自检）。等我确认。
-4. 在 skill 目录里运行：powershell -ExecutionPolicy Bypass -File install.ps1 （CadQuery 比较大，要几分钟）。
+4. 在 skill 目录里运行：powershell -ExecutionPolicy Bypass -File install.ps1 （CadQuery 比较大，要几分钟）。如果某个包几分钟没有下载进展，停掉，先设 $env:PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple" 再重新运行同一条命令，不要自己改装别的版本。
 5. 运行 `.venv\Scripts\python.exe scripts\check_env.py` 并把结果告诉我。我装了 SolidWorks 的话，再加 `--sw` 检查一次。
 6. 告诉我装好了，以后怎么用。比如我说"用 drawing2sw 把 D:\图纸\支架.pdf 建成 SolidWorks 零件"。
 

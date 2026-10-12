@@ -76,7 +76,7 @@ const PROMPT = {
    git clone --depth 1 https://github.com/jasonXiao422/drawing2sw.git <上面的目录>
    如果目录已经存在，进去运行 \`git pull\` 更新。
 3. 下载完先给我看 SKILL.md 开头 20 行，并说明 install.ps1 会做什么（在 skill 目录里建一个 .venv，从 PyPI 装 requirements.txt 里的依赖，默认源失败时换清华镜像，最后跑环境自检）。等我确认。
-4. 在 skill 目录里运行：powershell -ExecutionPolicy Bypass -File install.ps1 （CadQuery 比较大，要几分钟）。
+4. 在 skill 目录里运行：powershell -ExecutionPolicy Bypass -File install.ps1 （CadQuery 比较大，要几分钟）。如果某个包几分钟没有下载进展，停掉，先设 $env:PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple" 再重新运行同一条命令，不要自己改装别的版本。
 5. 运行 \`.venv\\Scripts\\python.exe scripts\\check_env.py\` 并把结果告诉我。我装了 SolidWorks 的话，再加 \`--sw\` 检查一次。
 6. 告诉我装好了，以后怎么用。比如我说"用 drawing2sw 把 D:\\图纸\\支架.pdf 建成 SolidWorks 零件"。
 
@@ -92,7 +92,7 @@ Before running each command, tell me what it does and wait for my OK.
    git clone --depth 1 https://github.com/jasonXiao422/drawing2sw.git <that folder>
    If the folder already exists, run \`git pull\` inside it instead.
 3. Show me the first 20 lines of SKILL.md and explain what install.ps1 does (creates a .venv inside the skill folder, installs requirements.txt from PyPI, falls back to a mirror if that fails, then runs an environment check). Wait for my OK.
-4. In the skill folder run: powershell -ExecutionPolicy Bypass -File install.ps1 (CadQuery is large, this takes a few minutes).
+4. In the skill folder run: powershell -ExecutionPolicy Bypass -File install.ps1 (CadQuery is large, this takes a few minutes). If a package makes no download progress for several minutes, stop, set $env:PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple" and rerun the same command. Do not install other versions yourself.
 5. Run \`.venv\\Scripts\\python.exe scripts\\check_env.py\` and tell me the result. If I have SolidWorks, run it again with \`--sw\`.
 6. Tell me it's ready and how to use it, for example: "Use drawing2sw to model D:\\drawings\\bracket.pdf in SolidWorks".
 

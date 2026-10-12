@@ -49,5 +49,6 @@ py -3.12 -m venv .venv
 ## 国内用户
 
 - GitHub 慢时，用百度网盘或 Gitee 镜像下载。
-- install.ps1 会自动在默认源失败时切换清华镜像。
+- install.ps1 会自动在默认源失败时切换清华镜像。但源很慢、不报错时不会切换。豆包工作默认用华为云源，遇到过某个包下载十几分钟。某个包几分钟没有进展，就停掉，用清华源重新运行：
+  `$env:PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"; powershell -ExecutionPolicy Bypass -File install.ps1`
 - 所有建模都在本机完成，不需要访问境外服务器。只有读图那一步用的 AI 模型需要联网。

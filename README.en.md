@@ -95,6 +95,12 @@ powershell -ExecutionPolicy Bypass -File install.ps1
 
 `install.ps1` finds Python 3.12, creates `.venv`, installs dependencies and runs an environment check.
 
+**If downloads are very slow** (common in mainland China, and for Doubao users, whose agent defaults to the Huawei Cloud pip mirror): a slow mirror does not trigger the fallback. Press Ctrl+C and rerun with the Tsinghua mirror:
+
+```powershell
+$env:PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"; powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
 <details>
 <summary>Manual install / macOS / Linux</summary>
 
@@ -149,7 +155,7 @@ Before running each command, tell me what it does and wait for my OK.
    git clone --depth 1 https://github.com/jasonXiao422/drawing2sw.git <that folder>
    If the folder already exists, run `git pull` inside it instead.
 3. Show me the first 20 lines of SKILL.md and explain what install.ps1 does (creates a .venv inside the skill folder, installs requirements.txt from PyPI, falls back to a mirror if that fails, then runs an environment check). Wait for my OK.
-4. In the skill folder run: powershell -ExecutionPolicy Bypass -File install.ps1 (CadQuery is large, this takes a few minutes).
+4. In the skill folder run: powershell -ExecutionPolicy Bypass -File install.ps1 (CadQuery is large, this takes a few minutes). If a package makes no download progress for several minutes, stop, set $env:PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple" and rerun the same command. Do not install other versions yourself.
 5. Run `.venv\Scripts\python.exe scripts\check_env.py` and tell me the result. If I have SolidWorks, run it again with `--sw`.
 6. Tell me it's ready and how to use it, for example: "Use drawing2sw to model D:\drawings\bracket.pdf in SolidWorks".
 
