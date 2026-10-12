@@ -1,0 +1,6 @@
+jsonschema>=4.18
+pymupdf>=1.24
+ezdxf>=1.1
+cadquery>=2.4  # 可选：无 SolidWorks 时预览
+matplotlib>=3.7  # 可选：DXF/DWG 渲染成图片
+pywin32>=306; sys_platform == "win32"

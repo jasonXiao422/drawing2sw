@@ -1,0 +1,116 @@
+{
+  "schema_version": "0.2",
+  "part": {
+    "name": "示例安装板",
+    "part_type": "prismatic",
+    "units": "mm",
+    "drawing_setup": {
+      "length_unit": "mm",
+      "unit_evidence": "标题栏: 单位 mm（假想图纸）",
+      "standard": "GB",
+      "language": "zh",
+      "scale": "1:1",
+      "general_tolerance": "GB/T 1804-m",
+      "confidence": 0.98
+    },
+    "material": "6061-T6",
+    "projection": "first_angle",
+    "source": {
+      "file": "examples/plate (假想图纸)",
+      "format": "dxf",
+      "standard": "GB"
+    },
+    "expected": {
+      "volume_mm3": 51240.7,
+      "bbox_mm": [
+        100,
+        10,
+        60
+      ],
+      "hole_count": 4
+    }
+  },
+  "features": [
+    {
+      "id": "plate",
+      "type": "base_extrude",
+      "plane": "top",
+      "profile": {
+        "shape": "rect",
+        "width": 100,
+        "height": 60,
+        "center": [
+          0,
+          0
+        ]
+      },
+      "depth": 10,
+      "meta": {
+        "confidence": 0.98,
+        "evidence": "俯视图 100×60 对称标注；主视图厚 10"
+      }
+    },
+    {
+      "id": "center_window",
+      "type": "cut_extrude",
+      "plane": "top",
+      "profile": {
+        "shape": "rect",
+        "width": 30,
+        "height": 20,
+        "center": [
+          0,
+          0
+        ]
+      },
+      "depth": "through_all",
+      "direction": "both",
+      "meta": {
+        "confidence": 0.95,
+        "evidence": "俯视图中心方孔 30×20"
+      }
+    },
+    {
+      "id": "mount_holes",
+      "type": "hole",
+      "plane": "top",
+      "diameter": 9,
+      "positions": [
+        [
+          -40,
+          -20
+        ],
+        [
+          40,
+          -20
+        ],
+        [
+          40,
+          20
+        ],
+        [
+          -40,
+          20
+        ]
+      ],
+      "depth": "through_all",
+      "direction": "both",
+      "meta": {
+        "confidence": 0.96,
+        "evidence": "俯视图 4×Ø9，孔距 80×40"
+      }
+    },
+    {
+      "id": "corner_fillets",
+      "type": "edge_treatment",
+      "kind": "fillet",
+      "size": 5,
+      "edges": "vertical",
+      "meta": {
+        "confidence": 0.9,
+        "evidence": "俯视图四角 4×R5"
+      }
+    }
+  ],
+  "open_questions": []
+}

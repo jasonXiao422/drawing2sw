@@ -1,0 +1,102 @@
+{
+  "schema_version": "0.2",
+  "part": {
+    "name": "示例法兰",
+    "part_type": "revolved",
+    "units": "mm",
+    "drawing_setup": {
+      "length_unit": "mm",
+      "unit_evidence": "标题栏: 单位 mm（假想图纸）",
+      "standard": "GB",
+      "language": "zh",
+      "scale": "1:1",
+      "notes": [
+        "未注倒角 C1"
+      ],
+      "confidence": 0.98
+    },
+    "material": "45钢",
+    "projection": "first_angle",
+    "source": {
+      "file": "examples/flange (假想图纸)",
+      "format": "vector_pdf",
+      "standard": "GB"
+    },
+    "expected": {
+      "volume_mm3": 158682.9,
+      "bbox_mm": [
+        100,
+        45,
+        100
+      ],
+      "hole_count": 4
+    }
+  },
+  "features": [
+    {
+      "id": "body",
+      "type": "base_revolve",
+      "half_profile": [
+        [
+          10,
+          0
+        ],
+        [
+          50,
+          0
+        ],
+        [
+          50,
+          15
+        ],
+        [
+          25,
+          15
+        ],
+        [
+          25,
+          45
+        ],
+        [
+          10,
+          45
+        ]
+      ],
+      "meta": {
+        "confidence": 0.97,
+        "evidence": "主视图(剖视) Ø100×15 法兰盘, Ø50 颈部, 总高 45, 通孔 Ø20"
+      }
+    },
+    {
+      "id": "bolt_holes",
+      "type": "hole",
+      "plane": "top",
+      "offset": 0,
+      "diameter": 9,
+      "bolt_circle": {
+        "pcd": 80,
+        "count": 4,
+        "start_angle": 45
+      },
+      "depth": "through_all",
+      "direction": "both",
+      "meta": {
+        "confidence": 0.88,
+        "evidence": "俯视图 4×Ø9 EQS PCD80；起始角未标注，按视图判断为 45°",
+        "needs_review": true
+      }
+    },
+    {
+      "id": "neck_chamfer",
+      "type": "edge_treatment",
+      "kind": "chamfer",
+      "size": 1,
+      "edges": "top_outer",
+      "meta": {
+        "confidence": 0.95,
+        "evidence": "主视图颈部顶端 C1"
+      }
+    }
+  ],
+  "open_questions": []
+}

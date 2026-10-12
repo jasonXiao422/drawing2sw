@@ -1,0 +1,1077 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "drawing2sw/feature_table/0.4",
+  "title": "Feature Table v0.4",
+  "description": "CAD 中立的零件特征表。读图的输出，建模的输入。所有长度按 part.units（= drawing_setup.length_unit，图纸用什么单位就填什么，不要自己换算）；脚本读入时统一换算成 mm。角度一律 deg。part.expected 永远用 mm。坐标约定见 references/coordinates.md：front=XY 面(法向+Z)，top=XZ 面(法向+Y，草图 v=-Z)，right=YZ 面(法向+X，草图 u=-Z)，与 SolidWorks 默认基准面一致。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "part",
+    "features"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "enum": [
+        "0.2",
+        "0.3",
+        "0.4"
+      ]
+    },
+    "part": {
+      "type": "object",
+      "required": [
+        "name",
+        "part_type",
+        "units",
+        "drawing_setup"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "part_type": {
+          "enum": [
+            "revolved",
+            "prismatic"
+          ]
+        },
+        "units": {
+          "enum": [
+            "mm",
+            "cm",
+            "m",
+            "inch"
+          ],
+          "description": "特征表里所有长度的单位，必须等于 drawing_setup.length_unit。"
+        },
+        "material": {
+          "type": "string"
+        },
+        "projection": {
+          "enum": [
+            "first_angle",
+            "third_angle",
+            "unknown"
+          ],
+          "default": "unknown"
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string"
+            },
+            "format": {
+              "enum": [
+                "dwg",
+                "dxf",
+                "vector_pdf",
+                "vector_pdf_notext",
+                "raster",
+                "other"
+              ]
+            },
+            "standard": {
+              "enum": [
+                "GB",
+                "ISO",
+                "ANSI",
+                "ASME",
+                "JIS",
+                "DIN",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "expected": {
+          "type": "object",
+          "description": "可选的标准答案，用于校验。来自原 SolidWorks 模型或手算。",
+          "additionalProperties": false,
+          "properties": {
+            "volume_mm3": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "bbox_mm": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "hole_count": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "drawing_setup": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "图纸基础设定。第 1 步读出，先于任何尺寸。规则见 references/units-standards.md。",
+          "required": [
+            "length_unit",
+            "unit_evidence",
+            "standard",
+            "language",
+            "confidence"
+          ],
+          "properties": {
+            "length_unit": {
+              "enum": [
+                "mm",
+                "cm",
+                "m",
+                "inch"
+              ],
+              "description": "图纸主单位"
+            },
+            "unit_evidence": {
+              "type": "string",
+              "description": "单位的依据，原文照抄，例如 '标题栏: 单位 mm' 或 'DIMENSIONS ARE IN INCHES'。没有明确依据时写 '无明确标注，按 ... 推断'"
+            },
+            "standard": {
+              "enum": [
+                "GB",
+                "ISO",
+                "ANSI",
+                "ASME",
+                "JIS",
+                "DIN",
+                "unknown"
+              ]
+            },
+            "language": {
+              "enum": [
+                "zh",
+                "en",
+                "mixed",
+                "other"
+              ]
+            },
+            "scale": {
+              "type": "string",
+              "description": "图纸比例，例如 '1:2'。只记录；尺寸一律按标注数值，不按比例量"
+            },
+            "decimal_separator": {
+              "enum": [
+                ".",
+                ","
+              ],
+              "default": "."
+            },
+            "dual_dimensions": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "双单位标注，例如 '25.4 [1.000]'。只读主单位那一个数",
+              "properties": {
+                "present": {
+                  "type": "boolean"
+                },
+                "primary": {
+                  "enum": [
+                    "mm",
+                    "inch"
+                  ]
+                },
+                "format": {
+                  "type": "string"
+                }
+              }
+            },
+            "general_tolerance": {
+              "type": "string",
+              "description": "一般公差，例如 'GB/T 1804-m'、'ISO 2768-mK'、'.XX ±.01'"
+            },
+            "default_chamfer": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "未注倒角尺寸（按 length_unit）"
+            },
+            "default_fillet": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "未注圆角半径（按 length_unit）"
+            },
+            "notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "技术要求里和建模有关的原文"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      }
+    },
+    "features": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/feature"
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "description": "读图时无法确定、需要人确认的问题。",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "meta": {
+      "type": "object",
+      "description": "每个特征的读图依据和置信度。confidence < 0.9 的特征必须在确认环节展示给用户。",
+      "additionalProperties": false,
+      "required": [
+        "confidence"
+      ],
+      "properties": {
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "evidence": {
+          "type": "string",
+          "description": "依据哪个视图、哪个尺寸，例如 '主视图 Ø40 h7'"
+        },
+        "needs_review": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "point2": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "plane": {
+      "oneOf": [
+        {
+          "enum": [
+            "front",
+            "top",
+            "right"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "origin",
+            "normal",
+            "x_dir"
+          ],
+          "description": "任意平面（斜面用）。模型坐标，长度按 part.units。草图 u 沿 x_dir，v = normal × x_dir。拉伸 positive 方向 = normal。",
+          "properties": {
+            "origin": {
+              "$ref": "#/$defs/vec3"
+            },
+            "normal": {
+              "$ref": "#/$defs/vec3"
+            },
+            "x_dir": {
+              "$ref": "#/$defs/vec3"
+            },
+            "note": {
+              "type": "string",
+              "description": "这个面是怎么来的，例如 '斜板外表面，与水平成 60°'"
+            }
+          }
+        }
+      ]
+    },
+    "profile": {
+      "description": "草图轮廓。坐标在所选基准面内（u, v）。",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "shape",
+            "width",
+            "height"
+          ],
+          "properties": {
+            "shape": {
+              "const": "rect"
+            },
+            "width": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "height": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "center": {
+              "$ref": "#/$defs/point2",
+              "default": [
+                0,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "shape",
+            "diameter"
+          ],
+          "properties": {
+            "shape": {
+              "const": "circle"
+            },
+            "diameter": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "center": {
+              "$ref": "#/$defs/point2",
+              "default": [
+                0,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "shape",
+            "points"
+          ],
+          "properties": {
+            "shape": {
+              "const": "polygon"
+            },
+            "points": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/point2"
+              },
+              "minItems": 3
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "shape",
+            "start",
+            "segments"
+          ],
+          "description": "直线和圆弧组成的封闭轮廓。从 start 出发，每段走到 to；最后一段的 to 应回到 start。圆弧给 center 和 ccw（在草图 u-v 坐标里逆时针为 true）。 v0.4：点可以写成交点，圆弧可以只给 radius，拐角可以写 fillet，切点圆心由脚本算。",
+          "properties": {
+            "shape": {
+              "const": "path"
+            },
+            "start": {
+              "$ref": "#/$defs/point_ref"
+            },
+            "segments": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "to"
+                ],
+                "properties": {
+                  "to": {
+                    "$ref": "#/$defs/point_ref"
+                  },
+                  "center": {
+                    "$ref": "#/$defs/point_ref",
+                    "description": "有 center 就是圆弧"
+                  },
+                  "ccw": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "radius": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "v0.4 只知道半径时用它代替 center，脚本算圆心。默认取小于半圆的一段"
+                  },
+                  "large": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "v0.4 配合 radius：true 取大于半圆的一段"
+                  },
+                  "fillet": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "v0.4 本段终点处的拐角倒 R 圆角（凸角、凹角都行），切点脚本算。最后一段的 fillet 倒在起点"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "shape",
+            "circles"
+          ],
+          "description": "v0.4 一圈圆依次用公切线连起来（耳板、连杆、腰形槽外形）。按逆时针排（排反了脚本自动倒过来）。r=0 是尖角点；convex=false 是往里凹的圆弧。同一个圆可以出现两次（例如两头小圆、中间大圆两侧）。",
+          "properties": {
+            "shape": {
+              "const": "tangent_loop"
+            },
+            "circles": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "center",
+                  "r"
+                ],
+                "properties": {
+                  "center": {
+                    "$ref": "#/$defs/point_ref"
+                  },
+                  "r": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "convex": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "feature": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "type",
+            "plane",
+            "profile",
+            "depth",
+            "meta"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "base_extrude"
+            },
+            "plane": {
+              "$ref": "#/$defs/plane"
+            },
+            "profile": {
+              "$ref": "#/$defs/profile"
+            },
+            "depth": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "midplane": {
+              "type": "boolean",
+              "default": false
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "type",
+            "half_profile",
+            "meta"
+          ],
+          "description": "回转体。half_profile 是 (r, h) 点列，r>=0，画在 front 基准面上（r 沿模型 X，h 沿模型 Y），绕模型 Y 轴旋转 360°。按顺序首尾相连成封闭轮廓。",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "base_revolve"
+            },
+            "half_profile": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/point2"
+              },
+              "minItems": 3
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "type",
+            "plane",
+            "profile",
+            "depth",
+            "meta"
+          ],
+          "description": "加料拉伸（凸台、筋板、耳板）。在基体之后用。direction: positive 沿基准面法向，negative 反向，midplane 两侧对称（depth 为总厚）。",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "extrude"
+            },
+            "plane": {
+              "$ref": "#/$defs/plane"
+            },
+            "offset": {
+              "type": "number",
+              "default": 0
+            },
+            "profile": {
+              "$ref": "#/$defs/profile"
+            },
+            "depth": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "direction": {
+              "enum": [
+                "positive",
+                "negative",
+                "midplane"
+              ],
+              "default": "positive"
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "type",
+            "plane",
+            "axis",
+            "profile",
+            "meta"
+          ],
+          "description": "旋转（加料或切除），轴可以是草图平面里任意一条线。用于：孔口倒角、钻头锥尖、端部锥面倒角、环槽、绕非 Y 轴的回转结构。profile 不能跨过轴线。",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "revolve"
+            },
+            "plane": {
+              "$ref": "#/$defs/plane"
+            },
+            "offset": {
+              "type": "number",
+              "default": 0
+            },
+            "axis": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/point2"
+              },
+              "minItems": 2,
+              "maxItems": 2,
+              "description": "旋转轴：草图坐标里两个点"
+            },
+            "profile": {
+              "$ref": "#/$defs/profile"
+            },
+            "cut": {
+              "type": "boolean",
+              "default": false,
+              "description": "true = 旋转切除"
+            },
+            "angle": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 360,
+              "default": 360
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "type",
+            "plane",
+            "profile",
+            "depth",
+            "meta"
+          ],
+          "description": "切除拉伸。depth 为 'through_all' 或数值；从基准面沿法向两侧/单侧由 direction 决定。",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "cut_extrude"
+            },
+            "plane": {
+              "$ref": "#/$defs/plane"
+            },
+            "offset": {
+              "type": "number",
+              "default": 0,
+              "description": "草图平面沿法向的偏移量"
+            },
+            "profile": {
+              "$ref": "#/$defs/profile"
+            },
+            "depth": {
+              "oneOf": [
+                {
+                  "const": "through_all"
+                },
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              ]
+            },
+            "direction": {
+              "enum": [
+                "positive",
+                "negative",
+                "both"
+              ],
+              "default": "both"
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "type",
+            "plane",
+            "diameter",
+            "depth",
+            "meta"
+          ],
+          "anyOf": [
+            {
+              "required": [
+                "positions"
+              ]
+            },
+            {
+              "required": [
+                "bolt_circle"
+              ]
+            }
+          ],
+          "description": "简单孔。轴线沿所选基准面法向。位置用 positions 列出，或用 bolt_circle 描述圆周均布。螺纹孔在 MVP 中按底孔直径建，螺纹规格记录在 thread 中。 v0.4：cbore / csink / tip_angle 由脚本展开成多级孔和旋转切除，必须写 direction（positive / negative）。",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "hole"
+            },
+            "plane": {
+              "$ref": "#/$defs/plane"
+            },
+            "offset": {
+              "type": "number",
+              "default": 0
+            },
+            "diameter": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "positions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/point2"
+              },
+              "minItems": 1
+            },
+            "bolt_circle": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "pcd",
+                "count"
+              ],
+              "properties": {
+                "pcd": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "节圆直径"
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 2
+                },
+                "start_angle": {
+                  "type": "number",
+                  "default": 0,
+                  "description": "第一个孔相对基准面内 +x 轴的角度"
+                },
+                "center": {
+                  "$ref": "#/$defs/point2",
+                  "default": [
+                    0,
+                    0
+                  ]
+                }
+              }
+            },
+            "depth": {
+              "oneOf": [
+                {
+                  "const": "through_all"
+                },
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              ]
+            },
+            "direction": {
+              "enum": [
+                "positive",
+                "negative",
+                "both"
+              ],
+              "default": "both"
+            },
+            "thread": {
+              "type": "string",
+              "description": "例如 'M8x1.25'，只记录，不建螺纹几何"
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            },
+            "tip_angle": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 180,
+              "description": "v0.4 盲孔底部钻头锥尖的顶角，常用 118 或 120。depth 是圆柱部分深度，不含锥尖"
+            },
+            "cbore": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "diameter",
+                "depth"
+              ],
+              "description": "v0.4 沉孔（台阶孔）：从孔口起直径 diameter、深 depth",
+              "properties": {
+                "diameter": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "depth": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              }
+            },
+            "csink": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "diameter"
+              ],
+              "description": "v0.4 埋头孔：孔口直径 diameter，锥角 angle（默认 90）",
+              "properties": {
+                "diameter": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "angle": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "exclusiveMaximum": 180,
+                  "default": 90
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "type",
+            "kind",
+            "size",
+            "edges",
+            "meta"
+          ],
+          "description": "倒角/圆角。edges 用语义选择器；内部边、局部边用 points：每条边上取一个点（边的内部点，不要取端点），模型坐标。",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "edge_treatment"
+            },
+            "kind": {
+              "enum": [
+                "chamfer",
+                "fillet"
+              ]
+            },
+            "size": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "edges": {
+              "oneOf": [
+                {
+                  "enum": [
+                    "all_outer",
+                    "top_outer",
+                    "bottom_outer",
+                    "vertical"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "points"
+                  ],
+                  "properties": {
+                    "points": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/vec3"
+                      },
+                      "minItems": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "type",
+            "module",
+            "teeth",
+            "meta"
+          ],
+          "description": "渐开线直齿圆柱齿轮的轮齿。在回转体轮坯上切出 z 个齿槽，贯穿全齿宽。参数直接照抄图上的齿轮参数表。国标 GB/T 1356 基本齿廓。齿顶圆应等于轮坯外径。",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "spur_gear_teeth"
+            },
+            "plane": {
+              "const": "top",
+              "default": "top",
+              "description": "回转体轴线是模型 Y 轴，齿形画在 top 基准面"
+            },
+            "module": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "模数 m（法向模数，按 part.units）"
+            },
+            "teeth": {
+              "type": "integer",
+              "minimum": 6,
+              "description": "齿数 z"
+            },
+            "pressure_angle": {
+              "type": "number",
+              "default": 20,
+              "description": "压力角（齿形角）α，度"
+            },
+            "addendum_coef": {
+              "type": "number",
+              "default": 1,
+              "description": "齿顶高系数 ha*"
+            },
+            "clearance_coef": {
+              "type": "number",
+              "default": 0.25,
+              "description": "顶隙系数 c*"
+            },
+            "shift_coef": {
+              "type": "number",
+              "default": 0,
+              "description": "径向变位系数 x"
+            },
+            "start_angle": {
+              "type": "number",
+              "default": 0,
+              "description": "第 1 个齿中心线相对草图 +u 轴的角度，度。图上一般不规定"
+            },
+            "accuracy": {
+              "type": "string",
+              "description": "精度等级，只记录，例如 8-8-7GK"
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          }
+        }
+      ]
+    },
+    "vec3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "sketch_obj": {
+      "description": "v0.4 草图里的直线或圆，用来求交点。{\"x\": a} 竖线 u=a；{\"y\": b} 横线 v=b；{\"line\": [[u1,v1],[u2,v2]]} 或 {\"line\": {\"through\": [u,v], \"angle\": 度}}；{\"circle\": {\"center\": [u,v], \"r\": r}}",
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "line": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/point2"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "through",
+                "angle"
+              ],
+              "properties": {
+                "through": {
+                  "$ref": "#/$defs/point2"
+                },
+                "angle": {
+                  "type": "number"
+                }
+              }
+            }
+          ]
+        },
+        "circle": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "center",
+            "r"
+          ],
+          "properties": {
+            "center": {
+              "$ref": "#/$defs/point2"
+            },
+            "r": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "point_ref": {
+      "description": "v0.4 点：直接给坐标，或写成两个对象的交点 {\"intersect\": [对象1, 对象2], \"near\": [u, v]}，交点不止一个时取离 near 最近的",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/point2"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "intersect"
+          ],
+          "properties": {
+            "intersect": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/sketch_obj"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "near": {
+              "$ref": "#/$defs/point2"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
