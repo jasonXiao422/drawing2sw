@@ -121,6 +121,8 @@ CadQuery 预览体积要和以前一样：
 | — | 逐步自检报某个很小的特征"对不上"，先看预览的体积增量是否合理 | 切除后体积变大，一定是预览错了，不是 SolidWorks 错了 |
 | 37 | 斜面上的孔：孔的草图面必须和零件表面完全共面，两者用同一组数算（例如斜面高度写 17−11·tan30°，不要写取整的 10.65）。差 0.01° 孔口就会被零厚度的皮盖住 | 体积几乎不变，逐步自检也过；`preview_cadquery.report` 的 covered_hole_mouths 会报出来（Mini Crank Case 实测） |
 | 38 | 按点选边：两个点落在同一条边上算匹配，只选一次 | SolidWorks 的整圆是一条边，CadQuery 也是；以前 sw_build 跳过已选的边，第二个点就报"只匹配到 1/2" |
+| 39 | 按点选边：点不能落在圆柱接缝线的端点上（CadQuery 圆柱的接缝在 +x 方向，(x0+r, y, 0) 同时在圆边和接缝线上）。preview 现在会报"同时落在两条边上" | 以前静默选中接缝线，倒角圆角倒在接缝上等于没倒（Pivot Arm 四处倒角只出来一处） |
+| 40 | 精确隐藏线 HLRBRep_Algo 对某些从 STEP 读回来的实体会让进程崩溃（access violation，捕获不到）；同一个模型在内存里直接建出来就没事 | dev/tools/render_views.py 传特征表走精确算法，传 STEP 走 HLRBRep_PolyAlgo（Mini Crank Case 实测） |
 | 35 | 和答案 STEP 比对称差时，布尔要带模糊容差（benchmark.BOOL_TOL），并检查合并体积不小于任一实体 | 两个独立建出来的实体面几乎重合时，不带容差的布尔静默返回空，读对的零件被判成完全不重合 |
 
 ### 三、出题（dev/tools/sw_make_exam.py，没做通）

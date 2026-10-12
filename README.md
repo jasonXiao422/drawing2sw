@@ -18,10 +18,18 @@ DWG · DXF · PDF · 图片 → 特征表 → STEP / SLDPRT
 
 <table>
 <tr>
-<td align="center" width="50%"><img src="docs/assets/drawing.webp" alt="合成测试图 plate-01：双孔板三视图" width="100%"><br><sub>输入：一张二维零件图</sub></td>
-<td align="center" width="50%"><img src="docs/assets/plate.png" alt="由特征表生成的双孔板三维模型" width="80%"><br><sub>输出：按图生成的实体，体积和答案一致</sub></td>
+<td align="center" width="55%"><img src="docs/assets/crankcase_views.png" alt="Mini Crank Case：从模型投影出的三视图" width="100%"></td>
+<td align="center" width="45%"><img src="docs/assets/crankcase.png" alt="Mini Crank Case 三维模型" width="88%"></td>
 </tr>
+<tr><td colspan="2" align="center"><sub><b>V 型双缸曲轴箱</b>：两个 30° 斜缸面、错开 2 mm 的缸孔、8 个面上螺纹孔、和圆弧缺口相切的侧壁。SolidWorks 14 个特征逐步自检全过</sub></td></tr>
+<tr>
+<td align="center" width="55%"><img src="docs/assets/pivotarm_views.png" alt="Pivot Arm：从模型投影出的三视图" width="100%"></td>
+<td align="center" width="45%"><img src="docs/assets/pivotarm.png" alt="Pivot Arm 三维模型" width="80%"></td>
+</tr>
+<tr><td colspan="2" align="center"><sub><b>S 形摇臂</b>：R75 / R35 反向圆弧推出中心线 R55、每段转 74.17°，交接处 R12 圆角、上下倒角。SolidWorks 9 个特征逐步自检全过</sub></td></tr>
 </table>
+
+<sub>题目来自 Curtis Waguespack 的 <a href="https://inventortrenches.blogspot.com/">Inventor 练习图集</a>第 17、21 张。原图有版权，这里不转载；左边是从我们建好的模型投影回去的三视图（第三角投影），用来和原题对照。</sub>
 
 </div>
 

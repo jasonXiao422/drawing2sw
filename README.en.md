@@ -18,10 +18,18 @@ DWG · DXF · PDF · images → feature table → STEP / SLDPRT
 
 <table>
 <tr>
-<td align="center" width="50%"><img src="docs/assets/drawing.webp" alt="Synthetic test drawing plate-01, three orthographic views" width="100%"><br><sub>In: a 2D part drawing</sub></td>
-<td align="center" width="50%"><img src="docs/assets/plate.png" alt="3D solid generated from the feature table" width="80%"><br><sub>Out: a solid whose volume matches the answer</sub></td>
+<td align="center" width="55%"><img src="docs/assets/crankcase_views.png" alt="Mini Crank Case: views projected from the model" width="100%"></td>
+<td align="center" width="45%"><img src="docs/assets/crankcase.png" alt="Mini Crank Case 3D model" width="88%"></td>
 </tr>
+<tr><td colspan="2" align="center"><sub><b>V-twin crank case</b>: two 30° cylinder faces, bores offset by 2 mm, eight tapped holes on inclined faces, side walls tangent to the relief arcs. 14 SolidWorks features, every step check passed</sub></td></tr>
+<tr>
+<td align="center" width="55%"><img src="docs/assets/pivotarm_views.png" alt="Pivot Arm: views projected from the model" width="100%"></td>
+<td align="center" width="45%"><img src="docs/assets/pivotarm.png" alt="Pivot Arm 3D model" width="80%"></td>
+</tr>
+<tr><td colspan="2" align="center"><sub><b>S-shaped pivot arm</b>: R75 / R35 reverse arcs give an R55 centreline turning 74.17° each way, R12 blends and chamfers. 9 SolidWorks features, every step check passed</sub></td></tr>
 </table>
+
+<sub>Exercises 17 and 21 from Curtis Waguespack's <a href="https://inventortrenches.blogspot.com/">Inventor practice drawings</a>. The original sheets are copyrighted and not reproduced; the left column is projected back from our model (third angle) for comparison with the original.</sub>
 
 </div>
 

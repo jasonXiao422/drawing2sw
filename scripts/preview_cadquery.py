@@ -73,9 +73,15 @@ def target_edges(result: cq.Workplane, f: dict, axis: str, base_type: str) -> li
         allv = result.edges().vals()
         for pt in sel["points"]:
             v = cq.Vertex.makeVertex(*pt)
-            best = min(allv, key=lambda e: e.distance(v))
+            ranked = sorted(allv, key=lambda e: e.distance(v))
+            best = ranked[0]
             if best.distance(v) > 0.01:
                 raise CapabilityBlocked(f"[{f['id']}] 点 {pt} 附近 0.01 mm 内没有边（最近 {best.distance(v):.3f} mm）")
+            if len(ranked) > 1 and ranked[1].distance(v) <= 0.01 and not ranked[1].isSame(best):
+                # 点落在两条边的交点上（常见：圆柱的接缝线端点），选哪条是碰运气
+                raise CapabilityBlocked(
+                    f"[{f['id']}] 点 {pt} 同时落在两条边上（{best.geomType()} 和 {ranked[1].geomType()}），"
+                    "可能是圆柱接缝线的端点或两条边的交点。换成边中间的一个点（圆边换到另一侧或离开 z=0）")
             edges.append(best)
         return edges
     if sel in ("top_outer", "all_outer"):

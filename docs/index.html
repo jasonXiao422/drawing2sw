@@ -63,21 +63,22 @@
   <figure class="sheet" aria-label="示例：图纸到模型">
     <div class="sheet-grid">
       <div class="sheet-cell">
-        <img src="assets/drawing.webp" alt="合成测试图 plate-01" width="1200" height="848">
-        <span class="tag">INPUT</span>
+        <img src="assets/crankcase_views.png" alt="Mini Crank Case：从模型投影出的三视图" width="910" height="803">
+        <span class="tag" data-i18n="hero.tag.views">三视图（由模型投影）</span>
       </div>
       <div class="sheet-cell model">
-        <img src="assets/plate.png" alt="双孔板三维模型" width="728" height="654">
-        <span class="tag">OUTPUT</span>
+        <img src="assets/crankcase.png" alt="Mini Crank Case 三维模型" width="700" height="639">
+        <span class="tag">SOLIDWORKS</span>
       </div>
     </div>
     <div class="titleblock">
-      <div><span>PART</span><b>PLATE-01</b></div>
+      <div><span>PART</span><b>MINI CRANK CASE</b></div>
       <div><span>UNITS</span><b>mm</b></div>
       <div><span>PROJ.</span><b>3RD ANGLE</b></div>
-      <div><span>VOLUME</span><b>23 660.708 mm³</b></div>
-      <div class="ok"><span>CHECK</span><b>VOL · AREA · BBOX ✓</b></div>
+      <div><span>FEATURES</span><b>14</b></div>
+      <div class="ok"><span>STEP CHECK</span><b>14 / 14 ✓</b></div>
     </div>
+    <figcaption class="sheet-note" data-i18n-html="hero.credit">练习题：Curtis Waguespack <a href="https://inventortrenches.blogspot.com/">Inventor 练习图集</a>第 17 张。原图有版权不转载，左边是从建好的模型投影回去的视图。</figcaption>
   </figure>
 </section>
 
@@ -130,16 +131,16 @@
   <header class="block-head">
     <p class="num">02</p>
     <h2 data-i18n="parts.title">能做什么零件</h2>
-    <p data-i18n="parts.sub">下面三个都是仓库里的示例特征表直接生成的结果，可以自己跑出来。</p>
+    <p data-i18n="parts.sub">前两个是公开练习题按图建模的结果（盲读，没有答案模型，靠投影和原图对照），第三个是仓库里的示例。都在 SolidWorks 里逐个特征自检通过。</p>
   </header>
 
   <div class="gallery">
+    <figure><div class="pic"><img src="assets/pivotarm.png" alt="S 形摇臂" loading="lazy" width="800" height="778"></div>
+      <figcaption><b data-i18n="g.pivot">S 形摇臂</b><span data-i18n="g.pivot.d">R75 / R35 反向圆弧，中心线 R55 · 9 个特征</span><span class="vol">631 353 mm³</span></figcaption></figure>
+    <figure><div class="pic"><img src="assets/crankcase.png" alt="V 型双缸曲轴箱" loading="lazy" width="700" height="639"></div>
+      <figcaption><b data-i18n="g.crank">V 型双缸曲轴箱</b><span data-i18n="g.crank.d">两个 30° 斜面上的缸孔和螺纹孔 · 14 个特征</span><span class="vol">2 352.8 mm³</span></figcaption></figure>
     <figure><div class="pic"><img src="assets/flange.png" alt="回转法兰" loading="lazy" width="796" height="603"></div>
-      <figcaption><b data-i18n="g.flange">回转法兰</b><span>flange_revolved.json</span><span class="vol">158 682.892 mm³</span></figcaption></figure>
-    <figure><div class="pic"><img src="assets/bracket.png" alt="安装板" loading="lazy" width="880" height="475"></div>
-      <figcaption><b data-i18n="g.bracket">安装板</b><span>bracket_prismatic.json</span><span class="vol">51 240.708 mm³</span></figcaption></figure>
-    <figure><div class="pic"><img src="assets/plate.png" alt="双孔板" loading="lazy" width="728" height="654"></div>
-      <figcaption><b data-i18n="g.plate">双孔板（合成测试）</b><span>data/synthetic/plate-01</span><span class="vol">23 660.708 mm³</span></figcaption></figure>
+      <figcaption><b data-i18n="g.flange">回转法兰</b><span>examples/flange_revolved.json</span><span class="vol">158 682.892 mm³</span></figcaption></figure>
   </div>
 
   <div class="caps">
