@@ -62,7 +62,10 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
             "file": {
               "type": "string"
             },
@@ -250,8 +253,13 @@
           "description": "依据哪个视图、哪个尺寸，例如 '主视图 Ø40 h7'"
         },
         "evidence_refs": {
-          "type": "array", "items": {"type": "string", "minLength": 1},
-          "minItems": 1, "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true,
           "description": "Observation IDs from the original drawing evidence document."
         },
         "needs_review": {
@@ -589,6 +597,11 @@
             },
             "meta": {
               "$ref": "#/$defs/meta"
+            },
+            "merge": {
+              "type": "boolean",
+              "default": true,
+              "description": "false：SolidWorks 里作为单独实体，不和已有实体合并。只用于零厚度几何（新实体和已有实体只沿一条边相接，SolidWorks 不允许合并）。几何不变，零件会有多个实体，要在报告里说明。CadQuery 预览照常合并。"
             }
           }
         },

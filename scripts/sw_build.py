@@ -382,15 +382,17 @@ class Builder:
 
     # ------------------------------------------------------------ 特征
 
-    def extrude(self, depth: float, midplane: bool, reverse: bool = False):
+    def extrude(self, depth: float, midplane: bool, reverse: bool = False, merge: bool = True):
         cond = END_MIDPLANE if midplane else END_BLIND
         # 第 2 个参数 Flip=False；第 3 个 Dir：反向。斜面草图法向和特征表相反时再反一次
+        # 倒数第 6 个参数 Merge：合并到已有实体
         f = self.fm.FeatureExtrusion2(
             True, False, reverse != self.flip, cond, 0, depth * MM, 0,
             False, False, False, False, 0, 0,
-            False, False, False, False, True, True, True, 0, 0, False)
+            False, False, False, False, merge, True, True, 0, 0, False)
         if f is None:
-            raise RuntimeError("拉伸失败")
+            raise RuntimeError("拉伸失败。如果新实体和已有实体只沿一条边相接（零厚度几何），SolidWorks 不允许合并，"
+                               "见 DEVELOPING.md 零厚度几何一条" if merge else "拉伸失败")
         return f
 
     def cut(self, depth, direction: str):
@@ -753,7 +755,7 @@ def build(table: dict, b: Builder, steps: list | None = None) -> list[dict]:
             b.begin_sketch(f["plane"], float(f.get("offset", 0)))
             b.draw_profile(f["profile"])
             b.end_sketch()
-            b.extrude(f["depth"], dirn == "midplane", reverse=dirn == "negative")
+            b.extrude(f["depth"], dirn == "midplane", reverse=dirn == "negative", merge=f.get("merge", True))
             if f["plane"] not in ("front", "top", "right"):
                 log.append({"id": f["id"], "status": "ok", "plane_method": getattr(b, "last_plane_method", "cached"),
                             "sketch_flipped": b.flip})
@@ -867,6 +869,10 @@ def main() -> int:
     try:
         rep["features"] = build(table, b, steps)
         rep["status"] = "ok"
+        separate = [f["id"] for f in table["features"] if f.get("merge") is False]
+        if separate:
+            rep["multi_body"] = {"features": separate,
+                                 "note": "这些特征按特征表 merge=false 建成单独实体（零厚度几何），几何不变，表面积会多算接触面"}
     except CapabilityBlocked as e:
         rep.update(status="capability_blocked", reason=str(e))
         rep["features"] = getattr(b, "log", None)
@@ -879,6 +885,19 @@ def main() -> int:
                         if ln.strip() and "^^^" not in ln][-7:-1]
     finally:
         b.close_prefs()
+    try:  # 隐藏建模时创建的偏移基准面，打开零件时不挡视线（DEVELOPING.md）
+        feat = call(b.doc, "FirstFeature")
+        hidden = 0
+        while feat is not None:
+            if call(feat, "GetTypeName2") == "RefPlane" and all(feat is not p for p in b.planes.values()):
+                b.doc.ClearSelection2(True)
+                feat.Select2(False, 0)
+                b.doc.BlankRefGeom()
+                hidden += 1
+            feat = call(feat, "GetNextFeature")
+        b.doc.ClearSelection2(True)
+    except Exception:  # noqa: BLE001  只影响显示
+        pass
     try:
         b.doc.ForceRebuild3(False)
         rep.update(measure(b.doc))
