@@ -9,6 +9,7 @@ import argparse
 import json
 import math
 import sys
+from pathlib import Path
 
 import jsonschema
 
@@ -284,6 +285,16 @@ def main() -> int:
 
     evidence = ftable.load_raw(args.observations) if args.observations else None
     errors, warnings = validate(ftable.load_raw(args.path), evidence)
+    if evidence:
+        # 手写的视觉观察：框里要真的有字（以前 AI 自己估坐标，框常落在空白或线上，引用照样通过）
+        try:
+            import text_boxes
+            obs_dir = Path(args.observations).resolve().parent
+            e2, w2 = text_boxes.check_boxes(evidence, [Path.cwd(), obs_dir, obs_dir.parent, Path(__file__).resolve().parents[1]])
+            errors += e2
+            warnings += w2
+        except ImportError as e:
+            warnings.append(f"没法检查手写观察的框（缺依赖 {e}）")
     if args.source:
         import observations
         if not evidence or observations.sha256(args.source) != evidence.get("source", {}).get("sha256"):

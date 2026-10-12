@@ -799,10 +799,7 @@ class Builder:
         """和预览这一步比，只返回对不对，不抛错（阵列试方向用）。"""
         self.doc.ForceRebuild3(False)
         vol = call(self.doc.Extension, "CreateMassProperty").Volume * 1e9
-        bx = None
-        for body in (self.doc.GetBodies2(0, True) or ()):
-            b2 = body.GetBodyBox()
-            bx = list(b2) if bx is None else [min(bx[i], b2[i]) for i in range(3)] + [max(bx[i + 3], b2[i + 3]) for i in range(3)]
+        bx = body_box(self.doc)
         if bx is None:
             return False
         got = [c / MM for c in bx]
@@ -813,10 +810,7 @@ class Builder:
         """和 CadQuery 预览的同一步比体积和绝对包围盒。对不上就停，说明是哪个特征。"""
         self.doc.ForceRebuild3(False)
         vol = call(self.doc.Extension, "CreateMassProperty").Volume * 1e9
-        bx = None
-        for body in (self.doc.GetBodies2(0, True) or ()):
-            b2 = body.GetBodyBox()
-            bx = list(b2) if bx is None else [min(bx[i], b2[i]) for i in range(3)] + [max(bx[i + 3], b2[i + 3]) for i in range(3)]
+        bx = body_box(self.doc)
         bmin = [c / MM for c in bx[:3]] if bx else None
         bmax = [c / MM for c in bx[3:]] if bx else None
         ok_v = abs(vol - exp["volume_mm3"]) <= max(rel_tol * exp["volume_mm3"], 1.0)
@@ -976,14 +970,32 @@ def build(table: dict, b: Builder, steps: list | None = None) -> list[dict]:
     return log
 
 
+def body_box(doc) -> list | None:
+    """所有实体的精确包围盒 [xmin, ymin, zmin, xmax, ymax, zmax]（米）。
+    GetBodyBox 对曲面给的是松的盒子（开口的圆孔能多出 0.1 mm 以上），逐步自检会误报；
+    这里沿 ±X、±Y、±Z 取 GetExtremePoint，失败才退回 GetBodyBox（DEVELOPING.md #44）。"""
+    bx = None
+    for body in (doc.GetBodies2(0, True) or ()):
+        try:
+            lo, hi = [], []
+            for k in range(3):
+                d = [0.0, 0.0, 0.0]
+                d[k] = 1.0
+                hi.append(body.GetExtremePoint(*d)[1 + k])
+                d[k] = -1.0
+                lo.append(body.GetExtremePoint(*d)[1 + k])
+            b2 = lo + hi
+        except Exception:  # noqa: BLE001
+            b2 = list(body.GetBodyBox())
+        bx = list(b2) if bx is None else [min(bx[i], b2[i]) for i in range(3)] + [max(bx[i + 3], b2[i + 3]) for i in range(3)]
+    return bx
+
+
 def measure(doc) -> dict:
     mp = call(doc.Extension, "CreateMassProperty")
     box = doc.GetPartBox(True)
     try:  # GetPartBox 会把草图点、基准面也算进去（DEVELOPING.md #24），优先用实体的包围盒
-        bx = None
-        for body in (doc.GetBodies2(0, True) or ()):
-            b2 = body.GetBodyBox()
-            bx = list(b2) if bx is None else [min(bx[i], b2[i]) for i in range(3)] + [max(bx[i + 3], b2[i + 3]) for i in range(3)]
+        bx = body_box(doc)
         if bx:
             box = bx
     except Exception:  # noqa: BLE001
@@ -1008,7 +1020,11 @@ def main() -> int:
     ap.add_argument("-o", "--out", help="保存路径 .SLDPRT；已存在时自动改名")
     ap.add_argument("--report", default="work/sw_report.json")
     ap.add_argument("--check", action="store_true")
-    ap.add_argument("--no-step-check", action="store_true", help="不和 CadQuery 预览逐步比对")
+    ap.add_argument("--no-step-check", action="store_true",
+                    help="不和 CadQuery 预览逐步比对。只在预览本身算错时用，原因写进 --reason")
+    ap.add_argument("--allow-covered-holes", action="store_true",
+                    help="预览报孔口被盖住时仍然建模。只在确认孔本来就不该开口时用，原因写进 --reason")
+    ap.add_argument("--reason", default="", help="使用上面两个开关的原因，写进报告")
     args = ap.parse_args()
 
     if args.check:
@@ -1019,23 +1035,42 @@ def main() -> int:
         ap.error("需要特征表路径，或使用 --check")
 
     table = ftable.load(args.path)
-    app = connect()
     rep = {"backend": "solidworks", "hole_count_from_table": ftable.count_holes(table)}
+
+    # 先跑一次 CadQuery 预览：既给逐步自检当参照，也查孔口有没有被零厚度的皮盖住
+    steps, covered = None, []
+    try:
+        import preview_cadquery  # noqa: PLC0415
+        trace = []
+        built = preview_cadquery.build(table, trace=trace)
+        covered = preview_cadquery.covered_hole_mouths(built.val(), table)
+        if not args.no_step_check:
+            steps = trace
+            rep["step_check"] = {"enabled": True, "steps": len(trace)}
+            print(f"预览算好了 {len(trace)} 步，建模时逐步自检", flush=True)
+        else:
+            rep["step_check"] = {"enabled": False, "why": "用户加了 --no-step-check", "reason": args.reason or "（没写原因）"}
+    except Exception as e:  # noqa: BLE001  没装 cadquery 或预览失败：照常建模，但报告里写清楚
+        rep["step_check"] = {"enabled": False, "why": f"预览失败，没有参照：{e}"}
+        print(f"跳过逐步自检：{e}", flush=True)
+    if covered:
+        rep["covered_hole_mouths"] = covered
+        if not args.allow_covered_holes:
+            rep.update(status="blocked_covered_holes", saved=None,
+                       reason="预览发现孔口被零厚度的皮盖住，没有启动 SolidWorks。先改特征表：孔的草图面和零件表面用同一个精确公式算"
+                              "（reading-rules R42）；确认孔本来就不开口才加 --allow-covered-holes --reason")
+            Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.report).write_text(json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8")
+            print(json.dumps(rep, ensure_ascii=False, indent=2))
+            return 3
+        rep["covered_holes_allowed"] = args.reason or "（没写原因）"
+
+    app = connect()
     if args.out:
         closed = close_previous(app, Path(args.out).parent)
         if closed:
             rep["closed_previous"] = closed
             print(f"已关闭上次的零件 {len(closed)} 个", flush=True)
-    steps = None
-    if not args.no_step_check:
-        try:
-            import preview_cadquery  # noqa: PLC0415
-            steps = []
-            preview_cadquery.build(table, trace=steps)
-            print(f"预览算好了 {len(steps)} 步，建模时逐步自检", flush=True)
-        except Exception as e:  # noqa: BLE001  没装 cadquery 或预览失败：不自检，照常建模
-            print(f"跳过逐步自检：{e}", flush=True)
-            steps = None
     b = Builder(app)
     rep["doc_units"] = b.set_doc_units(table["part"].get("source_units", "mm"))
     try:

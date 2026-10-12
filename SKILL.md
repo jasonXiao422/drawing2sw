@@ -28,7 +28,7 @@ description: 读取机械单零件工程图（DWG、DXF、PDF、图片），将�
 
 同时输出 `extract_observations.json`，包含原图哈希、标注原文和位置。DWG/DXF 优先读取原生尺寸实体，并检查文字覆盖、比例；PDF 保留文字位置。提取到的数字仍需判断是尺寸、比例还是公差。
 
-图片/无文字 PDF 先看 overview，再看分块放大图。需要 OCR 时读 [ocr.md](references/ocr.md)，可导入 PaddleOCR JSON 或使用可选本地推理。看不清时请求更清晰的输入，不强行补全。
+图片/无文字 PDF 先看 overview，再看分块放大图。没有文字层时运行 `scripts/text_boxes.py detect` 找出编号的文字框，读图后只写"编号 → 原文"，用 `emit` 生成观察，不要自己估坐标（evidence-workflow.md）。需要 OCR 时读 [ocr.md](references/ocr.md)，可导入 PaddleOCR JSON 或使用可选本地推理。看不清时请求更清晰的输入，不强行补全。
 
 ## 2. 观察、关联、填表
 
@@ -72,7 +72,9 @@ description: 读取机械单零件工程图（DWG、DXF、PDF、图片），将�
 .venv\Scripts\python.exe scripts\sw_build.py work\part.json -o <输出文件夹>\<零件名>.SLDPRT --report work\sw_report.json
 ```
 
-后端每步与 CadQuery 比体积和位置，失败定位具体特征。capability_blocked 要说明不支持；COM 错误按工具错误报告；不要改尺寸迎合程序错误。圆角报告若含“曲率连续-近似”，说明截面并非精确圆弧，回查相切轮廓并向用户披露。
+预览状态不是 ok 时（例如 `blocked_covered_holes`：孔口被零厚度的皮盖住，见 reading-rules R42）先改特征表，sw_build 也会拒绝建模。
+
+后端每步与 CadQuery 比体积和位置，失败定位具体特征。逐步自检报不一致时先找原因，不要用 `--no-step-check` 绕过；确认是预览本身算错才关，并用 `--reason` 写明原因，报告会记录自检有没有运行。capability_blocked 要说明不支持；COM 错误按工具错误报告；不要改尺寸迎合程序错误。圆角报告若含“曲率连续-近似”，说明截面并非精确圆弧，回查相切轮廓并向用户披露。
 
 ## 5. 结果的可信范围
 

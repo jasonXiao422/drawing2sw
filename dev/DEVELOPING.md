@@ -31,6 +31,7 @@
 | `verify_model.py` | 对答案：体积、表面积、包围盒、面数 |
 | `standards.py` + `standards/gb.json` | 国标查表（键槽、螺纹底孔、通孔、沉孔） |
 | `search_refs.py` | 零依赖关键词检索 references 和 SKILL.md |
+| `text_boxes.py` | 图片找文字框并编号，`emit` 按"编号 → 原文"生成视觉观察；`check_boxes` 给 validate 用，查手写框里有没有字 |
 | `split_views.py` | 图片切视图：去图框长线和彩色水印，膨胀连通，出总览图和每块放大图（只用 numpy / scipy / PIL） |
 | `render_preview.py` | 预览 STEP 渲染成四个方向的图 |
 
@@ -110,6 +111,7 @@ CadQuery 预览体积要和以前一样：
 | 34 | 零厚度几何：新实体和已有实体只沿一条边相接（例如桥底和旁边槽底同高、桥下是空腔），`FeatureExtrusion2` 合并返回 None；封闭在实体内部的空腔用切除也会失败 | SolidWorks 不允许非流形边，OCC 允许。先改写成等价的"先切开口坑、再加回实体"；仍是线接触时特征表写 `"merge": false`，几何不变，零件变成多实体，报告里说明（cadsy part_0023） |
 | 41 | 线性阵列：方向轴用两个默认基准面的交线（X = 前视∩上视，Y = 前视∩右视，Z = 上视∩右视）；`FeatureLinearPattern5` 选择 mark：特征 4、方向 1 是 1、方向 2 是 2；没有第二方向时 Num2 = 1。先按不翻转建，和预览这一步对不上就删掉换 FlipDir 再建 | 交线轴的正向由 SolidWorks 决定，事先不知道。合成测试里 -X/-Z 网格需要两个都翻转，自动找到 |
 | 41b | 圆周阵列 `circular_pattern`：`FeatureCircularPattern5(count, 相邻角弧度, flip, "NULL", False, EqualSpacing=False, ...)`，特征 mark 4、轴 mark 1；不是整圈时和线性阵列一样按预览试方向。**还没在 SolidWorks 实测** | 齿轮用的是 EqualSpacing=True + 总角 2π，这里改成给相邻角，部分圆周也能写 |
+| 44 | 包围盒用 `IBody2.GetExtremePoint` 沿 ±X/±Y/±Z 取精确极值点，`GetBodyBox` 只作兜底 | `GetBodyBox` 对曲面是松的：端面开半圆口的 Ø4 孔多出 0.132 mm，超过逐步自检 0.05 的容差误报，豆包因此关掉了自检（Mini Crank Case） |
 | 42 | 镜像：`InsertMirrorFeature2(False, False, False, False, 0)`，要镜像的特征 mark 1，镜像面 mark 2 | 和阵列的 mark 约定不一样 |
 | 43 | 零厚度的点：盲孔底正好落在实体底面所在平面、孔壁又和下面凸起的侧面相切（孔边 = 凸起边），切除后只剩一个点相连，`FeatureCut4` 返回 None。OCC 能建，答案 STEP 也是这样 | 和 #34 同类，SolidWorks 不允许非流形。不改尺寸迎合程序，报告给用户（cadsy part_0001：浅 0.01 就能建）|
 | — | `sw_build` 建完隐藏自己创建的偏移基准面 | 否则打开零件时一层层基准面挡住模型 |

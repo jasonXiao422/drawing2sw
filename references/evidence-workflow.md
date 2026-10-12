@@ -6,7 +6,25 @@
 
 先建立 `views`：视图编号、page、role、observation_refs 和必要说明。不能确定的角色写 unknown；剖视图记下剖切方向；局部放大记下对应位置。切图只用于放大观察，回填 bbox 时换回原图坐标。
 
-从视觉读出的标注可以手工加入 observations，provider 用 visual，给出原文、page、bbox、image_px；人工确认的用 human。不要伪造 OCR 分数，不要把推导结果写成原图文字。
+从视觉读出的标注加入 observations，provider 用 visual；人工确认的用 human。不要伪造 OCR 分数，不要把推导结果写成原图文字。
+
+图片没有文字层时，**不要自己估像素坐标**：模型看不准坐标，估出来的框常落在空白或线上。用脚本找框：
+
+```powershell
+.venv\Scripts\python.exe scripts\text_boxes.py detect work\drawing.png -o work\text_boxes.json
+```
+
+看 `text_boxes.png` 和分块放大图 `text_boxes_11.png`…，写 `labels.json`，只写编号和读到的原文，一条标注被拆成几个框时用 `+` 连起来：
+
+```json
+[{"box": "t58", "text": "17"}, {"box": "t105+t107+t110+t111", "text": "M2x0.4-6H 2 PLCS", "kind": "callout"}]
+```
+
+```powershell
+.venv\Scripts\python.exe scripts\text_boxes.py emit work\text_boxes.json work\labels.json --observations work\extract_observations.json -o work\observations.json
+```
+
+找框只是图像处理，不认字，编号里有箭头、中心线、剖面线的杂框，不用理。校验时，provider 为 visual / human 的框里没有字会报错，把字切断会警告。
 
 ## 2. 建立关系
 

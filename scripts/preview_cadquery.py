@@ -266,10 +266,17 @@ def main() -> None:
     cq.exporters.export(result, str(out))
     rep = report(result, table)
     rep["status"] = "ok"
+    if rep.get("covered_hole_mouths"):
+        # 孔被零厚度的皮盖住时体积几乎不变，后面的逐步自检也查不出来，所以在这里拦住（DEVELOPING.md #37）
+        rep["status"] = "blocked_covered_holes"
+        rep["reason"] = ("有孔口被零厚度的皮盖住，先修特征表再建 SolidWorks：孔的草图面和它所在的零件表面要用同一个精确公式算"
+                         "（例如斜面高度写 17 - 11*tan30° 的精确值，不要写取整的 10.65），见 reading-rules R42")
     rep["step"] = str(out)
     rp = Path(args.report) if args.report else out.with_name(out.stem + "_report.json")
     rp.write_text(json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(rep, ensure_ascii=False, indent=2))
+    if rep["status"] != "ok":
+        raise SystemExit(3)
 
 
 if __name__ == "__main__":
